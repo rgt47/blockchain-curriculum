@@ -1,0 +1,1631 @@
+# Ethereum and Programmable State {#sec-ethereum}
+
+## Learning objectives
+
+By the end of this chapter the reader should be
+able to:
+
+- Contrast the UTXO model with the account model
+  as two representations of a record that changes
+  over time, the event-log form versus the
+  current-state form, and derive the consequences of
+  each for replay protection and parallel validation.
+- Explain why the account nonce is a counter, not a
+  proof-of-work nonce, and state precisely what
+  problem it solves.
+- Explain gas as a metered-computation solution to
+  the halting problem, and convert gas and gwei into
+  ether costs.
+- Derive and simulate the EIP-1559 base-fee update
+  rule, and read it as a discrete-time feedback
+  controller analogous to the difficulty adjustment
+  of @sec-mining.
+- State what EIP-4844 blobs price, and why that
+  pricing is a data-availability problem rather than
+  a computation problem.
+- Evaluate a 'health records on Ethereum' proposal
+  against the constraint that on-chain data is
+  public.
+
+## Orientation
+
+We begin with a problem in the governance of
+research data. Consider a longitudinal cohort study
+intended to follow its participants for a decade or
+more. The consent each participant grants is
+anything but monolithic: a given variable may be
+used for one purpose and not another, a given
+specimen may be shared with one laboratory and not a
+second, a permission may expire on a stated date,
+and any of it may be withdrawn at any time. In a
+study whose data are handled by dozens of analysts
+across several institutions over many years,
+enforcing that consent correctly is a substantial
+administrative burden, and the characteristic
+failure is familiar: a permission is revoked in one
+system and never propagated to the others, or a
+data-use condition is honoured by a conscientious
+analyst and quietly overlooked by a hurried one. We
+should prefer, if we could arrange it, that the
+permission rules execute themselves, so that access
+is granted or refused by machinery rather than by
+each downstream analyst's individual diligence.
+
+The device that makes a rule execute itself, in a
+setting where no single custodian is trusted to run
+it faithfully, is the smart contract, and it is the
+principal subject of this chapter. The idea did not
+originate in public health; its historical setting
+is digital cash, and the question Ethereum was built
+to answer was first posed in those terms. Bitcoin's
+ledger answers one narrow question, namely which
+unspent outputs exist and who may spend them, and
+that question has a compact and beautifully parallel
+representation, the UTXO set, which needs nothing
+more to support a payment system. Ethereum was
+designed to answer a broader question: given an
+arbitrary program and an arbitrary starting state,
+what is the state after applying an arbitrary
+sequence of transactions? A consent policy that
+enforces itself is one instance of such a program,
+and answering the general question in a
+decentralised, adversarial setting is what the
+remainder of this chapter develops.
+
+The reader already holds the right frame. A
+blockchain that supports general computation is a
+replicated deterministic state machine: every
+validator applies the same transition function to
+the same starting state and must reach the same
+ending state, or consensus fails. That is a
+transition function in the Markov-chain sense we
+have used for years, except that the state space is
+astronomically large (every account balance and
+every contract's storage, all at once) and the
+transition function is written by whoever deploys a
+contract. The engineering problem is making that
+computation both expressive and safe to run on a
+machine we do not control, and the solution, gas, is
+a pricing mechanism before it is anything else.
+
+This chapter also introduces the first genuine
+feedback controller we shall simulate end to end,
+namely the base fee of EIP-1559. It is a smaller and
+more transparent system than the mining difficulty
+adjustment of @sec-mining, and studying it here, with
+the earlier controller already in hand, makes the
+general pattern, an error signal driving a
+multiplicative update toward a set point, impossible
+to miss the next time it appears.
+
+We proceed as follows. We begin by contrasting the
+UTXO and account representations of a ledger, a
+choice we shall recognise as the event-log versus
+current-state distinction already met in
+representing a longitudinal record. We then describe
+the EVM as the shared deterministic machine on which
+contracts run, and gas as the pricing mechanism that
+makes running untrusted code on that machine safe.
+With those pieces in hand we develop EIP-1559 as a
+feedback controller and simulate its transient
+response, return to the programmable-consent problem
+with which we opened and scope precisely what a
+contract can and cannot be trusted to hold, and
+close with the data-availability pricing of
+EIP-4844.
+
+## The statistician's contribution
+
+1. **Reading a fee market as a control system.**
+   EIP-1559 is not merely 'a fee'; it is a
+   proportional feedback loop with a known gain and a
+   known set point. Recognising the update rule as a
+   discrete-time controller lets us predict its
+   transient behaviour under a demand shock and reason
+   about stability, rather than treating the base fee
+   as an opaque market outcome.
+2. **Recognising gas as a price on computational
+   complexity.** Gas costs are a per-opcode tariff
+   schedule. Auditing a contract's expected gas
+   consumption is a complexity analysis in disguise,
+   and the statistician's habit of decomposing a total
+   into per-unit costs applies directly.
+3. **Auditing determinism and its limits.** The EVM
+   is deterministic by specification, but a system
+   'wired to' the chain (an oracle feeding it a price,
+   a multisig with an admin key) reintroduces
+   trust and single points of failure that the
+   deterministic core does not have. Distinguishing
+   what the protocol guarantees from what a particular
+   deployment adds is an exercise in scoping a claim
+   correctly, which is exactly the discipline of
+   @sec-intro's falsifiability tiers.
+
+## From UTXO to the account model
+
+We have already, in earlier chapters, met two ways
+of representing a record that changes over time. One
+may store the current state, a single row per entity
+that is overwritten as facts change, or one may
+store an event log, an append-only sequence of the
+changes themselves from which the current state is
+reconstructed by replay. The epidemiologist knows
+both forms intimately: a registry table holding each
+subject's present status is a current-state
+representation, whereas a sequence of timestamped
+enrolment, visit, and outcome events is an event
+log. The contrast between Bitcoin's UTXO model and
+Ethereum's account model is precisely this
+data-modelling choice, transposed to a ledger, and
+the trade-offs are the ones the reader would
+anticipate. We set the two representations of the
+same ledger side by side in @fig-event-vs-state
+before drawing out their consequences.
+
+```{r ch06-event-vs-state}
+#| label: fig-event-vs-state
+#| fig-cap: >
+#|   The same ledger under two representations. On
+#|   the left the UTXO model keeps an append-only log
+#|   of immutable outputs from which a balance is
+#|   derived by replay; on the right the account
+#|   model keeps one mutable row per address, plus a
+#|   nonce that is overwritten as each transaction
+#|   arrives.
+library(ggplot2)
+library(tibble)
+
+PAL <- c('#2a78d6', '#1baf7a', '#eda100', '#008300',
+         '#4a3aa7', '#e34948', '#e87ba4', '#eb6834')
+
+book_theme <- ggplot2::theme_minimal(base_size = 11) +
+  ggplot2::theme(
+    panel.grid.minor = ggplot2::element_blank(),
+    panel.grid.major = ggplot2::element_line(
+      linewidth = 0.25, colour = 'grey88'),
+    axis.title = ggplot2::element_text(size = 10),
+    legend.position = 'bottom'
+  )
+
+structure_col <- '#33356b'
+
+events <- tibble(
+  y = c(6.0, 4.5, 3.0, 1.5),
+  label = c('t1  new output: +2 to A',
+            't2  new output: +1 to B',
+            't3  A spends output to B',
+            't4  new output: +1 to A')
+)
+
+ggplot() +
+  geom_rect(data = events,
+    aes(xmin = 0.3, xmax = 4.3, ymin = y - 0.55,
+        ymax = y + 0.55),
+    fill = '#eef4fc', colour = PAL[1], linewidth = 0.4) +
+  geom_text(data = events, aes(x = 0.55, y = y, label = label),
+    hjust = 0, size = 2.9, colour = structure_col) +
+  annotate('text', x = 0.3, y = 7.3, hjust = 0,
+    label = 'event log (UTXO reading)', fontface = 'bold',
+    size = 3.3, colour = structure_col) +
+  annotate('segment', x = 5.0, xend = 5.0, y = 6.4, yend = 1.0,
+    arrow = arrow(length = unit(0.15, 'cm'), ends = 'first'),
+    colour = 'grey55', linewidth = 0.4) +
+  annotate('text', x = 5.15, y = 3.7, hjust = 0.5, angle = 90,
+    label = 'append only, nothing overwritten',
+    size = 2.6, colour = 'grey45') +
+  annotate('text', x = 6.6, y = 7.3, hjust = 0,
+    label = 'current state (account reading)',
+    fontface = 'bold', size = 3.3, colour = structure_col) +
+  geom_rect(aes(xmin = 6.6, xmax = 9.9, ymin = 1.5, ymax = 6.55),
+    fill = '#eafaf3', colour = PAL[2], linewidth = 0.4) +
+  annotate('segment', x = 6.6, xend = 9.9, y = 5.6, yend = 5.6,
+    colour = PAL[2], linewidth = 0.3) +
+  annotate('text', x = 6.85, y = 6.05, hjust = 0,
+    label = 'address    balance', fontface = 'italic',
+    size = 2.8, colour = structure_col) +
+  annotate('text', x = 6.85, y = 5.1, hjust = 0,
+    label = 'A              3', size = 2.9, colour = structure_col) +
+  annotate('text', x = 6.85, y = 4.3, hjust = 0,
+    label = 'B              1', size = 2.9, colour = structure_col) +
+  annotate('segment', x = 6.6, xend = 9.9, y = 3.6, yend = 3.6,
+    colour = PAL[2], linewidth = 0.3, linetype = 'dashed') +
+  annotate('text', x = 6.85, y = 3.1, hjust = 0,
+    label = 'nonce (version)', fontface = 'italic',
+    size = 2.7, colour = structure_col) +
+  annotate('text', x = 6.85, y = 2.3, hjust = 0,
+    label = '4  (overwritten each tx)', size = 2.8,
+    colour = structure_col) +
+  xlim(0, 10) + ylim(0.5, 7.7) +
+  theme_void()
+```
+
+To make the choice concrete, consider the running
+case study of this book, a data-integrity ledger for
+a multi-institution clinical trial in which several
+hospitals share a single append-only record of
+enrolment, randomisation, and outcome events, with
+no single trusted custodian and a regulator auditing
+after the fact. We shall refer to it as the trial
+ledger. The trial ledger is, by its nature, an event
+log: no hospital overwrites a prior entry, and the
+state of the trial at any moment (how many subjects
+are enrolled, to which arm each was randomised) is
+reconstructed by replaying the recorded events.
+Whether one then chooses to maintain a current-state
+summary alongside the log, and who is trusted to
+compute it, is precisely the UTXO-versus-account
+question in applied dress.
+
+Bitcoin's state is a set of unspent outputs, each
+locked by a script; a transaction consumes some
+outputs entirely and creates new ones. There is no
+notion of an account balance anywhere in the
+protocol: a balance is a client-side convenience
+computed by summing the outputs one can spend. This
+has two consequences worth stating precisely.
+
+**Replay protection is implicit.** An output can be
+spent exactly once, because spending it removes it
+from the UTXO set; there is no separate counter to
+maintain, because consumption itself is the ordering
+mechanism.
+
+**Validation is embarrassingly parallel.** Two
+transactions that spend disjoint sets of outputs
+touch disjoint state and can be validated
+concurrently; the only shared resource is the UTXO
+set membership test, which is a hash-table lookup.
+
+Ethereum instead stores a mapping from account
+address to account state: a balance, a nonce, and
+(for a contract account) a code hash and a storage
+root. A transaction debits one account and credits
+another by directly mutating the balance fields,
+the way a bank's ledger works, not the way a
+till full of physical banknotes works. In the
+vocabulary just introduced, the account model is a
+current-state representation: it stores each
+account's present balance as a single mutable field
+and overwrites it as transactions arrive. The UTXO
+model, by contrast, is closer to an event log, in
+that the protocol stores the discrete outputs
+themselves and a balance is a derived quantity,
+reconstructed by summing the outputs an owner may
+still spend. The current-state form is the more
+natural representation for a programmable system,
+because a contract routinely needs to reason about
+the current balance of an address as a single
+persistent number (a token contract's ledger, an
+escrow's holdings) rather than reconstruct it from a
+history of discrete outputs every time.
+
+The convenience of the current-state form is not
+free. The account model gives up the two UTXO
+advantages above and must manufacture substitutes.
+
+**Replay protection becomes explicit: the nonce.**
+Because an account balance is a mutable field, two
+identical transactions ('send 1 ETH from A to B')
+are literally indistinguishable at the level of
+their content. Ethereum therefore attaches to every
+account a monotonically increasing counter, the
+account nonce, incremented by exactly one each time
+the account originates a transaction. A transaction
+is valid only if its declared nonce equals the
+sender account's current nonce; once processed, the
+account's nonce advances, so the identical
+transaction cannot be replayed, and transactions
+from one sender are strictly ordered by this
+counter.
+
+::: {.callout-warning}
+## Two different things named 'nonce'
+
+Do not conflate the account nonce with the
+proof-of-work mining nonce of @sec-pow. The mining
+nonce is a search variable in a discrete-uniform
+brute-force search over a hash's range, re-chosen at
+random or by increment until a difficulty target is
+met; it exists per attempted block header and has no
+relationship to any specific account. The account
+nonce is a per-account counter with no cryptographic
+search attached to it at all; it exists to give a
+total order to one account's transactions and to
+make replay of a signed message impossible. Ethereum
+uses the same English word for two unrelated
+objects, one from the consensus layer, one from the
+account layer, and the confusion this produces in
+casual writing is common enough to be worth naming
+explicitly.
+:::
+
+**Parallelisability is no longer free.** Because two
+transactions from different accounts can still touch
+the same piece of shared state (both call the same
+contract, both trade against the same liquidity
+pool), validating and executing transactions in the
+account model cannot in general be parallelised
+without first inspecting which storage slots each
+transaction reads and writes. This is a genuine cost
+of the account model relative to UTXO's disjoint-set
+structure, and it is one reason Bitcoin-style chains
+remain attractive for pure payment throughput even
+though they cannot express contracts.
+
+@tbl-utxo-account collects the contrast in one
+place, with the two consequences just derived, replay
+protection and parallelism, set beside the audit and
+use characteristics that follow from them.
+
+| Property | UTXO model (Bitcoin) | Account model (Ethereum) |
+|---|---|---|
+| **State representation** | Set of unspent outputs; balance is derived by replay | Mutable row per address (balance, nonce) overwritten in place |
+| **Replay protection** | Implicit: spending removes the output | Explicit: per-account nonce counter |
+| **Parallel validation** | Embarrassingly parallel over disjoint outputs | Not free: must inspect storage slots touched |
+| **Audit trail** | Native event log of discrete outputs | Current-state snapshot; history reconstructed from blocks |
+| **Natural use** | High-throughput payments | Programmable stateful contracts |
+
+: The UTXO and account models as event-log and current-state representations of the same ledger {#tbl-utxo-account}
+
+::: {.callout-note icon=false collapse=true}
+## Check your understanding: why not just hash the account state directly
+
+**Q.** Why does Ethereum need an explicit nonce at
+all? Why not forbid resending a transaction
+whose exact byte content has already been seen,
+the way one might deduplicate by hashing?
+
+**A.** Deduplicating by content hash prevents replay
+of the identical bytes, but it does not establish
+*order*. Suppose account A sends two different
+valid transactions in the same block, one to pay
+rent and one to buy groceries; both are distinct in
+content, so content-hash deduplication would accept
+either first. The chain still needs a rule for which
+one A intended to happen first, because A's balance
+after the first affects whether the second is
+affordable. The nonce solves both problems at once:
+it forbids replay (nonce reused) and it fixes total
+order per sender (nonce 5 must be processed before
+nonce 6), which a content hash alone cannot express.
+:::
+
+## The EVM as a shared deterministic state machine
+
+The Ethereum Virtual Machine is a stack-based virtual
+machine specified precisely enough that any two
+independent, correct implementations execute any
+transaction to bit-identical resulting state
+[@wood2014yellow]. That determinism is the entire
+point: thousands of independently operated nodes
+must agree on the result of running arbitrary code
+without communicating during the computation, and
+they can only do so if 'run this code on this
+input' has exactly one possible answer.
+
+Two kinds of accounts populate this state machine.
+An **externally owned account** (EOA) is controlled
+by a private key and has no code; it is the analogue
+of a Bitcoin address, the thing a human or an
+institution actually holds keys to. A **contract
+account** has code and, on receiving a transaction
+(or a message call from another contract), executes
+that code deterministically against its own
+persistent storage. Only an EOA can originate a
+transaction, meaning the chain always starts a state
+transition from a genuine act of key-holder
+authorization: this is the anchor that ties the
+'world computer' picture back to the same signature
+scheme studied in @sec-crypto. @tbl-eoa-contract
+sets the two account kinds side by side, read once
+more against the trial ledger, where a hospital holds
+an EOA and the shared record's logic lives in a
+contract account.
+
+| Property | Externally owned account | Contract account |
+|---|---|---|
+| **Controlled by** | A private key | Its own deployed code |
+| **Can initiate a transaction** | Yes | No; only reacts to a call |
+| **Holds code** | No | Yes, executed deterministically |
+| **Trial-ledger reading** | A hospital or auditor holding keys | The shared enrolment-logic and permission rules |
+
+: Externally owned accounts and contract accounts contrasted {#tbl-eoa-contract}
+
+Buterin, in the original Ethereum whitepaper
+[@buterin2014ethereum], describes this design as a
+single shared computer that anyone may submit
+programs to and whose entire history of execution is
+public and auditable. The framing is useful and also
+easy to over-read: it is one *logical* computer with
+thousands of *redundant* physical executions, which
+is why every unit of computation is expensive
+relative to a conventional server, a point the next
+section makes precise.
+
+## Gas as a solution to the halting problem
+
+A Turing-complete language admits programs whose
+halting cannot be decided in general (the halting
+problem). A blockchain that executes arbitrary
+submitted code therefore faces a genuine hazard: a
+contract could contain a loop that never terminates,
+and every validating node would be obligated to run
+it forever, or forever fail to reach the state that
+depends on it. But how is a decentralised network to
+bound the cost of running code it did not write,
+without first solving a problem known to be
+undecidable?
+
+Ethereum does not solve the halting problem. No one
+can. It sidesteps it economically: every EVM opcode
+has a fixed gas cost, a sender must pre-purchase a
+gas limit for a transaction by paying up front, and
+execution halts the instant the gas supplied is
+exhausted, reverting all state changes made by that
+transaction (though the gas already consumed is not
+refunded). A transaction is therefore always
+guaranteed to terminate in bounded wall-clock time,
+because it is guaranteed to terminate in bounded
+*opcode count*, and opcode count times gas cost per
+opcode is bounded by the gas limit the sender agreed
+to pay for. This converts an undecidable question
+('will this program halt?') into a decidable
+resource-accounting one ('has this program consumed
+its budget?'), at the cost that some programs that
+would eventually halt on their own are killed early
+because their author underpriced them.
+
+Gas is denominated in an abstract unit; what the
+sender actually pays is
+$$
+\text{fee} = \text{gas used} \times \text{gas price},
+$$
+where gas price is quoted in **gwei**, $10^{-9}$
+ether. A simple transfer costs 21{,}000 gas; a
+contract call can cost anywhere from tens of
+thousands to millions of gas depending on the storage
+writes and computation it performs
+[@antonopoulos2018ethereum]. Because gas price is
+itself set by a market (studied next), the ether cost
+of the same computation varies with network demand
+even though the gas quantity for a given opcode
+sequence does not.
+
+The vocabulary of the fee market is compact but easy
+to conflate, so we gather it in @tbl-gas-glossary,
+each term paired with a statistical reading that
+recasts it as a familiar quantity: a per-unit cost, a
+price, a unit, a controller state variable, a
+premium, or a budget cap.
+
+| Term | Meaning | Statistical reading |
+|---|---|---|
+| **Gas** | Abstract unit metering work done by opcodes | Cost per instruction |
+| **Gas price** | Ether paid per unit of gas | Price per unit |
+| **Gwei** | $10^{-9}$ ether, the unit gas price is quoted in | Unit of the price |
+| **Base fee** | Protocol-set price per gas, burned | Controller state variable |
+| **Tip (priority fee)** | Extra per-gas bid for ordering | Priority premium |
+| **Gas limit** | Maximum gas a transaction may consume | Budget cap |
+
+: A gas glossary, each term paired with its statistical reading {#tbl-gas-glossary}
+
+::: {.callout-note icon=false collapse=true}
+## Check your understanding: gas versus a CPU quota
+
+**Q.** How does gas differ from an ordinary
+compute-time quota, such as a cloud function's
+execution-time limit?
+
+**A.** A time quota measures wall-clock seconds on
+one machine and is not portable across hardware of
+different speeds. Gas instead prices each EVM
+*opcode* individually, at a cost fixed by the
+protocol specification and independent of any single
+executor's hardware. This is essential in a system
+where thousands of heterogeneous machines must all
+agree on exactly how much 'work' a given piece of
+code represents: the accounting has to be part of
+the protocol, not an artefact of whichever machine
+happens to run it, or nodes with faster hardware
+could disagree with slower ones about whether a
+transaction should have been killed.
+:::
+
+## EIP-1559: the fee market as a feedback controller
+
+Prior to EIP-1559, Ethereum used a first-price
+auction for block space: senders bid a gas price,
+miners included the highest bidders, and the market
+cleared with high variance and poor UX (bidders
+routinely over- or under-paid relative to the true
+clearing price). EIP-1559 [@eip1559] replaced this
+with a protocol-computed **base fee** that adjusts
+block by block toward a target utilisation, plus an
+optional **priority fee** (tip) that senders set to
+compete for ordering within a block. The base fee
+itself is burned, not paid to the block proposer,
+which is a monetary-policy design choice this chapter
+does not pursue further; the object of interest here
+is the update rule.
+
+Each block has a gas limit and, since the London
+upgrade, a gas target set at half the gas limit. Let
+$g_n$ be the gas used in block $n$, let
+$\bar g$ be the gas target, and let $b_n$ be the
+base fee in force for block $n$. The protocol sets
+
+$$
+b_{n+1} = b_n \left(1 + \frac{1}{8}\cdot
+\frac{g_n - \bar g}{\bar g}\right).
+$$
+
+Read as a control system: $g_n - \bar g$ is the
+error signal (how far the block's gas usage deviated
+from the target), $\bar g$ normalises it to a
+fraction, $1/8$ is the proportional gain, and the
+update multiplies the previous base fee by
+$(1 + \text{gain} \times \text{error fraction})$.
+This is a discrete-time, first-order, multiplicative
+proportional controller: if blocks run consistently
+full ($g_n > \bar g$), the base fee rises
+geometrically each block until demand is priced out
+and usage falls back toward the target; if blocks run
+consistently empty, the base fee decays geometrically
+toward zero (in practice, toward a protocol floor).
+The controller has no integral or derivative term, so
+it corrects proportionally to the current error only,
+the same structural family as the Bitcoin difficulty
+adjustment of @sec-mining, which also multiplies the
+previous target by a ratio of observed to desired
+throughput. The two differ in what they control (a
+price, versus a proof-of-work difficulty) and in
+their update cadence (every block, versus every 2016
+blocks), but the underlying idea, a set point, an
+observed deviation, and a bounded multiplicative
+correction, is identical, and recognising the pattern
+here is the payoff of having derived it once already.
+
+For the reader whose intuition is clinical rather
+than industrial, an honest analogy from our own
+field is adaptive dose titration. In titrating a
+drug toward a target response, one raises the dose
+when the measured response falls short of the target
+and lowers it when the response overshoots, adjusting
+in bounded increments at each visit rather than
+leaping to a putative optimum. The base-fee rule has
+the same shape: the target utilisation plays the role
+of the target response, block fullness plays the role
+of the measured response, and the fixed 1/8 gain
+plays the role of the bounded per-visit dose step. We
+should be candid, however, about where the analogy
+ends, for it ends rather quickly. A titration
+protocol governs a single patient whose response
+follows a pharmacological process that is, at least
+in principle, stable and non-strategic; the base fee
+governs an aggregate of anonymous and frankly
+adversarial bidders who will reorganise their
+behaviour in anticipation of the rule itself. A
+clinician, moreover, may exercise judgment, impose
+safety bounds, and abandon a titration that is going
+wrong, whereas the base-fee controller is a fixed
+formula with no such discretion. The analogy is
+therefore useful for locating the base fee in a
+family of mechanisms the reader already understands,
+and misleading if pressed into a claim that a fee
+market will behave like a well-characterised
+dose-response curve.
+
+The following simulation is entirely synthetic: gas
+usage per block is not drawn from any real chain. It
+is constructed in three phases so that the
+controller's full transient response is visible: a
+baseline near the target, a sustained demand shock
+that pushes blocks toward the gas limit, and a
+cooldown in which usage falls *below* target, the
+realistic consequence of a base fee that has become
+expensive enough to price out marginal demand, before
+the system settles back to a target-hugging baseline.
+A demand shock followed immediately by a return to
+exactly-target usage would leave the base fee
+permanently elevated with no force pulling it back
+down, because the controller only reacts to the
+*current* deviation from target; the cooldown phase
+is what actually drives the fee back down, and is a
+realistic feature of fee markets, not an artefact
+introduced to make the plot look nicer.
+
+```{r ch06-eip1559-sim}
+#| label: fig-basefee
+#| fig-cap: >
+#|   SYNTHETIC gas usage across a demand shock and
+#|   its cooldown (top) and the resulting EIP-1559
+#|   base fee path (bottom). The base fee rises
+#|   geometrically while blocks run above target,
+#|   then falls once the shock's own expense pushes
+#|   usage below target during the cooldown.
+library(ggplot2)
+library(dplyr)
+library(tibble)
+
+set.seed(20260703)
+
+gas_limit <- 30e6
+gas_target <- gas_limit / 2
+n_blocks <- 220
+shock_start <- 60
+shock_end <- 100
+cooldown_end <- 160
+
+# SYNTHETIC gas usage in three phases: near-target
+# noise, a sustained demand shock near the gas
+# limit, a cooldown below target (demand priced out
+# by the now-elevated fee), then a return to
+# near-target noise.
+baseline_frac <- rnorm(n_blocks, mean = 0.5, sd = 0.03)
+shock_frac <- rnorm(n_blocks, mean = 0.97, sd = 0.02)
+cooldown_frac <- rnorm(n_blocks, mean = 0.15, sd = 0.03)
+phase <- ifelse(
+  seq_len(n_blocks) < shock_start, 'baseline',
+  ifelse(seq_len(n_blocks) <= shock_end, 'shock',
+    ifelse(seq_len(n_blocks) <= cooldown_end,
+      'cooldown', 'recovery'))
+)
+gas_used_frac <- pmin(pmax(
+  case_when(
+    phase == 'shock' ~ shock_frac,
+    phase == 'cooldown' ~ cooldown_frac,
+    TRUE ~ baseline_frac
+  ), 0
+), 1)
+gas_used <- gas_used_frac * gas_limit
+
+# base fee update rule, EIP-1559, applied
+# sequentially; base_fee[1] is an arbitrary starting
+# level in gwei.
+base_fee <- numeric(n_blocks)
+base_fee[1] <- 20
+for (n in seq_len(n_blocks - 1)) {
+  error_frac <- (gas_used[n] - gas_target) / gas_target
+  base_fee[n + 1] <- base_fee[n] * (1 + error_frac / 8)
+}
+
+sim <- tibble(
+  block = seq_len(n_blocks),
+  phase = phase,
+  gas_used_frac = gas_used_frac,
+  base_fee_gwei = base_fee
+)
+
+p_gas <- sim |>
+  ggplot(aes(block, gas_used_frac)) +
+  geom_line(colour = 'grey40') +
+  geom_hline(yintercept = 0.5, linetype = 'dashed') +
+  labs(
+    x = NULL, y = 'gas used / gas limit',
+    title = 'SYNTHETIC block fullness (target = 0.5)'
+  ) +
+  theme_minimal()
+
+p_fee <- sim |>
+  ggplot(aes(block, base_fee_gwei)) +
+  geom_line(colour = 'steelblue') +
+  labs(
+    x = 'block number', y = 'base fee (gwei)',
+    title = 'EIP-1559 base fee response'
+  ) +
+  theme_minimal()
+
+p_gas
+p_fee
+```
+
+```{r ch06-eip1559-summary}
+sim |>
+  filter(block %in% c(
+    shock_start - 1, shock_start + 10,
+    shock_end, shock_end + 30, cooldown_end + 30
+  )) |>
+  select(block, phase, gas_used_frac, base_fee_gwei)
+```
+
+The base fee is essentially flat while blocks
+hover near the 50 percent target, accelerates upward
+once the shock pushes usage toward the gas limit
+(each block above target compounds the previous
+block's fee by up to 12.5 percent, the maximum
+single-block change under this rule), and then falls
+back once the cooldown phase pushes usage below
+target, settling near the end of the run *below* the
+pre-shock base fee: the controller has no memory of
+where it started, only of the current error, so the
+extended below-target cooldown pulls the fee past its
+original level before the final recovery phase holds
+it near target again. The 1/8 gain bounds the
+per-block change to at most $\pm 12.5\%$, which is a
+deliberate design choice: it makes the fee
+predictable enough that a wallet can reliably compute
+'the base fee for the next block' from public
+information (it is a formula, not an auction
+outcome), at the cost of responding to a genuine
+demand shock only gradually, block by block, rather
+than instantaneously.
+
+::: {.callout-important}
+## The sceptic's reflex
+
+'EIP-1559 makes fees predictable' is often stated as
+if it means fees became low or stable in level. It
+does neither. It is a tier-one protocol fact that the
+*update rule* is deterministic and computable from
+public information; it is a tier-three economic claim
+that this makes the ether cost of a transaction
+low or that base fee volatility disappeared. During a
+genuine demand shock the base fee still compounds
+geometrically block by block, and a user submitting a
+transaction still faces uncertainty about the tip
+required to be included promptly. What EIP-1559
+actually delivers is a *known functional form* for
+the base fee's evolution, which is valuable for
+wallets and for the statistician modelling the
+series, not a promise about its level.
+:::
+
+## EIP-4844: pricing data availability
+
+EIP-4844 [@eip4844] introduces **blob-carrying
+transactions**: a transaction type that attaches a
+large binary object (a 'blob', roughly 128 KB) which
+is stored by the consensus layer for a bounded
+retention window (currently on the order of eighteen
+days) rather than being kept permanently in state or
+processed by the EVM at all. Blobs are priced by
+their own independent EIP-1559-style mechanism, with
+their own target and limit per block, entirely
+separate from the gas market for ordinary execution.
+
+The reason this needs its own market is that a blob
+is not purchasing *computation*, it is purchasing
+**data availability**: a rollup (a layer-2 chain that
+batches many transactions and periodically posts a
+compressed summary back to Ethereum) needs the
+underlying transaction data to be publicly available
+long enough for anyone to reconstruct and challenge
+the rollup's state, but has no need for the EVM to
+execute anything against that data directly. Charging
+for this in ordinary gas conflated two different
+scarce resources, computation and storage-for-a-
+retention-window, that have different cost
+structures and different demand curves; EIP-4844
+separates them into two independently clearing
+markets, each obeying the same controller family
+introduced above. This is best understood as the
+first concrete step of a broader scaling roadmap in
+which the base chain increasingly specialises in
+ordering and data availability, and execution moves
+to rollups; the details of that architecture are
+beyond this chapter's scope, but the pricing logic
+is already in hand.
+
+## Scaling and the layer-two stack
+
+To teach EIP-4844 and its blobs without first
+teaching rollups is to hand the reader an answer
+while withholding the question. Blobs exist because
+rollups need somewhere cheap to put their data, and
+rollups exist because the base chain, on its own,
+cannot carry the transaction volume that a
+general-purpose settlement layer is asked to bear. We
+take up that question here, and only with it in view
+does the data-availability pricing of the previous
+section acquire its motivation.
+
+The difficulty is usually stated as a trilemma. A
+blockchain is asked to be decentralised (runnable by
+many independent, modestly resourced nodes), secure
+(costly to attack), and scalable (able to process
+many transactions per second), and the informal
+observation, which is engineering folklore rather
+than a theorem, is that a single base layer can
+comfortably supply any two of the three but not all
+three at once. The reason is already in hand from the
+account and EVM material of this chapter. Every full
+node re-executes every transaction against the shared
+state, because that is precisely what makes the
+result trustless: consensus holds only if each node
+can independently reach the same ending state. But
+how, then, is such a chain to process more
+transactions per second? Raising the throughput of a
+chain that every node must fully re-execute raises
+the hardware demand on every node in lockstep, and a
+chain that only a few well-resourced machines can
+keep up with has surrendered the decentralisation
+that motivated it in the first place. The
+re-execution that buys trustlessness is exactly what
+caps throughput.
+
+The dominant response, and the one the EIP-4844
+material was quietly preparing, is to stop asking the
+base chain to execute everything. A rollup executes
+transactions off-chain, on a separate system with its
+own sequencer, and posts back to the base chain only
+a compressed record of what it did, together with
+enough information for anyone to check the result.
+Crucially, the rollup does not run its own consensus
+over who may write history; it borrows the base
+chain's. Its data, or a proof of its correctness, is
+anchored on Ethereum, so that the security of the
+batched transactions reduces to the security of the
+layer they settle on. The throughput gain comes from
+doing the expensive work, execution, once and
+off-chain, while the base chain is asked only to
+store the data and check a summary. We set the
+arrangement out in @fig-rollup-flow.
+
+```{r ch06-rollup-flow}
+#| label: fig-rollup-flow
+#| fig-cap: 'A rollup executes transactions off-chain and posts compressed data plus a state commitment back to the base chain, so that data availability and settlement are inherited from layer one while execution is not.'
+library(ggplot2)
+
+PAL <- c('#2a78d6', '#1baf7a', '#eda100', '#008300',
+         '#4a3aa7', '#e34948', '#e87ba4', '#eb6834')
+structure_col <- '#33356b'
+
+box <- function(xmin, xmax, ymin, ymax, fill, col) {
+  annotate('rect', xmin = xmin, xmax = xmax, ymin = ymin,
+    ymax = ymax, fill = fill, colour = col, linewidth = 0.4)
+}
+
+ggplot() +
+  box(0.2, 2.2, 5.0, 6.4, '#eef4fc', PAL[1]) +
+  annotate('text', x = 1.2, y = 5.7, label = 'many users',
+    size = 3.0, colour = structure_col) +
+  box(3.3, 7.0, 4.2, 7.2, '#f2f0fb', PAL[5]) +
+  annotate('text', x = 5.15, y = 6.7, label = 'rollup (layer two)',
+    fontface = 'bold', size = 3.1, colour = structure_col) +
+  annotate('text', x = 5.15, y = 6.0, label = 'off-chain execution',
+    size = 2.7, colour = structure_col) +
+  annotate('text', x = 5.15, y = 5.4, label = '+ sequencer orders txs',
+    size = 2.7, colour = structure_col) +
+  annotate('text', x = 5.15, y = 4.7, label = 'batches many txs',
+    size = 2.6, colour = 'grey45') +
+  box(8.1, 11.6, 3.4, 7.2, '#eafaf3', PAL[2]) +
+  annotate('text', x = 9.85, y = 6.7, label = 'base chain (layer one)',
+    fontface = 'bold', size = 3.1, colour = structure_col) +
+  annotate('text', x = 9.85, y = 6.0, label = 'blob data (EIP-4844)',
+    size = 2.7, colour = structure_col) +
+  annotate('text', x = 9.85, y = 5.4, label = '+ state commitment',
+    size = 2.7, colour = structure_col) +
+  annotate('text', x = 9.85, y = 4.6,
+    label = 'fraud proof or validity proof',
+    size = 2.5, colour = 'grey45') +
+  annotate('text', x = 9.85, y = 4.0, label = 'checked here',
+    size = 2.5, colour = 'grey45') +
+  annotate('segment', x = 2.25, xend = 3.25, y = 5.7, yend = 5.7,
+    arrow = arrow(length = unit(0.14, 'cm')), colour = 'grey50') +
+  annotate('text', x = 2.75, y = 6.05, label = 'submit',
+    size = 2.4, colour = 'grey45') +
+  annotate('segment', x = 7.05, xend = 8.05, y = 5.7, yend = 5.7,
+    arrow = arrow(length = unit(0.14, 'cm')), colour = 'grey50') +
+  annotate('text', x = 7.55, y = 6.05, label = 'post data',
+    size = 2.4, colour = 'grey45') +
+  annotate('text', x = 7.55, y = 5.35, label = '+ proof',
+    size = 2.4, colour = 'grey45') +
+  annotate('segment', x = 9.85, xend = 5.15, y = 3.3, yend = 4.15,
+    arrow = arrow(length = unit(0.12, 'cm')), colour = structure_col,
+    linetype = 'dashed', linewidth = 0.35) +
+  annotate('text', x = 7.5, y = 3.0,
+    label = 'security inherited from layer one',
+    size = 2.6, colour = structure_col) +
+  xlim(0, 11.9) + ylim(2.6, 7.4) +
+  theme_void()
+```
+
+How the summary is checked divides rollups into two
+families, and the distinction merits precise
+statement, because it is a distinction in trust
+assumption and not merely in engineering. An
+OPTIMISTIC rollup posts its transaction data and
+simply asserts that the resulting state is correct,
+without proof; the assertion is accepted by default,
+subject to a challenge window during which any honest
+party who has recomputed the batch may submit a fraud
+proof demonstrating an invalid transition and reverse
+the result. Arbitrum [@kalodner2018arbitrum] is the
+canonical instance of this design. Its security rests
+on the assumption that at least one honest and
+attentive verifier exists and will act within the
+window, and on the underlying data being available
+for that verifier to check, which is exactly why
+blobs [@eip4844] matter: the fraud proof is possible
+only if the data was published in the first place. A
+VALIDITY rollup, commonly a zero-knowledge rollup,
+instead posts a succinct cryptographic proof that the
+state transition was computed correctly, which the
+base chain verifies directly; there is no challenge
+window and no honest-verifier assumption, because an
+invalid batch cannot produce a valid proof. The proof
+machinery this relies upon is the zero-knowledge
+material we shall take up in @sec-crypto, and we defer
+its mechanics to that discussion. Gudgeon et al.
+[@gudgeon2020layertwo] offer a systematisation of
+knowledge across the whole layer-two design space, and
+the reader who wishes to place these two families in
+their full taxonomy is referred to it. We set the two
+side by side in @tbl-rollup-families.
+
+| Property | Optimistic rollup | Validity (zero-knowledge) rollup |
+|---|---|---|
+| **What is posted** | Transaction data plus an asserted new state | Transaction data plus a succinct validity proof |
+| **How correctness is enforced** | Fraud proof during a challenge window | Cryptographic proof verified on-chain immediately |
+| **Trust assumption** | At least one honest, attentive verifier acts in time | None beyond the soundness of the proof system |
+| **Withdrawal finality** | Delayed by the challenge window | As fast as the base chain confirms the proof |
+| **Canonical example** | Arbitrum [@kalodner2018arbitrum] | See the zero-knowledge material of @sec-crypto |
+
+: Optimistic and validity rollups contrasted {#tbl-rollup-families}
+
+Rollups are not the only route off the base layer.
+The older idea is the payment or state channel, in
+which two parties (or a small group) open a channel
+by committing funds on-chain, then transact between
+themselves off-chain by exchanging signed balance
+updates, and settle back on-chain only when they
+close the channel; the intervening transactions,
+possibly very many of them, never touch the base
+layer at all. The Lightning Network
+[@poon2016lightning] is the best-known realisation of
+this idea, layered on Bitcoin, and it routes payments
+across a mesh of such channels so that two parties
+without a direct channel may still transact through
+intermediaries. Channels excel at high-frequency
+payments between stable sets of counterparties and
+are correspondingly poor at one-off interactions with
+strangers, to whom one would not open a funded
+channel in the first place; rollups, by contrast,
+serve open participation at the cost of the heavier
+machinery just described.
+
+We should be candid about what layer two costs, for
+the throughput and the lower per-transaction fee are
+not obtained for nothing. Croman et al.
+[@croman2016scaling], in an early and careful analysis
+of Bitcoin's scaling limits, make the general point
+that scaling a decentralised ledger forces trade-offs
+rather than dissolving them, and the point transfers
+directly to layer two. On the one hand, a rollup
+genuinely raises throughput and lowers cost, by
+amortising execution over a batch and by paying only
+for data availability rather than for base-layer
+execution. On the other hand, it introduces trust
+assumptions the base layer did not carry: most rollups
+today run a single sequencer that orders transactions,
+and a centralised sequencer can censor or reorder,
+which is a weaker guarantee than the base chain's; an
+optimistic rollup imposes a challenge-window latency,
+of the order of a week for withdrawals, during which a
+posted result is not yet final; and a validity rollup
+substitutes the considerable complexity of a proving
+system, whose own soundness must then be trusted. None
+of these is disqualifying, but each is a real cost,
+and a proposal that presents layer two as free
+throughput has simply not looked at the other side of
+the ledger.
+
+The bearing on our own subject is direct. Consider a
+national-scale health-provenance system of the kind
+this book keeps returning to, one that records every
+vaccine vial and every custody transfer as it moves
+from manufacture to administration. The event volume
+such a system generates, tens or hundreds of millions
+of discrete provenance events, is far beyond what a
+base chain that every node re-executes could settle
+directly, and if one genuinely intends to operate at
+national scale, a rollup is the architecture by which
+the necessary throughput is reached. It is worth
+noticing that the sequencer-trust question this raises
+is not a new question at all. Whom do we trust to
+order and to publish the batched events, and what
+happens if that party misbehaves, is precisely the
+custodian question of @sec-consensus returning in a
+new guise, one layer up. The technology has moved the
+trust rather than abolished it, and locating exactly
+where it now sits is the whole of the analytic task.
+
+We should be equally candid in the other direction.
+For the single-consortium trial ledger that has served
+as our running example, a handful of hospitals sharing
+one append-only record, the base layer's throughput is
+already ample, and reaching for a rollup would add
+sequencer trust, proof-system complexity, or a
+challenge window in exchange for a throughput headroom
+the application does not need. The question of whether
+an added layer is warranted is a special case of the
+more basic question Wüst and Gervais [@wust2018need]
+pose, namely whether one needs a blockchain at all;
+the discipline of asking it honestly does not stop at
+layer one. Layer two earns its complexity only when
+the transaction volume genuinely exceeds what the base
+layer can settle, and below that threshold it is
+complexity for its own sake.
+
+::: {.callout-note icon=false collapse=true}
+## Check your understanding: what does a rollup actually inherit
+
+**Q.** A rollup is routinely described as inheriting
+the security of the base chain it settles on.
+Inheriting it in exactly what respect, and in what
+respect not?
+
+**A.** It inherits *data availability* and
+*settlement*: once the rollup's data and its
+commitment are posted to the base chain, they are as
+available and as immutable as any other base-chain
+data, and correctness is anchored on-chain by a fraud
+proof (optimistic) or a validity proof
+(zero-knowledge). What it does *not* inherit is
+censorship resistance in ordering. A single sequencer
+decides, off-chain, which transactions are included
+and in what order, and it can delay or exclude a user
+even though it cannot forge an invalid state
+transition. An optimistic rollup, moreover, does not
+inherit the base chain's near-immediate finality,
+because a posted result is contestable until its
+challenge window closes. So 'inherits security'
+means the base chain guarantees that anyone can
+reconstruct and verify the rollup's state, not that
+the sequencer cannot make a particular user wait.
+:::
+
+## When code is law: smart-contract security
+
+The phrase most often used to sell the smart contract
+is that with it, code is law: the agreement executes
+itself exactly as written, and no clerk, no court, and
+no counterparty may intervene to alter the outcome.
+The determinism this chapter has emphasised is exactly
+what makes the promise credible. A contract does what
+its bytecode says and nothing else, every node agrees
+on the result, and no privileged party can quietly
+reinterpret the terms. What is said less often, and
+matters more, is the price of the same property. A
+contract executes exactly as written including where
+what was written is wrong, and on an immutable chain a
+discovered bug cannot be patched in place the way a
+flaw in a conventional service is corrected by
+deploying a fix. The code is law even when the code is
+mistaken, and the mistake is then as immutable as
+everything else on the chain.
+
+The sharpest test this promise has faced is the attack
+on 'The DAO' in 2016. The DAO was a large
+investment fund encoded entirely as an Ethereum
+contract, holding what was at the time a substantial
+fraction of all circulating ether. An attacker
+discovered that its withdrawal logic was vulnerable to
+reentrancy and used the flaw to drain roughly a third
+of the fund before the community could react. The
+mechanism merits concrete statement, because it is
+both subtle and, once seen, unmistakable. Reentrancy
+arises when a contract makes an external call, handing
+control to another contract, before it has updated its
+own internal state to record the effect of that call.
+The DAO sent ether to the caller before decrementing
+the caller's recorded balance; the receiving
+contract's code, invoked automatically on receipt,
+simply called back into the withdrawal function again,
+and because the balance had not yet been reduced, the
+second call passed the same check and paid out a
+second time, and a third, looping until the funds were
+gone.
+
+The response is what makes the episode the sharpest
+test 'code is law' has faced. If code truly is law,
+then the attacker merely executed the contract as
+written and was entitled to keep the proceeds. The
+Ethereum community, confronted with a loss of that
+magnitude, chose otherwise, and enacted a hard fork
+that rewrote the chain's history to return the funds,
+a decision so contentious that a portion of the
+community rejected it and continued the original,
+unforked chain as Ethereum Classic, precisely on the
+principle that the code's outcome, however unwelcome,
+ought to stand. That split is the standing reminder
+that 'code is law' is an aspiration held by fallible
+people, not a property the technology can guarantee on
+its own.
+
+Reentrancy is only one of a family of vulnerability
+classes whose incidence is measurable rather than
+anecdotal. Atzei et al. [@atzei2017survey] provide a
+systematic survey of attacks on Ethereum contracts,
+organising them into recurring categories, and Luu et
+al. [@luu2016oyente], with the Oyente analysis tool,
+showed that a large fraction of then-deployed
+contracts were flagged for at least one such class by
+automated symbolic analysis. The point for our
+purposes is not the precise percentages, which have
+shifted as tooling and language practice improved, but
+that these are structured, recurring, and to a
+considerable degree detectable defects rather than
+one-off misfortunes. @tbl-vuln-classes collects four
+of the most common classes with their mechanism and
+the standard mitigation.
+
+| Vulnerability class | Mechanism | Standard mitigation |
+|---|---|---|
+| **Reentrancy** | An external call hands control to an untrusted contract before state is updated, letting the callee re-enter and repeat the operation | Update state before the external call (checks-effects-interactions), or use a reentrancy guard |
+| **Integer overflow/underflow** | Arithmetic wraps past the fixed integer width, so a balance or counter silently jumps to a spurious value | Checked arithmetic (default in modern compilers) or a safe-math library |
+| **Access control** | A privileged function omits or mis-scopes its authorisation check, letting any caller invoke it | Explicit caller checks on every privileged entry point, and least-privilege role design |
+| **Oracle manipulation** | Logic depends on an external price or data feed an attacker can distort, for example via a flash-loan-driven price move | Time-weighted or multi-source feeds, sanity bounds, and treating any single oracle as untrusted |
+
+: Four common smart-contract vulnerability classes {#tbl-vuln-classes}
+
+The bearing on the programmable-consent contract of
+this chapter is uncomfortable and merits facing
+squarely. That contract is exactly the kind of code
+whose bugs are irreversible. A consent contract that
+mishandles a revocation, that continues to adjudicate
+'allow' after a participant has withdrawn permission
+because of an off-by-one in its logic or a reentrancy
+in its update path, has not committed a spreadsheet
+typo that a later correction quietly overwrites. It
+has recorded a permanent, on-chain error whose effects
+may already have propagated to every party that
+consulted it. This is a direct argument, from the
+security properties rather than from the privacy
+properties, for the same architecture the earlier
+public-health discussion reaches on other grounds:
+keep the on-chain logic minimal and auditable, and
+keep the sensitive data and the consequential
+decisions off-chain, where a mistake can be corrected
+before it becomes irreversible. The smaller the
+on-chain surface, the smaller the immutable attack
+surface.
+
+::: {.callout-important}
+## The sceptic's reflex
+
+'The contract has been audited, so it is safe' is
+the reassurance to distrust most. An audit is a finite
+inspection, by fallible reviewers, of a program whose
+behaviour is in general undecidable; it can establish
+the presence of the bugs it finds and never the
+absence of the bugs it does not. The DAO's code had
+been read by many capable people before it was
+drained. Automated tools such as Oyente
+[@luu2016oyente] raise the floor by flagging known
+classes mechanically, and they merit running, but a
+clean report is evidence of the absence of those
+particular classes, not a proof of correctness. We
+should treat 'audited' as a tier-two claim about
+what a reviewer looked for and did not find, never as
+a tier-one guarantee that the code is safe, and we
+should scope the irreversible on-chain logic small
+enough that an audit has a chance of being complete.
+:::
+
+## Public health connection: programmable consent, precisely scoped
+
+We return now to the cohort study with which we
+opened. The proposal there was that a smart contract
+might encode a consent policy directly, so that the
+rule 'this variable may be released to this
+researcher if this condition holds' is enforced by
+code rather than by a data-use agreement that
+depends on institutional follow-through. But how much
+of a consent arrangement can a contract safely be
+made to carry? The computational content of the
+proposal is genuine and useful. A contract can hold
+a permission state (who is authorised, under what
+condition, until when) and can enforce access rules
+against *anything routed through it* with the same
+determinism this chapter has emphasised throughout,
+thereby removing a class of administrative failure in
+which a revoked permission is not actually propagated
+to every system that ought to honour it. This is the
+self-executing rule the opening asked for, and to
+that extent the intuitive appeal of the proposal is
+warranted.
+
+The proposal breaks, however, the moment it is
+extended to storing the protected health information
+itself on chain. Every full node holds a complete copy of
+chain state, in perpetuity, and no consensus
+mechanism studied in this book (nor any studied
+later) makes that state confidential; encryption of
+a field does not fix this, because the ciphertext
+persists forever and any weakness discovered in the
+encryption scheme, or any future key compromise,
+retroactively de-anonymises every record ever posted.
+A blockchain is therefore a defensible place to store
+a **commitment** to a permission (a hash of a consent
+document, an access-control state machine, a
+revocation flag) and an indefensible place to store
+the health data that permission governs. The correct
+architecture keeps PHI off-chain, in a system subject
+to ordinary access controls and regulatory
+obligations (HIPAA-equivalent controls, in a US
+setting), and puts on-chain only the tamper-evident
+metadata: who is permitted, since when, subject to
+what condition, and a hash committing to the
+off-chain record so that any party can verify a copy
+has not been altered without ever learning its
+content. @fig-consent-flow draws the arrangement:
+the contract holds only a commitment and the access
+rules, adjudicates each request to allow or deny, and
+never touches the protected data, which stays in the
+off-chain store.
+
+```{r ch06-consent-flow}
+#| label: fig-consent-flow
+#| fig-cap: >
+#|   Programmable consent, scoped correctly. The
+#|   participant grants a permission whose commitment
+#|   and rules live in an on-chain contract; a data
+#|   user request is adjudicated allow or deny by that
+#|   contract; and the protected health information
+#|   itself stays in an off-chain store, with only a
+#|   hash committed on chain.
+library(ggplot2)
+
+structure_col <- '#33356b'
+PAL <- c('#2a78d6', '#1baf7a', '#eda100', '#008300',
+         '#4a3aa7', '#e34948', '#e87ba4', '#eb6834')
+
+box <- function(xmin, xmax, ymin, ymax, fill, col) {
+  annotate('rect', xmin = xmin, xmax = xmax, ymin = ymin,
+    ymax = ymax, fill = fill, colour = col, linewidth = 0.4)
+}
+
+ggplot() +
+  box(0.2, 2.4, 6.2, 7.6, '#eef4fc', PAL[1]) +
+  annotate('text', x = 1.3, y = 6.9, label = 'participant',
+    size = 3.1, colour = structure_col) +
+  box(3.9, 7.1, 5.4, 8.4, '#f2f0fb', PAL[5]) +
+  annotate('text', x = 5.5, y = 7.9, label = 'consent contract',
+    fontface = 'bold', size = 3.1, colour = structure_col) +
+  annotate('text', x = 5.5, y = 7.2, label = '(on-chain)',
+    size = 2.6, colour = 'grey45') +
+  annotate('text', x = 5.5, y = 6.5, label = 'commitment (hash)',
+    size = 2.7, colour = structure_col) +
+  annotate('text', x = 5.5, y = 5.9, label = '+ access rules',
+    size = 2.7, colour = structure_col) +
+  box(8.6, 10.7, 6.2, 7.6, '#eef4fc', PAL[1]) +
+  annotate('text', x = 9.65, y = 6.9, label = 'data user',
+    size = 3.1, colour = structure_col) +
+  annotate('segment', x = 2.4, xend = 3.85, y = 6.9, yend = 6.9,
+    arrow = arrow(length = unit(0.14, 'cm')), colour = 'grey50') +
+  annotate('text', x = 3.1, y = 7.3, label = 'grants',
+    size = 2.5, colour = 'grey45') +
+  annotate('segment', x = 8.55, xend = 7.15, y = 6.9, yend = 6.9,
+    arrow = arrow(length = unit(0.14, 'cm')), colour = 'grey50') +
+  annotate('text', x = 7.85, y = 7.3, label = 'request',
+    size = 2.5, colour = 'grey45') +
+  box(3.9, 5.4, 3.0, 4.2, '#eafaf3', PAL[2]) +
+  annotate('text', x = 4.65, y = 3.6, label = 'allow',
+    size = 3.0, colour = '#0f7a52') +
+  box(5.7, 7.1, 3.0, 4.2, '#f1f1ef', '#9a9a92') +
+  annotate('text', x = 6.4, y = 3.6, label = 'deny',
+    size = 3.0, colour = 'grey40') +
+  annotate('segment', x = 5.0, xend = 4.65, y = 5.35, yend = 4.25,
+    arrow = arrow(length = unit(0.12, 'cm')), colour = PAL[2]) +
+  annotate('segment', x = 6.0, xend = 6.4, y = 5.35, yend = 4.25,
+    arrow = arrow(length = unit(0.12, 'cm')), colour = '#9a9a92') +
+  annotate('rect', xmin = 3.9, xmax = 7.1, ymin = 0.5, ymax = 1.8,
+    fill = 'white', colour = structure_col, linewidth = 0.4,
+    linetype = 'dashed') +
+  annotate('text', x = 5.5, y = 1.15,
+    label = 'PHI in off-chain store',
+    size = 2.9, colour = structure_col) +
+  annotate('segment', x = 5.5, xend = 5.5, y = 5.35, yend = 1.85,
+    arrow = arrow(length = unit(0.12, 'cm'), ends = 'both'),
+    colour = structure_col, linetype = 'dashed',
+    linewidth = 0.35) +
+  annotate('text', x = 7.35, y = 3.3, hjust = 0, label = 'hash only',
+    size = 2.5, colour = 'grey45') +
+  annotate('text', x = 5.5, y = 0.05, label = 'PHI stays off-chain',
+    fontface = 'bold', size = 2.9, colour = structure_col) +
+  xlim(0, 10.9) + ylim(-0.3, 8.6) +
+  theme_void()
+```
+
+To illustrate the commitment idea with something
+concrete, consider a single SYNTHETIC consent
+record, held in an off-chain store, of which we place
+on chain nothing but a cryptographic hash. The hash
+serves two purposes at once. It reveals nothing about
+the participant, since a good hash is not invertible,
+and yet it detects any later alteration of the
+off-chain record, because changing even one field
+changes the hash and the change no longer matches the
+value already committed. The following computes the
+commitment for an original record and for a silently
+widened one, in which a permission that named a
+single laboratory has been extended to a second.
+
+```{r ch06-consent-commitment}
+library(digest)
+library(tibble)
+library(dplyr)
+
+# SYNTHETIC consent record. In a real deployment
+# this off-chain record lives in a HIPAA-governed
+# store; only the hash commitment goes on chain.
+consent <- tibble(
+  participant_id = 'SYNTHETIC-0007',
+  permitted_use = 'genomic-analysis',
+  shared_with = 'lab-B',
+  expires = '2030-01-01',
+  revoked = FALSE
+)
+
+commit <- function(record) {
+  digest(record, algo = 'sha256')
+}
+
+original_hash <- commit(consent)
+
+# a single silent edit: the permission is widened
+# from one laboratory to two.
+tampered <- consent |>
+  mutate(shared_with = 'lab-B;lab-C')
+
+tampered_hash <- commit(tampered)
+
+tibble(
+  version = c('original', 'tampered'),
+  sha256_prefix = c(
+    substr(original_hash, 1, 16),
+    substr(tampered_hash, 1, 16)
+  ),
+  matches_commitment = c(
+    original_hash == original_hash,
+    tampered_hash == original_hash
+  )
+)
+```
+
+The tampered record fails to match the on-chain
+commitment, so the alteration is detectable by any
+party holding the committed hash, and yet that hash,
+placed on a public and permanent ledger, discloses
+none of the participant's information. This is the
+whole of what a blockchain contributes to the
+arrangement: tamper-evidence for a record whose
+contents remain elsewhere.
+
+The secondary example the reader should keep in mind
+is vaccine cold-chain provenance. A distribution
+network would like an auditable guarantee that each
+vial remained within its permitted temperature range
+from manufacture to administration, across carriers
+and jurisdictions that do not fully trust one
+another. The structure of a defensible design is
+identical to the consent case: the sensor readings
+and custody transfers live off-chain, and the ledger
+holds only periodic hash commitments to them, so that
+a regulator can later verify that a presented
+temperature log has not been retrofitted to conceal
+an excursion, without the ledger itself becoming a
+public repository of the underlying operational data.
+
+::: {.callout-warning}
+## Most 'health records on Ethereum' proposals fail this test
+
+Read any concrete proposal for its precise placement
+of the boundary between what is committed on-chain
+and what is stored off-chain. A proposal that puts
+diagnosis codes, lab values, or free-text clinical
+notes on a public chain, encrypted or not, has
+misunderstood the guarantee a blockchain provides.
+The tier-one protocol fact is that on-chain state is
+public and permanent; a proposal that treats
+encryption as a substitute for that fact is making a
+tier-four narrative claim about future
+cryptographic durability, not a tier-one one about
+the system as built.
+:::
+
+## Worked example: base fee response to a rollup-driven demand shock
+
+To illustrate, suppose gas usage on the base chain
+follows the SYNTHETIC pattern already simulated, and
+suppose we wish to quantify two things a network
+operator or an application developer genuinely cares
+about: how many blocks it takes the base fee to
+double from its pre-shock level, and how far it
+overshoots below the pre-shock level during the
+recovery. Both are directly readable from the
+simulated series already computed above.
+
+```{r ch06-worked-example}
+pre_shock_fee <- sim |>
+  filter(block == shock_start - 1) |>
+  pull(base_fee_gwei)
+
+doubling_block <- sim |>
+  filter(block >= shock_start, base_fee_gwei >= 2 * pre_shock_fee) |>
+  slice(1) |>
+  pull(block)
+
+trough_after_shock <- sim |>
+  filter(block > shock_end) |>
+  slice_min(base_fee_gwei, n = 1) |>
+  select(block, base_fee_gwei)
+
+tibble(
+  pre_shock_fee_gwei = pre_shock_fee,
+  doubles_by_block = doubling_block,
+  blocks_to_double = doubling_block - shock_start
+) |>
+  bind_cols(trough_after_shock |> rename(
+    trough_block = block, trough_fee_gwei = base_fee_gwei
+  ))
+```
+
+Two features generalise beyond this particular
+synthetic run. First, doubling time is itself
+computable directly from the gain: a base fee that
+compounds by a constant fraction $\epsilon$ per
+block for $k$ blocks satisfies
+$b_{n+k} = b_n(1+\epsilon)^k$, so if the shock holds
+usage at a constant fraction above target the
+doubling time is $\log 2 / \log(1+\epsilon)$ blocks,
+which is a direct application of the compound-growth
+reasoning the reader already owns from continuous-
+time interest and population models, just discretised
+to one block per period. Second, the post-shock
+undershoot exists because the controller has no
+memory of the pre-shock level, only of the current
+error; a controller with an integral term would
+return exactly to a target level, and the base fee
+rule deliberately has none, trading long-run level
+stability for a simple, publicly computable per-block
+rule.
+
+## Collaborating with an LLM
+
+**Prompt:** 'Explain why Ethereum's account model
+allows re-entrancy attacks and Bitcoin's UTXO model
+does not.'
+**Watch for:** a plausible-sounding answer that
+conflates re-entrancy (a contract-execution ordering
+bug, specific to stateful contract calls) with the
+account-versus-UTXO distinction itself; an LLM may
+imply the account model *causes* re-entrancy when in
+fact re-entrancy requires a contract that makes an
+external call before updating its own state, a coding
+pattern, not an unavoidable feature of the account
+model.
+**Verification:** ask for the specific EVM opcode
+sequence (a `CALL` before a storage write) that
+creates the vulnerability, and confirm against the
+Yellow Paper's description of message calls
+[@wood2014yellow] that re-entrancy is a consequence
+of contract code, not of the account-balance state
+representation per se.
+
+**Prompt:** 'Derive the maximum possible base fee
+after $k$ consecutive full blocks under EIP-1559.'
+**Watch for:** an LLM silently assuming the gain
+$1/8$ acts additively rather than
+multiplicatively-compounding, giving a linear rather
+than a geometric bound.
+**Verification:** derive it yourself as
+$b_0 (1 + 1/8)^k$ and check the LLM's closed form
+reduces to the same expression; then check it
+numerically against the simulation code in this
+chapter by forcing `gas_used_frac` to 1 for $k$
+consecutive blocks.
+
+**Prompt:** 'Is it safe to store patient consent
+records on Ethereum?'
+**Watch for:** an answer that treats 'consent
+records' as a single object and glosses over which
+fields are commitments versus which are the
+underlying protected data; this is exactly the
+tier-slippage the public-health section above warns
+against.
+**Verification:** insist the answer separately name,
+for each field of the proposed record, whether it is
+stored on-chain in plaintext, on-chain as a
+commitment (hash), or off-chain entirely, and reject
+any answer that does not make this partition
+explicit.
+
+## In conclusion
+
+In conclusion, three points are to be emphasised.
+First, the account model is a current-state
+representation of a ledger, and the account nonce is
+the price of that choice: replay protection and a
+total order per sender, which the UTXO event log
+obtains for nothing, must in the account model be
+maintained explicitly, and the reader who keeps the
+event-log versus current-state distinction in view
+will not be surprised by where each cost falls.
+Second, gas and the EIP-1559 base fee are,
+respectively, a price on computation and a feedback
+controller on block utilisation; the base fee shares
+its structural family with the difficulty adjustment
+of @sec-mining, and it appears to us that recognising
+the controller pattern, a set point, an error signal,
+and a bounded multiplicative correction, is a more
+durable acquisition than any particular fee level.
+Third, and most consequentially for our own field,
+the defensible use of a blockchain in public health
+is to hold a tamper-evident commitment to a
+permission or a provenance record, and never the
+protected data itself; a proposal that places
+protected health information on chain, encrypted or
+otherwise, has misread the guarantee the technology
+provides, and the reader is now equipped to say
+precisely why.
+
+## Exercises
+
+1. Derive the exact per-block bound on base fee
+   change implied by the EIP-1559 update rule (that
+   is, show the maximum possible ratio
+   $b_{n+1}/b_n$ and the minimum possible ratio, and
+   state under what gas-usage condition each is
+   attained).
+2. Modify `ch06-eip1559-sim` so that instead of a
+   single demand shock, gas usage follows a
+   sinusoidal daily cycle around the target (SYNTHETIC
+   data, your choice of amplitude and period in
+   blocks). Plot the resulting base fee path and
+   comment on whether the controller tracks a
+   periodic input with a phase lag, and explain why
+   a purely proportional controller cannot track a
+   periodic input without lag.
+3. A transaction's total gas limit is 100{,}000 and
+   the network base fee is 30 gwei with a 2 gwei
+   priority fee. Compute the maximum ether cost of
+   the transaction, and explain under what condition
+   the sender pays strictly less than this maximum.
+4. Explain, in terms of the account nonce, why a
+   transaction with nonce 7 submitted before a
+   pending transaction with nonce 6 from the same
+   account cannot be included first, and contrast this
+   with how Bitcoin would handle two transactions
+   from the same address with no ordering dependency
+   between them.
+5. Using the falsifiability tiers of @sec-intro,
+   classify each of the following claims and justify
+   the tier: (a) 'the EVM executes deterministically
+   given identical inputs'; (b) 'the average base fee
+   fell after EIP-4844 shipped'; (c) 'rollups will
+   make on-chain health data storage economically
+   viable'.
+6. A contract's admin key can pause the contract or
+   redirect funds. Write two or three sentences
+   evaluating the claim 'this smart contract is
+   trustless' against that fact, using the sceptic's
+   reflex framework.
+
+## Further reading
+
+@wood2014yellow is the Ethereum Yellow Paper, the
+formal specification of the EVM and the account-state
+transition function; read it as the ground truth for
+every claim this chapter makes about determinism and
+gas accounting. @buterin2014ethereum is the original
+Ethereum whitepaper and is the right source for the
+'world computer' framing and the motivating
+comparison with Bitcoin's more limited scripting
+language. @eip1559 is the EIP specifying the base-fee
+mechanism in full, including edge cases (block-limit
+elasticity, the initial base fee at the London
+upgrade) this chapter's simulation abstracts away.
+@eip4844 specifies blob transactions and the
+independent blob-gas market; read it alongside the
+main EIP-1559 specification to see how directly the
+second market reuses the first's control law.
+@antonopoulos2018ethereum is the standard practitioner
+reference for account types, gas mechanics, and
+contract deployment, useful for the operational detail
+this chapter deliberately omits in favour of the
+underlying control-theoretic and economic structure.
+@narayanan2016bitcoin remains the standard comparison
+point for the UTXO model this chapter contrasts
+Ethereum against throughout.

@@ -1,0 +1,262 @@
+# Introduction: a quantitative stance {#sec-intro}
+
+## The problem we begin with
+
+Consider a multi-centre clinical trial run by five
+hospitals. Each site enrols participants, assigns them to
+treatment through a shared randomisation scheme, and
+records outcome events. Every site keeps a copy of the
+growing record, and a regulator will one day audit it.
+Now suppose that no site is willing to let any other site
+act as sole custodian of that record. Perhaps the sponsor
+has a financial interest in the outcome; perhaps one
+site's data systems have been compromised before; perhaps
+the institutions are simply in different countries under
+different legal regimes. The question is this: can the
+five sites maintain a single, shared, append-only record
+of trial events, agreed by all, alterable by none, with
+no referee?
+
+This is not a hypothetical framing invented to make a
+cryptocurrency course palatable to a public-health
+audience. It is, we shall argue, the same mathematical
+problem that Bitcoin solved in 2008, stripped of its
+monetary costume. A blockchain is an append-only ledger
+that mutually distrusting parties agree on without a
+trusted intermediary. Every mechanism this book studies
+exists to make some part of that sentence work:
+cryptographic hashing makes the ledger tamper-evident,
+digital signatures make entries attributable, and a
+consensus protocol makes the parties agree on a single
+order of entries despite having no reason to trust one
+another. The remarkable fact, established by
+@nakamoto2008bitcoin, is that this is possible at all in
+a setting where anyone may join, leave, or lie.
+
+We shall study these systems the way a statistician would
+want them studied: as objects of quantitative analysis
+rather than objects of belief. The central pedagogical
+claim of the book is that the reader already owns most of
+the hard ideas, in another vocabulary. The probability
+that an attacker rewrites confirmed history is the tail
+of a random walk. The ten-minute block interval is the
+set point of a feedback controller acting on a Poisson
+process. Validator selection in proof-of-stake is
+probability-proportional-to-size sampling. Wealth
+concentration on a chain is a Lorenz curve. Our work,
+chapter by chapter, is to perform these translations and
+then to use the reader's existing fluency to reach
+conclusions that most accounts of this subject never make
+precise.
+
+## Why the public-health reader has the advantage
+
+Writing on blockchain divides into two genres that both
+fail a quantitative reader. The developer tutorial
+teaches how to call an interface without explaining why
+the system is built as it is. The promotional explainer
+supplies confidence in place of understanding. Neither
+serves a reader who can fit a survival model, design a
+sampling plan, or evaluate a forecast.
+
+The reader of this book can do something most
+participants in this field cannot: attach a number to a
+claim and check it. That capacity is the single most
+valuable instrument for navigating a domain in which the
+median public statement is promotional. A good deal of
+the course consists of taking an assertion that
+circulates as folklore, writing down the model it
+presupposes, and computing whether the assertion is true.
+The reader will find the experience familiar; it is the
+same discipline one applies to a claimed treatment effect
+or a surprising surveillance signal.
+
+## Why now: the technology is arriving in health
+
+We should say plainly why a health scientist ought to
+spend this effort now rather than leave the subject to
+the engineers. The reason is that the verifiable-data
+machinery has stopped being hypothetical in health and
+has become infrastructure. Cryptographically signed
+health credentials reached hundreds of millions of people
+during the pandemic through the SMART Health Cards
+standard [@vci2024smart], and the World Health
+Organization now operates a global trust network for
+verifying such credentials across borders [@who2023gdhcn].
+Prescription-drug supply chains in Europe and the United
+States are being made traceable to the individual package
+by regulation, with at least one production ledger
+[@fda2023dscsa] serving that mandate, and a national
+health system, Estonia's, has for years anchored the
+integrity of its records to a hash-linked timestamping
+service [@guardtime2016estonia]. As predictive artificial
+intelligence enters clinical care, regulators have begun
+to demand a tamper-evident account of the data and models
+behind a recommendation [@onc2024hti1].
+
+The instructive part is that most of these successes are
+built from cryptographic signatures and hashes rather than
+from tokens and mining, and that the ventures which
+insisted on the latter have largely failed. The health
+professional of the next decade will be asked, repeatedly,
+to judge such systems: to say whether a vendor's claim is
+a protocol fact or a narrative, whether a distributed
+ledger earns its cost over a well-kept database, whether
+an attestation proves what it purports to. That judgement,
+not the ability to implement a chain, is the competence
+this book builds, and it is the reason the subject belongs
+in a public-health education now.
+
+## The falsifiability discipline
+
+We maintain a critical lens by construction, not as an
+attitude. The foundational cryptography solved a genuine
+and difficult problem, namely open-membership Byzantine
+agreement without a trusted party [@lamport1982byzantine].
+A great deal of what has been built on that foundation is
+speculation, and some is fraud. Both statements are true,
+and a calibrated analyst holds both without collapsing
+into either evangelism or dismissal.
+
+To keep the analysis disciplined, we classify every claim
+we encounter into one of four tiers, and we demote each
+assertion to its true tier before believing it.
+
+::: {.callout-important}
+## The four falsifiability tiers
+
+1. **Protocol fact.** Verifiable by reading code, running a
+   node, or checking a proof. Trust after verification.
+2. **Empirical claim.** A measurable statement about
+   observed on-chain or market data. Demand the data and
+   the method.
+3. **Economic claim.** A conditional statement about
+   incentives that holds under stated assumptions. Ask what
+   the assumptions are and whether they hold.
+4. **Narrative.** An unfalsifiable or forward-looking story
+   about value or destiny. Treat as marketing until it is
+   operationalised into a tier-two or tier-three claim.
+:::
+
+The field's characteristic failure is tier-slippage: a
+narrative delivered in the confident cadence of a
+protocol fact. Naming the tier is the antidote, and we
+shall ask the reader to do it reflexively. The
+epidemiologist will recognise the exercise; it is the
+same habit one brings to a causal claim made from an
+observational study.
+
+## The running case study
+
+One application threads the entire book, so that the
+reader sees a single realistic system developed against
+every layer of the stack.
+
+- **The trial ledger.** The multi-institution
+  clinical-trial data-integrity ledger with which we
+  opened: several hospitals, a shared append-only record
+  of enrolment, randomisation, and outcome events,
+  tamper-evident, attributable, and auditable by a
+  regulator after the fact, with no single party able to
+  rewrite history. Every chapter returns to it.
+- **The cold chain.** A vaccine cold-chain provenance
+  system, our secondary example: verifying that each vial
+  was kept within temperature bounds from manufacture to
+  administration, across custodians with no common
+  authority.
+
+As each mechanism appears (hashing, Merkle trees,
+consensus, the account model, smart contracts, on-chain
+analysis) we shall ask what it contributes to these two
+systems, and whether it is the right tool. We should say
+at the outset that the answer is frequently no.
+
+::: {.callout-warning}
+## When not to use a blockchain
+
+A blockchain buys you trust-minimised agreement among
+parties with no common authority, at a large cost in
+throughput, latency, and complexity. If the parties already
+trust a custodian, or one could be appointed, a replicated
+database with cryptographic audit logging delivers
+tamper-evidence without the consensus overhead. Most
+'blockchain for health records' proposals fail this test.
+The book teaches you to apply it.
+:::
+
+## A first computation
+
+The atomic operation of the entire field is the
+cryptographic hash: a deterministic function that maps
+any input to a fixed-length output and behaves, for all
+practical purposes, as if it were random. We shall study
+its statistical properties in @sec-crypto. For now, we
+invite the reader to observe the two properties that make
+a ledger tamper-evident: the same input always yields the
+same output (determinism), and a one-character change
+yields an unrecognisably different output (the avalanche
+effect).
+
+```{r intro-hash}
+library(digest)
+h <- function(x) {
+  digest(x, algo = 'sha256', serialize = FALSE)
+}
+
+h('trial-record: patient 001, arm A, enrolled 2026-02-01')
+h('trial-record: patient 001, arm B, enrolled 2026-02-01')
+```
+
+The two records differ in a single character, the
+treatment arm, yet their hashes share no visible
+structure. If the trial ledger stored the hash of each
+record, altering any record after the fact would change
+its hash and betray the tampering. That is the whole idea
+of a tamper-evident log. Everything else in the book is,
+in a sense we shall make precise, an elaboration of this
+one computation.
+
+## The ten-week map
+
+The book is a ten-week course in four parts, one chapter
+per teaching week.
+
+- **Part I, Foundations.** The consensus problem in the
+  permissionless setting (@sec-consensus), and the
+  cryptographic primitives studied empirically in R
+  (@sec-crypto).
+- **Part II, Bitcoin and Nakamoto consensus.**
+  Proof-of-work and the backbone protocol (@sec-pow); the
+  statistics of mining as a renewal and control system
+  (@sec-mining); and the security economics of attacks
+  (@sec-security).
+- **Part III, Ethereum and programmable state.** The
+  account model and the virtual machine (@sec-ethereum);
+  decentralised finance as applied mathematics
+  (@sec-defi); and maximal extractable value as market
+  microstructure (@sec-mev).
+- **Part IV, Proof-of-stake and on-chain data.**
+  Stake-based consensus, finality, and restaking risk
+  (@sec-pos); and the statistical analysis of on-chain
+  data, including tokenomics and wealth concentration
+  (@sec-onchain).
+
+## How to use this book
+
+In closing, three habits are to be emphasized. First,
+read the primary source before the media. For each week
+the Further reading section names the whitepaper,
+specification, or paper that is the ground truth; read it
+first, so that no promotional account can install a
+misconception before you have seen the real thing.
+Second, run the code. Every computational result in the
+book is generated at build time from the R shown beside
+it, and re-running it is the fastest way to convert
+reading into understanding. Third, keep a calibrated
+forecasting record, introduced in @sec-onchain and scored
+by the Brier score, so that your scepticism is itself
+held to account rather than merely asserted.
+
+The reference textbook throughout is
+@narayanan2016bitcoin, whose rigour set the standard this
+book tries to meet for a public-health audience.

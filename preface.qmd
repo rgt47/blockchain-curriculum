@@ -1,0 +1,236 @@
+# Preface {.unnumbered}
+
+This book grew out of a simple observation: the people
+best equipped to understand blockchain systems are often
+the least served by the material that explains them.
+Blockchain pedagogy is dominated by two genres. The first
+is the developer tutorial, which teaches how to call an
+interface without explaining why the system is built the
+way it is. The second is the promotional explainer, which
+supplies confidence in place of understanding. Neither
+serves a reader who can fit a survival model, prove a
+bound, or design a sampling plan, and who simply wants to
+know what is actually true.
+
+We wrote this book for first-year graduate students in
+public health, and in particular with the students of the
+biostatistics and epidemiology programmes at UC San
+Diego's school of public health in mind. The reader we
+imagine has a first course in probability, some comfort
+with algebraic structure, and working R. What such a
+reader brings to this subject is, in our view, an unusual
+advantage, and the book is organised to exploit it.
+Nakamoto consensus is a statement about the tail
+probability of a random walk. The ten-minute block time
+is the set point of a feedback controller. Committee
+selection in proof-of-stake is probability-proportional-
+to-size sampling, familiar from complex health surveys.
+Wealth concentration on a chain is a Lorenz curve, the
+same instrument we use to measure inequity in vaccine
+coverage. Almost every load-bearing idea in this field is
+one the reader already owns in another language, and the
+book's purpose is to perform the translation.
+
+## Why this matters now, and to you
+
+A first-year student of medicine or public health,
+browsing this book in a shop, is entitled to a blunt
+question: why should a health scientist spend ten weeks
+on a technology born to move cryptocurrency? We shall
+answer it just as bluntly. The verifiable-data machinery
+this book takes apart has already arrived in health, at a
+scale that makes a working knowledge of it a matter of
+professional competence rather than curiosity, and the
+pace at which it is arriving is increasing.
+
+Consider what is already in production. The World Health
+Organization launched, in 2023, a Global Digital Health
+Certification Network [@who2023gdhcn], a global public-key
+trust directory through which a vaccination record, and in
+time an immunisation history, an international patient
+summary, or a clinician's licence, may be verified across
+borders by cryptographic signature rather than by a
+telephone call to the issuing authority. In the United
+States the SMART Health Cards standard [@vci2024smart] put
+cryptographically signed health records into the hands of
+hundreds of millions of people during and after the
+COVID-19 pandemic. Europe's medicine-verification system
+has, since 2019, checked the authenticity of prescription
+drugs across an entire continent, and the United States'
+Drug Supply Chain Security Act has, across the mid-2020s,
+phased in an interoperable package-level tracing
+requirement for the drug supply, which the pharmaceutical
+MediLedger network [@fda2023dscsa] serves with a
+production ledger that uses zero-knowledge proofs to
+verify a package's legitimacy without exposing commercial
+data. Estonia has, since the 2010s, protected the
+integrity of its national health records with a
+blockchain-style hash-linked timestamping service
+[@guardtime2016estonia], committing only cryptographic
+digests, never patient data, to the ledger.
+
+Now the honest half, for it is the more instructive.
+Scarcely any of these successes is the thing the
+promoters of the last decade promised. The pattern, which
+we shall meet throughout the book, is stark: the
+verifiable-data ideas that succeeded in health quietly
+shed the word 'blockchain' and won as cryptographic-
+signature infrastructure, while the ventures that clung to
+tokens and 'data marketplaces' largely failed. Nebula
+Genomics, which promised consumers ownership of their
+genome on a chain, closed its consumer service in 2025,
+and systematic reviews through the middle of the decade
+find that the great majority of patient-data blockchain
+ventures never left the pilot stage. A reader who cannot
+tell the two apart is at the mercy of whoever is selling.
+
+That distinction is precisely the competence this book
+exists to build, and it is why the moment is now. The
+health professional of the coming decade will not, for the
+most part, be asked to build these systems. She will be
+asked to judge them: to sit on the committee evaluating a
+vendor's 'immutable, blockchain-secured' patient ledger,
+to advise a trial sponsor on whether a distributed consent
+registry earns its cost, to decide whether a supply-chain
+attestation proves what it claims. The pressure will only
+grow, for reasons beyond the deployments already listed.
+Verifiable credentials are spreading from vaccination into
+licensure and records, so that a clinician's own
+credentials will increasingly be cryptographic objects.
+And as predictive artificial intelligence enters the
+clinic, the demand for tamper-evident provenance, an
+auditable trail from a recommendation back to the data and
+the model that produced it, is becoming a regulatory
+expectation. Rules that took effect in the United States
+in 2025 required certified health-information technology
+to disclose the source attributes, the training data among
+them, of predictive clinical algorithms [@onc2024hti1],
+though we should note in the same breath that the
+requirement is contested and its future uncertain. The
+direction of travel is not in doubt even where the details
+are.
+
+The essential skill, then, is not to program a chain but
+to evaluate a claim about one, and that skill rests on the
+mathematics a statistician already commands. This book
+sets out to build it.
+
+## The organizing concept: applications in public health
+
+The overriding concept of the book is the application of
+blockchain ideas to public-health data problems. That is
+not a veneer on a general cryptocurrency course; it is
+the spine. The property that makes a blockchain worth a
+health scientist's attention is integrity without a
+custodian: a record that is tamper-evident, a provenance
+chain that anyone can verify, and a computation whose
+result can be audited without trusting the party who ran
+it. These are precisely the guarantees that clinical-
+trial data provenance, pharmaceutical and vaccine
+supply-chain verification, health-record integrity, and
+programmable consent ask for.
+
+Every chapter is built around this frame. Each opens with
+a public-health data problem, develops the relevant
+mechanism and its mathematics as the means of addressing
+it, and closes by returning to the problem to ask,
+honestly, whether the mechanism earns its considerable
+cost. A single running case study threads the entire
+book: a multi-institution clinical-trial data-integrity
+ledger, in which several hospitals that do not fully
+trust one another must agree on an append-only record of
+enrolment, randomisation, and outcome events. A vaccine
+cold-chain provenance system recurs as a secondary
+example. By the end the reader will have seen one
+realistic application developed against every layer of
+the stack.
+
+We should be candid about the negative result as well.
+For most health-data problems a well-governed database
+with an audit log is simpler, cheaper, and sufficient,
+and the chapters say so wherever it is true. Knowing when
+the elaborate machine is unnecessary is itself a
+statistician's contribution, and we treat that judgement
+as part of the subject rather than an aside.
+
+## The sceptical stance
+
+The book maintains a critical lens by default, not as a
+pose but as a discipline. The cryptography at the base of
+these systems solved a genuinely hard problem, namely
+open-membership Byzantine agreement without a trusted
+party. Much of what has been built on top of that
+achievement is speculation, and some of it is fraud. Both
+statements are true, and a calibrated mind holds both
+without collapsing into either evangelism or dismissal.
+
+To keep the analysis honest, we classify every claim we
+encounter into one of four falsifiability tiers (protocol
+fact, empirical claim, economic claim, narrative), and we
+ask the reader to demote each assertion to its true tier
+before believing it. The reader is also asked to keep a
+calibrated forecasting record, scored by the Brier score,
+so that scepticism itself is held to account rather than
+merely asserted. Epidemiologists who have followed the
+epidemic-forecasting literature will recognise the
+discipline.
+
+## What this book covers
+
+The ten chapters map to a ten-week course, organised in
+four parts.
+
+1. **Foundations.** The consensus problem (Byzantine
+   agreement in the permissionless setting) and the
+   cryptographic primitives (hash functions, Merkle
+   trees, digital signatures over elliptic curves),
+   studied empirically in R.
+2. **Bitcoin and Nakamoto consensus.** Proof-of-work and
+   the backbone protocol; the statistics of mining as a
+   renewal and control system; and the security economics
+   of attacks.
+3. **Ethereum and programmable state.** The account model
+   and the virtual machine; decentralised finance treated
+   as applied mathematics; and maximal extractable value
+   as market microstructure.
+4. **Proof-of-stake and on-chain data.** Stake-based
+   consensus, finality, and restaking risk; and the
+   statistical analysis of on-chain data, including
+   tokenomics, wealth concentration, and forecast
+   calibration.
+
+## What this book does not cover
+
+The book is not a developer manual. We do not teach
+Solidity programming, wallet operation, smart-contract
+security auditing, or the practical mechanics of trading;
+these are covered well elsewhere, and pointers appear in
+the relevant Further reading sections. Nor is the book
+investment advice. Where we treat markets and tokenomics
+we do so analytically and, the reader will find,
+sceptically.
+
+## Prerequisites and companion material
+
+We assume a first graduate course in probability, comfort
+with groups and finite fields at the level of a good
+undergraduate algebra course, and R at a working level.
+The `source-rmd/` directory accompanying the book
+contains the self-study curriculum and a fully runnable R
+companion from which much of the book's tested code is
+drawn. Every computational result in the book is
+generated at build time from the code shown beside it, so
+the printed results and the code that produced them
+cannot drift apart.
+
+## Chapter template
+
+Each content chapter follows the same sequence: learning
+objectives, orientation, the statistician's contribution,
+content sections with collapsible check-your-understanding
+callouts, a worked example, a section on collaborating
+with an LLM, exercises, and further reading. The pattern
+repeats deliberately; by the third chapter the reader will
+know where to find each component. The template puts human
+judgement and verification at the centre of every chapter,
+which is where, in our view, they belong.

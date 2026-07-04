@@ -1,0 +1,20 @@
+# Colophon {.unnumbered}
+
+This book was produced with [Quarto](https://quarto.org).
+Source code is in R 4.4 or later; the analyses use the
+`digest`, `openssl`, `ggplot2`, and tidyverse packages,
+each cited where first used.
+
+The book is designed for continuous deployment: the HTML
+book builds from the `.qmd` sources with `quarto render`,
+and the PDF builds through the same sources with a
+`scrbook` LaTeX class and the DejaVu Sans Mono monospace
+font for correct rendering of box-drawing and
+hexadecimal output.
+
+Every computational figure and table in the book is
+generated at build time from the R code shown beside it,
+so the printed results and the code that produced them
+cannot drift apart.
+
+Last rendered: see the build timestamp on the homepage.

@@ -1,0 +1,55 @@
+# Welcome {.unnumbered .unlisted}
+
+This is the online version of **The Statistics of
+Blockchain for Public Health** by Ronald 'Ryy' G. Thomas,
+a graduate course textbook.
+
+The organizing concept of the book is applications in
+public health. Every chapter opens with a public-health
+data problem, develops the blockchain mechanism and its
+mathematics as the means of addressing it, and returns to
+the problem to judge honestly whether the mechanism earns
+its cost. A single running case study, a multi-institution
+clinical-trial data-integrity ledger, threads the whole
+book, with vaccine cold-chain provenance as a recurring
+secondary example. The blockchain machinery is the means;
+the integrity of health data is the end.
+
+Within that frame, we treat blockchain systems the way a
+statistician would want them treated: as objects of
+quantitative study rather than objects of belief.
+Consensus becomes applied probability, mining becomes a
+renewal process, an automated market maker becomes a
+convexity argument, and market narratives become an
+exercise in falsifiability. The mathematics the reader
+already speaks replaces the hand-waving that pervades
+most writing on this subject.
+
+The book is designed as a ten-week, masters-level course.
+Each chapter maps to one teaching week and follows a
+fixed structure (learning objectives, orientation, the
+statistician's contribution, worked content with
+check-your-understanding callouts, an LLM-collaboration
+section, exercises, and further reading). Every code
+example is written in R and executes at build time.
+
+The intended reader is a first-year graduate student in
+public health, biostatistics, or epidemiology, with the
+probability and R background of a first-year masters
+student. No prior exposure to cryptography, distributed
+systems, or cryptocurrency is assumed. A public-health
+data problem opens every chapter, and the reader will
+find that the field's load-bearing mathematics (waiting
+times, sampling designs, concentration measures, forecast
+calibration) is mathematics they have already met in
+their own discipline.
+
+## License
+
+This book is licensed under
+[Creative Commons
+Attribution-NonCommercial-NoDerivatives 4.0 International](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+
+Code samples are licensed under
+[Creative Commons CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/),
+i.e. public domain.

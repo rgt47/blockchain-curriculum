@@ -1,0 +1,15 @@
+_book/
+.quarto/
+/.quarto/
+*.html
+*.pdf
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+.DS_Store
+node_modules/
+**/*.quarto_ipynb
+
+# Personal self-study drafts, not part of the published volume
+source-rmd/

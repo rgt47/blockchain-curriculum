@@ -1,0 +1,1150 @@
+# The Consensus Problem {#sec-consensus}
+
+## Learning objectives
+
+By the end of this chapter the reader should be able
+to:
+
+- State the double-spend problem precisely, and
+  explain why a signature scheme alone cannot solve it.
+- State the Byzantine Generals problem and derive the
+  $n \geq 3f+1$ bound for classical Byzantine agreement.
+- Describe state-machine replication as the abstraction
+  that both permissioned BFT and Nakamoto consensus
+  implement.
+- Explain why open membership defeats naive
+  identity-based voting (the Sybil attack), and why
+  identity cannot be assumed as a primitive.
+- Explain Nakamoto's substitution of probabilistic
+  agreement, weighted by a scarce resource, for the
+  deterministic agreement of classical BFT.
+- Judge whether a given multi-party data problem calls
+  for permissioned BFT, a permissionless chain, or
+  neither.
+
+## Orientation
+
+We begin with a problem in the daily conduct of
+multi-site clinical research. Consider a phase III
+trial run jointly across several hospitals. Each site
+enrols participants, assigns them to treatment arms by
+randomisation, and records outcome events as they
+occur. Each site keeps its own copy of a shared log of
+these events, and no single site is trusted to serve as
+the sole custodian of the record. Some time later a
+regulator, or an independent data-monitoring board,
+audits the trial and must be able to reconstruct one
+ordered, tamper-evident history of what happened and
+when. We shall refer to this arrangement throughout the
+book as the trial ledger, and it is the running case
+study against which the machinery of the following
+chapters is to be measured.
+
+The difficulty is not that any one hospital cannot keep
+good records. The difficulty is that the several copies
+must agree, and that they must be shown to agree to a
+party who trusts none of the sites individually. To see
+where the difficulty bites, consider three ways in which
+the arrangement can fail.
+
+The first failure is a conflict of order. The same
+participant, or equivalently the same randomisation
+slot, may be claimed at two sites at once: site 1
+records that subject 0041 was enrolled and randomised
+to the active arm at 09:14, while site 2 records the
+same subject, or the same slot, enrolled one minute
+later. Which entry is the true one? A digital signature
+on each entry authenticates who wrote it, and proves the
+entry was not altered after signing, but a signature
+cannot order two conflicting entries in time, nor decide
+which of the two the trial ought to honour. In the
+vocabulary of digital cash, where the problem was first
+studied and where we shall meet it below, this is the
+double-spend problem. In the trial ledger it is the
+problem of double enrolment.
+
+The second failure is adversarial. Suppose one
+hospital's data server is compromised, or merely
+misconfigured, and sends one version of its log to the
+regulator and a conflicting version to a second site.
+The remaining participants are honest, yet they now hold
+mutually inconsistent records, and no honest party can
+tell, from its own copy alone, which sites have been
+told what. Agreement among parties of whom some unknown
+subset may send conflicting messages to different
+recipients is the Byzantine Generals problem, posed by
+Lamport, Shostak and Pease [@lamport1982byzantine], and
+it is the abstract core of this chapter.
+
+The third failure appears only once membership is
+opened. Suppose that in place of a fixed consortium of
+named hospitals we operate an open disease registry that
+accepts case reports from anyone, and that we propose to
+settle disputes by some form of majority vote among
+reporters. Nothing then prevents a single actor from
+registering under a thousand invented identities and
+voting a thousand times, so that fabricated identities
+swamp the honest reports. This is the Sybil attack, and
+it is the reason that open-membership agreement is a
+genuinely harder problem than the fixed-consortium case.
+
+The three failures line up one to one with three
+classical problems, and it is worth fixing that
+correspondence before we develop each in turn.
+@tbl-failure-modes gives the map, together with the
+place in the book where each is treated in full.
+
+| Failure | Trial-ledger instance | Abstract problem | Where treated |
+|---|---|---|---|
+| **Conflict of order** | Double enrolment on one randomisation slot | Double-spend | This chapter; @sec-pow |
+| **Compromised site** | A site sends conflicting logs to different parties | Byzantine agreement | This chapter, the 3f+1 bound; @castro1999practical |
+| **Fake identities** | Ballot stuffing in an open registry | Sybil attack | This chapter; @sec-pow |
+
+: The three ways the trial ledger can fail, each an instance of a classical problem with a known treatment {#tbl-failure-modes}
+
+These three failures motivate the chapter, but we should
+state plainly at the outset where the argument is going
+to land. When the parties are a fixed, named,
+contractually accountable consortium, as the trial
+hospitals are, the problem is the classical one of
+agreement among known participants, solved by the
+permissioned protocols we present below, and in a great
+many such cases even that machinery is more than the
+problem requires: a single signed, append-only database
+with an audit log, maintained by one trusted operator,
+would serve. The permissionless machinery of the later
+chapters answers a different and harder trust problem,
+that of the open registry with no accountable membership
+at all. We shall be candid about this distinction
+wherever it arises, since reaching for the permissionless
+tool when the parties are in fact known and few is a
+design error, and one this book is written in part to
+help the reader avoid.
+
+Digital cash and cryptocurrency furnish the historical
+setting in which these problems were first isolated and
+solved, and we shall draw on that setting freely, because
+the mathematics was worked out there first. The setting,
+however, is not the subject. The subject is agreement on
+a single ordered history among mutually distrusting
+parties, without a trusted referee, and the trial ledger
+is our standing example of why a public-health data
+system might have need of it. A second example, to which
+we return in later chapters, is a vaccine cold-chain
+provenance record, in which custody and temperature
+readings for each lot are logged by many independent
+handlers and must later be reconstructed as one
+trustworthy history. This chapter isolates the goal of
+agreement from its cryptographic and economic machinery
+and studies it as a problem in its own right, because the
+problem is old, is well posed mathematically, and was
+understood to be hard for decades before Bitcoin existed.
+
+We already possess the tools this chapter requires.
+Byzantine agreement is a question about quorums and set
+intersection, which is combinatorics we have done
+before. The Sybil attack is a question about what a
+voting rule assumes about its input space. Nakamoto's
+contribution, previewed here and treated in full rigor
+in @sec-pow, is a substitution of a deterministic
+guarantee for a probabilistic one, precisely the kind of
+trade a statistician is trained to evaluate rather than
+to accept or reject on faith.
+
+The chapter proceeds in three moves. We show first that
+digital cash, and equally the trial ledger, has a
+problem that signatures do not solve, namely agreement
+on order. We then formalise the general problem of
+agreement among possibly-lying parties and derive the
+classical bound on how many liars a system can tolerate.
+We show last why that classical solution collapses the
+moment membership is opened to anyone, and what Nakamoto
+substituted in its place.
+
+## The statistician's contribution
+
+1. **Naming the fault model.** Before asking whether a
+   consensus protocol is 'secure', a statistician asks
+   what it assumes about failures: how many parties may
+   deviate, whether they may collude, and whether the set
+   of parties is fixed or open. Every security claim in
+   this book is conditional on such a model, and no tool
+   states the model on our behalf.
+2. **Trading determinism for probability.** Classical BFT
+   gives a guarantee that holds with certainty once a
+   fault threshold is respected. Nakamoto consensus gives
+   a guarantee that holds with a probability approaching
+   one as data accumulates. Recognizing which regime a
+   system occupies, and demanding the relevant
+   confidence statement rather than an absolute one, is
+   a judgement no protocol makes on our behalf.
+3. **Matching the trust model to the problem.** A fixed
+   consortium of named, accountable institutions and an
+   anonymous open population are different trust
+   problems with different correct solutions. Reaching
+   for a permissionless chain because it is the
+   fashionable tool, when the parties are in fact known
+   and few, is a design error a statistician is
+   well placed to catch.
+
+## The double-spend problem
+
+Digital cash is a message-passing problem before it is a
+cryptographic one, and the trial ledger, as we have
+seen, is the same problem in another guise. Suppose party
+$A$ holds a token and wishes to pay it to $B$. In a
+physical-cash economy, handing over a coin is a single
+physical act: $A$ cannot simultaneously hand the same
+coin to $C$. A digital token, by contrast, is a string of
+bits, and a string of bits may be copied and sent to $B$
+and $C$ at once. This is the double-spend problem: absent
+physical scarcity, preventing a party from spending the
+same balance twice is a coordination problem, not a
+copying problem. The reader will recognise the double
+enrolment of the Orientation as the same difficulty, with
+the coin replaced by a randomisation slot and the two
+payees replaced by two trial sites.
+
+A natural first instinct is that a digital signature
+solves this. It does not, and seeing precisely why is the
+first rigour check of the chapter. A signature scheme
+gives $A$ a way to produce, for a message $m$, a value
+$\sigma = \mathrm{Sign}(sk_A, m)$ that any holder of
+$A$'s public key may verify against $m$. This proves two
+things: that $m$ originated from whoever holds $sk_A$
+(authentication), and that $m$ has not been altered since
+signing (integrity). It proves nothing about *how many
+times* $A$ has said something similar, nor about *which*
+of two mutually exclusive statements by $A$ ought to be
+believed.
+
+Concretely, $A$ can produce two perfectly valid,
+independently unforgeable signed messages:
+
+$$
+m_1 = \text{"pay coin } c \text{ to } B\text{"}, \qquad
+m_2 = \text{"pay coin } c \text{ to } C\text{"}.
+$$
+
+Both $\sigma_1 = \mathrm{Sign}(sk_A, m_1)$ and
+$\sigma_2 = \mathrm{Sign}(sk_A, m_2)$ verify. Signature
+verification is a local, per-message predicate; it
+cannot detect that $m_1$ and $m_2$ jointly spend the same
+coin twice, because that fact is a relation between two
+messages sent to two different recipients, possibly at
+the same instant. Detecting it requires every party in
+the system to observe the *same total order* over all
+messages naming coin $c$, so that whichever of $m_1, m_2$
+comes first is the one that is honoured and the other
+rejected. That shared total order is consensus. In the
+trial ledger the two messages are two enrolment claims on
+the same slot, and the shared order is precisely what
+allows the regulator to say which claim stands.
+Signatures solve authentication; consensus solves order.
+Confusing the two is, in our experience, the single most
+common conceptual error made by newcomers to this field,
+and it merits fixing permanently before we proceed.
+
+::: {.callout-note icon=false collapse=true}
+## Check your understanding: signatures and double-spend
+
+Suppose every transaction were signed by a trusted
+notary in addition to the payer, and the notary refused
+to sign a message that conflicted with one it had
+already notarized. Would this solve double-spending
+without any further consensus mechanism? What has been
+assumed?
+
+The notary's local bookkeeping is exactly a total order
+over transactions, so yes, this solves the problem, but
+it has silently reintroduced a trusted, single point of
+failure and authority: the notary. Distributed consensus
+exists to deliver that same total-ordering service
+without requiring one party to be trusted.
+:::
+
+## Byzantine agreement and the 3f+1 bound
+
+The general problem behind 'get everyone to agree on an
+order' was posed abstractly by Lamport, Shostak and Pease
+[@lamport1982byzantine] as the Byzantine Generals
+problem. We are given a set of $n$ generals, some unknown
+subset of whom may be traitors, who must agree on a
+common plan of action (attack or retreat) by exchanging
+messages, in such a way that all *loyal* generals reach
+the same decision, even though traitors may send
+conflicting messages to different recipients, lie about
+what others said, or say nothing at all. The compromised
+hospital server of the Orientation is a traitor in
+exactly this sense: it is not merely silent, it sends
+inconsistent logs to different honest parties. A protocol
+solving this is Byzantine fault tolerant (BFT) if it
+guarantees two properties for the loyal generals:
+
+- **Safety.** No two loyal parties ever decide
+  differently.
+- **Liveness.** Every loyal party eventually decides.
+
+Faults here are *arbitrary* (Byzantine), not merely
+crash faults: a faulty party may deviate from the
+protocol in any way at all, including strategically, and
+the protocol must still work. This is a much harder
+requirement than tolerating parties that merely stop
+responding, and it is the right model for a security
+setting, where a faulty party may be an adversary rather
+than a bug.
+
+@fig-topology draws the failure concretely: one site
+among five sends two conflicting versions of the shared
+log to two honest neighbours, so that no honest party
+can tell, from its own copy alone, which history is the
+true one.
+
+```{r}
+#| label: fig-topology
+#| fig-cap: 'A single compromised site breaks agreement by sending two conflicting versions of the shared log to different honest sites, which is Byzantine failure in the trial ledger.'
+#| fig-width: 6
+#| fig-height: 4
+library(ggplot2)
+
+PAL <- c('#2a78d6', '#1baf7a', '#eda100', '#008300',
+         '#4a3aa7', '#e34948', '#e87ba4', '#eb6834')
+
+book_theme <- ggplot2::theme_minimal(base_size = 11) +
+  ggplot2::theme(
+    panel.grid.minor = ggplot2::element_blank(),
+    panel.grid.major = ggplot2::element_line(
+      linewidth = 0.25, colour = 'grey88'),
+    axis.title = ggplot2::element_text(size = 10),
+    legend.position = 'bottom'
+  )
+
+struct <- '#33356b'
+attack <- '#e34948'
+
+ang <- (seq(90, -198, length.out = 5)) * pi / 180
+nodes <- tibble::tibble(
+  site = paste('Site', 1:5),
+  x = 2.6 * cos(ang),
+  y = 2.6 * sin(ang),
+  bad = c(FALSE, FALSE, TRUE, FALSE, FALSE)
+)
+comp <- nodes[nodes$bad, ]
+tgt <- nodes[nodes$site %in% c('Site 2', 'Site 4'), ]
+seg <- tibble::tibble(
+  x = comp$x, y = comp$y,
+  xend = tgt$x, yend = tgt$y,
+  lab = c('log v1', 'log v2')
+)
+seg <- dplyr::mutate(seg,
+  dx = xend - x, dy = yend - y,
+  x = x + 0.30 * dx, y = y + 0.30 * dy,
+  xend = xend - 0.32 * dx, yend = yend - 0.32 * dy,
+  mx = (x + xend) / 2, my = (y + yend) / 2
+)
+
+ggplot() +
+  geom_rect(data = nodes,
+    aes(xmin = x - 0.62, xmax = x + 0.62,
+        ymin = y - 0.32, ymax = y + 0.32, fill = bad),
+    colour = NA) +
+  geom_text(data = nodes, aes(x, y, label = site),
+    colour = 'white', size = 3.3) +
+  geom_segment(data = seg,
+    aes(x = x, y = y, xend = xend, yend = yend),
+    colour = attack, linewidth = 0.7,
+    arrow = grid::arrow(length = grid::unit(0.18, 'cm'),
+      type = 'closed')) +
+  geom_label(data = seg, aes(mx, my, label = lab),
+    colour = attack, fill = 'white', linewidth = 0, size = 2.9) +
+  scale_fill_manual(
+    values = c(`FALSE` = struct, `TRUE` = attack), guide = 'none') +
+  coord_equal(clip = 'off') +
+  theme_void()
+```
+
+### How many liars can be tolerated
+
+Suppose $n$ parties run a quorum-based protocol: a
+decision is made once some quorum of size $q$ agrees on
+it, and up to $f$ of the $n$ parties are Byzantine. Two
+requirements pin down the minimum $n$ as a function of
+$f$.
+
+**Safety requires overlapping quorums.** If two decisions
+could be made by two disjoint-enough quorums, the
+Byzantine parties could feed conflicting messages to each
+quorum and cause two different loyal decisions. To rule
+this out, any two quorums must share at least one *loyal*
+member. Two quorums of size $q$ drawn from $n$ parties
+overlap in at least $2q - n$ members; even if every
+Byzantine party is placed in the overlap, a loyal member
+survives in the overlap only if
+
+$$
+2q - n \; \geq \; f + 1.
+$$
+
+**Liveness requires an achievable quorum.** A quorum must
+be reachable using loyal parties alone, since Byzantine
+parties cannot be compelled to participate honestly. With
+$f$ possible defectors, this requires
+
+$$
+q \; \leq \; n - f.
+$$
+
+Combining the two, the smallest workable $q$ satisfies
+$q \geq \lceil (n+f+1)/2 \rceil$, and feasibility requires
+this value not to exceed $n - f$. Substituting and
+simplifying gives the classical bound:
+
+$$
+n \; \geq \; 3f + 1.
+$$
+
+With fewer than $3f+1$ parties, no protocol, however
+clever, can guarantee both safety and liveness against
+$f$ Byzantine parties: an adversary controlling $f$ of a
+smaller system can always engineer either two
+inconsistent decisions or a stall. The worked example
+below checks this bound numerically by testing quorum
+feasibility directly, rather than asking the reader to
+take the algebra on trust.
+
+@fig-quorum-intersection shows why the overlap argument
+forces the bound. With n = 3f+1 sites, two quorums of
+size 2f+1 must share f+1 members, and since at most f
+of those shared members can be Byzantine, at least one
+is guaranteed to be honest.
+
+```{r}
+#| label: fig-quorum-intersection
+#| fig-cap: 'Two quorums of size 2f+1 drawn from 3f+1 sites must share at least f+1 members, so their overlap always contains at least one honest site.'
+#| fig-width: 6.5
+#| fig-height: 3.4
+f <- 2
+n <- 3 * f + 1
+nd <- tibble::tibble(x = 1:n, y = 0)
+bands <- tibble::tibble(
+  xmin = c(0.5, 2.5, 5.5),
+  xmax = c(2.5, 5.5, 7.5),
+  fillc = c('grey88', '#d6e6f8', 'grey88')
+)
+
+ggplot() +
+  geom_rect(data = bands,
+    aes(xmin = xmin, xmax = xmax, ymin = -0.55, ymax = 0.55),
+    fill = bands$fillc, colour = NA) +
+  geom_point(data = nd, aes(x, y), size = 5, colour = struct) +
+  annotate('text', x = 1.5, y = 0.88, label = 'A only',
+    size = 2.9, colour = struct) +
+  annotate('text', x = 4, y = 0.88,
+    label = 'overlap = f+1 = 3\nat least one honest',
+    size = 2.9, colour = '#1d5a9e', lineheight = 0.9) +
+  annotate('text', x = 6.5, y = 0.88, label = 'B only',
+    size = 2.9, colour = struct) +
+  annotate('segment', x = 0.6, xend = 5.4, y = 1.6, yend = 1.6,
+    colour = PAL[1], linewidth = 0.8) +
+  annotate('text', x = 3, y = 1.95,
+    label = 'Quorum A: 2f+1 = 5 sites', colour = PAL[1], size = 3.1) +
+  annotate('segment', x = 2.6, xend = 7.4, y = -1.1, yend = -1.1,
+    colour = PAL[2], linewidth = 0.8) +
+  annotate('text', x = 5, y = -1.45,
+    label = 'Quorum B: 2f+1 = 5 sites', colour = PAL[2], size = 3.1) +
+  coord_cartesian(clip = 'off') +
+  theme_void()
+```
+
+::: {.callout-note icon=false collapse=true}
+## Check your understanding: why 3f, not 2f
+
+A student argues that tolerating $f$ liars among $n$
+parties should only require a strict majority, i.e.
+$n \geq 2f+1$, since a majority already outvotes the
+liars. Where does the argument fail?
+
+A strict majority is enough to *outvote* liars in a
+single vote, but Byzantine agreement requires that *any
+two* quorums used across the protocol's messages still
+intersect in a loyal party, and it requires that a quorum
+be achievable without any cooperation from the (unknown)
+faulty parties. A bare majority quorum can be entirely
+disjoint from another bare majority quorum once one
+removes the possibly-faulty parties from each,
+breaking the safety property. The extra factor of $f$
+is the price of never needing to trust which parties are
+faulty.
+:::
+
+## State-machine replication as the abstraction
+
+Byzantine agreement generalizes to a useful engineering
+abstraction called state-machine replication (SMR): a
+service is defined by a deterministic state machine (a
+transition function applied to an ordered log of
+inputs), and the log is replicated across $n$ parties
+using a BFT agreement protocol so that every loyal
+replica applies the same inputs in the same order and
+therefore reaches the same state. A ledger is exactly
+this: the 'inputs' are transactions, the 'state' is the
+set of account balances or unspent outputs, and the
+'transition function' is 'apply the transaction if it is
+valid, else reject it.' The trial ledger is an instance
+of the same abstraction, in which the inputs are
+enrolment, randomisation and outcome events, the state is
+the current enrolment and endpoint tally, and the
+transition function admits an event if it is well formed
+and consistent with the log so far. Every consensus
+protocol in this book, from PBFT to Nakamoto's chain to
+the proof-of-stake protocols of @sec-pos, is best
+understood as an implementation of SMR under a particular
+fault model and a particular membership assumption.
+
+Castro and Liskov [@castro1999practical] gave the first
+BFT SMR protocol efficient enough for real deployment:
+Practical Byzantine Fault Tolerance (PBFT). PBFT runs
+among a *fixed, known*
+set of $n$ replicas, tolerates up to
+$f = \lfloor (n-1)/3 \rfloor$ Byzantine replicas exactly
+at the $3f+1$ bound, and reaches deterministic agreement
+in a small, bounded number of message rounds per decision.
+It is the template for every permissioned (consortium)
+blockchain in production today.
+
+The catch is in the phrase 'fixed, known set.' PBFT and
+its relatives require that the identities of the $n$
+participants be established in advance, typically by a
+credentialing authority admitting named institutions.
+This is a perfectly reasonable requirement in many real
+settings, and a fatal one in others, which is exactly the
+distinction the next section makes precise.
+
+## Sybil attacks and the limits of majority vote
+
+Suppose we relax PBFT's fixed-membership assumption, as
+the open disease registry of the Orientation does, and
+allow anyone to claim a seat in the consensus protocol
+by, say, announcing a network address or registering as a
+reporter. Nothing then prevents a single adversary from
+announcing a thousand addresses. Douceur
+[@douceur2002sybil] named this the Sybil attack and
+established a stronger result: absent some mechanism that
+makes acquiring an identity costly, no distributed
+protocol can bound the number of identities a single
+adversary controls, and therefore no identity-counting
+rule (one address, one vote) can be made robust against a
+resource-poor adversary who merely mints more identities.
+
+This is not a narrow technical gap in PBFT; it is a
+structural fact about open membership. The $3f+1$ bound
+assumes $f$ is a bounded *fraction of a bounded set of
+identities*. Once identity creation is free, $f$ is
+unbounded relative to $n$ measured in identities, and the
+bound is vacuous. A voting rule that counts identities is
+the wrong object to defend, no matter how the counting is
+implemented.
+
+To illustrate, consider the open registry populated by
+one hundred honest reporters, each of whom files a
+truthful case report, and a single adversary who mints
+one hundred and fifty free identities and files a
+fraudulent report under each. The first code chunk below
+makes the consequence concrete. Under a rule of one
+identity, one vote, the fraudulent outcome commands a
+majority while representing exactly one real,
+resource-constrained actor.
+
+```{r ch01-sybil-vote}
+set.seed(20260702)
+n_honest <- 100
+n_sybil <- 150
+
+# SYNTHETIC: identity-counted votes under free identity
+# creation. Each 'A' is one honest participant; each 'B'
+# is one Sybil identity minted by a single adversary.
+votes <- c(rep('A', n_honest), rep('B', n_sybil))
+table(votes)
+
+prop_fraudulent <- mean(votes == 'B')
+prop_fraudulent
+```
+
+A single actor with no special resources outvotes the
+hundred honest reporters, because the ballot counted
+identities and identities were free. The remedy is not a
+better counting rule; it is to refuse to count identities
+at all, and to weight influence instead by something the
+adversary cannot mint for free. The second chunk repeats
+the experiment, granting each honest reporter one unit of
+a scarce resource and granting the adversary a *fixed
+total* budget of that resource, which it may split across
+as many Sybil identities as it likes.
+
+```{r ch01-resource-weighted-vote}
+set.seed(20260702)
+r_honest <- rep(1, n_honest)
+
+# SYNTHETIC: the adversary's total resource budget is
+# fixed regardless of how many identities it mints.
+# Splitting it more finely does not create more of it.
+total_attacker_resource <- 30
+r_sybil <- rep(total_attacker_resource / n_sybil, n_sybil)
+
+weights <- c(r_honest, r_sybil)
+side <- c(rep('A', n_honest), rep('B', n_sybil))
+tapply(weights, side, sum)
+```
+
+The fraudulent side's total weight is fixed at 30 no
+matter how many identities it is divided among; minting
+more Sybils only slices the same budget more thinly. This
+is the general principle: influence proportional to a
+scarce, externally verifiable resource is Sybil-resistant
+by construction, while influence proportional to
+identity-count is not. Which resource to use, and how to
+verify a claim on it without a trusted registrar, is
+exactly the question @sec-pow answers for computation and
+@sec-pos answers for stake.
+
+::: {.callout-important}
+## The sceptic's reflex
+
+'Blockchain solves the Byzantine Generals problem' is a
+narrative-tier claim as usually stated. Classical BFT,
+solved by @castro1999practical, already solves Byzantine
+Generals under a fixed-membership fault model. What
+Nakamoto consensus adds is a solution to a harder,
+different problem: Byzantine-style agreement under *open*
+membership, where the number and identity of
+participants is unknown and unbounded. Naming which
+problem is being solved, fixed membership or open
+membership, converts this from a marketing line into a
+protocol fact.
+:::
+
+## Nakamoto's move: probabilistic agreement by scarce resource
+
+Nakamoto's [@nakamoto2008bitcoin] contribution, in the
+vocabulary now established, is to replace identity-counted
+voting with resource-weighted influence, using
+computational work as the scarce, externally verifiable
+resource, and to accept a probabilistic form of agreement
+in place of PBFT's deterministic one. Chapter @sec-pow
+develops the full mechanism; here we note only the shape
+of the trade.
+
+Instead of $n$ known parties each casting one vote,
+anyone may participate, and a participant's influence
+over which history is canonical is proportional to the
+computational work it has expended, verified cheaply by
+everyone via a cryptographic puzzle. An adversary who
+controls a minority of the total computational capacity
+can, with probability that *decays exponentially* in the
+number of confirmations, temporarily produce a longer
+competing history, but cannot do so as a matter of
+certainty, nor indefinitely. Safety is no longer a
+theorem holding with probability one under a stated fault
+bound; it is a tail probability that the reader,
+possessing a Poisson-process and random-walk toolkit
+already, is equipped to compute directly. @sec-pow does
+exactly that computation.
+
+This is not the first use of costly computation to deter
+an adversary. Dwork and Naor [@dwork1993pricing] proposed
+spending computation as a toll to deter denial-of-service
+attacks and junk email, and Back [@back2002hashcash]
+operationalised the idea as a practical proof-of-work
+stamp. Nakamoto's innovation was to repurpose that toll,
+not as an anti-spam fee but as the scarce resource that
+determines *whose vote on transaction order counts*,
+thereby converting a spam deterrent into a Sybil-resistant
+consensus weight, and coupling it to a longest-valid-chain
+rule that gives the system a mechanical way to resolve
+competing histories without a vote in the classical sense
+at all.
+
+::: {.callout-note icon=false collapse=true}
+## Check your understanding: what changed and what did not
+
+Compare PBFT and Nakamoto consensus along three axes:
+membership, the nature of the safety guarantee, and the
+basis of a participant's influence. What is genuinely new
+and what is a repackaging of an older idea?
+
+Membership: fixed and known (PBFT) versus open and
+unbounded (Nakamoto). Safety guarantee: deterministic
+once $f$ respects $3f+1$ (PBFT) versus probabilistic,
+improving with confirmations (Nakamoto). Basis of
+influence: identity (PBFT's one-replica-one-vote among
+admitted members) versus a scarce, externally verifiable
+resource (Nakamoto's proof-of-work). The genuinely new
+piece is Sybil-resistant weighting under open membership;
+the toll-for-computation idea it is built from predates
+Nakamoto by over a decade [@dwork1993pricing;
+@back2002hashcash].
+:::
+
+## Permissioned versus permissionless: an engineering choice
+
+None of the foregoing ranks one design above the other.
+Permissioned BFT (PBFT and its modern descendants) gives
+deterministic finality, high throughput, and low latency,
+at the cost of requiring a credentialing process that
+establishes who the $n$ parties are. Permissionless
+Nakamoto-style consensus gives Sybil-resistant, open
+membership with no credentialing authority at all, at the
+cost of probabilistic finality, materially higher latency
+before a transaction is safe to treat as settled, and (in
+the proof-of-work instance) a real resource expenditure
+that purchases the Sybil resistance.
+
+The correct choice is a function of the trust
+environment, not a matter of preference for
+'decentralization' as a general good. When the set of
+participants is small, known, accountable to a
+regulator or contract, and stable over time,
+permissioned BFT typically dominates on every operational
+axis. When participation must be open to parties unknown
+in advance, unaccountable to any shared authority, and
+free to enter or leave, only a Sybil-resistant,
+permissionless design is structurally viable, and its
+extra cost is the price of that openness.
+
+@tbl-three-designs sets the two consensus designs
+beside the humbler option we keep returning to, a
+single signed and audited database, along the axes
+that decide between them.
+
+| Property | **Permissioned BFT** | **Permissionless Nakamoto** | **Signed audited database** |
+|---|---|---|---|
+| **Membership** | Fixed, credentialed | Open, unbounded | Single operator |
+| **Sybil resistance** | Not needed, set is known | By scarce resource | Not applicable |
+| **Finality** | Deterministic, sub-second | Probabilistic, grows with confirmations | Immediate, one writer |
+| **Throughput** | High | Low to moderate | Highest |
+| **Right tool when** | Parties known, few, mutually distrusting | Membership open and unaccountable | One trusted operator suffices |
+
+: Three designs for a shared record and the trust environment each one fits {#tbl-three-designs}
+
+To illustrate the fixed-membership case with the trial
+ledger in view, consider how the tolerable number of
+faulty sites grows with the size of the consortium. Under
+the classical bound a consortium of $n$ named
+institutions can tolerate at most
+$f = \lfloor (n-1)/3 \rfloor$ simultaneously Byzantine
+members, those whose servers are compromised,
+misconfigured, or otherwise misreporting, while still
+guaranteeing agreement on the trial record.
+
+```{r ch01-consortium-tolerance}
+# SYNTHETIC: Byzantine fault tolerance of a fixed
+# consortium ledger as a function of the number of
+# named institutions, via f = floor((n - 1) / 3).
+consortium <- tibble::tibble(n_sites = c(4, 7, 10, 13, 16))
+
+consortium |>
+  dplyr::mutate(
+    max_faulty = (n_sites - 1L) %/% 3L,
+    honest_needed = n_sites - max_faulty
+  )
+```
+
+A consortium of thirteen parties, the twelve hospitals
+and one regulator of the callout below, may thus tolerate
+up to four compromised or misreporting members while
+still reconstructing one agreed history, and it requires
+nine honest members to do so. Should the consortium later
+wish to tolerate more faults, the bound becomes a design
+constraint on how many institutions must be enrolled, a
+point we take up again in the exercises.
+
+Plotting the same bound over a range of consortium
+sizes, @fig-fault-tolerance shows that tolerance rises
+as a step function: three further institutions buy
+exactly one more tolerable fault, with the thirteen-party
+consortium of the callout below sitting on the f = 4
+tread.
+
+```{r}
+#| label: fig-fault-tolerance
+#| fig-cap: 'Tolerance rises as a step function of consortium size, gaining one more tolerable Byzantine site only when three further institutions join.'
+#| fig-width: 6
+#| fig-height: 3.4
+tol <- tibble::tibble(n = 1:19, f = (n - 1L) %/% 3L)
+mark <- tibble::tibble(n = 13, f = 4L, lab = 'n = 13 tolerates f = 4')
+
+ggplot(tol, aes(n, f)) +
+  geom_step(colour = PAL[1], linewidth = 0.8) +
+  geom_point(data = mark, aes(n, f), colour = PAL[3], size = 2.6) +
+  geom_text(data = mark, aes(n, f, label = lab), colour = PAL[3],
+    size = 3, hjust = 1.1, vjust = -0.8) +
+  scale_x_continuous(breaks = seq(1, 19, 3)) +
+  scale_y_continuous(breaks = 0:6) +
+  labs(x = 'Consortium size n', y = 'Tolerable Byzantine sites f') +
+  book_theme
+```
+
+::: {.callout-warning}
+## Multi-hospital trial data: which tool, honestly
+
+This is the trial ledger of the Orientation, now regarded
+as an engineering choice. We have a phase III trial run
+across a consortium of, say, twelve hospitals and a
+regulator, none of whom fully trusts the others to
+control the shared enrolment and endpoint log
+unilaterally, but all of whom are named, contracted, and
+accountable institutions. This is a textbook
+fixed-membership setting: $n = 13$ is known, $f$ may be
+bounded by contract (how many parties the consortium is
+willing to assume might misreport or go offline), and a
+PBFT-style consortium ledger delivers tamper-evident,
+jointly-audited agreement on the trial record with
+sub-second finality and no proof-of-work energy cost.
+Reaching instead for a permissionless chain, with its
+unbounded, anonymous validator set and probabilistic
+finality, buys Sybil resistance the problem never needed,
+at real cost in latency, throughput, and operational
+complexity. The right engineering answer here is a
+permissioned ledger, or, in a great many such consortia,
+a conventional database with cryptographic audit logging
+and no consensus protocol running at all, per the warning
+in @sec-intro. We reserve the permissionless machinery
+for the case that genuinely has open, unaccountable
+membership, such as a public disease registry meant to be
+independently verifiable by parties who will never be
+enumerated in advance.
+:::
+
+## Permissioned ledgers and the health deployments
+
+We have argued that the trial ledger, a fixed and named
+consortium of accountable hospitals, is the permissioned
+case, and we now take that case seriously. We do so for
+two reasons: it is the honest setting for our running
+example, and it is where very nearly every deployed
+health-sector ledger actually lives. The open-membership
+machinery that occupies the remainder of this book is,
+for the health scientist, the exception and not the rule.
+
+What does a ledger look like when the membership is
+known in advance? The most widely deployed permissioned
+design, Hyperledger Fabric, is instructive precisely
+because it departs from the Bitcoin template. The public
+chains of the preceding sections follow an order-execute
+discipline: the consensus protocol orders the
+transactions first, and every node then executes all of
+them in that fixed order. Fabric, as Androulaki and
+colleagues describe it [@androulaki2018fabric], rearranges
+this into an execute-order-validate pipeline. A
+transaction is first executed, or endorsed, by a
+nominated subset of peers, who simulate it against their
+copy of the state and sign the result; the signed
+endorsements are then ordered by a separate ordering
+service; and each peer finally validates the ordered
+transactions against an endorsement policy before
+committing them. The rearrangement is not cosmetic. It
+lets mutually distrusting organisations agree on state
+without requiring every node to run every computation in
+lockstep, and it isolates the ordering service as the one
+component that must be agreed upon.
+
+The deeper point, for our purposes, is what a known
+membership buys. When the writers are a fixed roster of
+named institutions, the Sybil attack of the previous
+section simply cannot arise, since no party can mint new
+identities that the others will honour. The problem
+reduces to classical Byzantine agreement among a known
+set, which Castro and Liskov's practical protocol
+[@castro1999practical] solves at the 3f+1 threshold we
+derived, and proof-of-work, with its deliberate and
+enormous energy cost, becomes unnecessary. We should be
+precise, however, about how much fault tolerance a
+deployed system actually buys, since the table below
+names classical Byzantine agreement as the permissioned
+answer and practice is often weaker. Fabric, for one,
+has in its common configurations ordered transactions
+with a crash-fault-tolerant protocol such as Raft, which
+tolerates orderers that halt but assumes they do not lie;
+full Byzantine ordering is available but is not the
+default. The distinction is itself a trust decision:
+Byzantine tolerance guards against a corrupted insider at
+the ordering layer, crash tolerance only against one that
+fails honestly, and a consortium must decide which threat
+it is buying against. With that caveat noted, a
+permissioned ledger recovers high throughput, low
+latency, and negligible energy, at the price of the very
+thing that makes public chains interesting: it
+presupposes that the membership can be agreed upon in the
+first place.
+
+: The two architectures contrasted. The rearrangement of steps is what lets a permissioned ledger dispense with proof-of-work. {#tbl-fabric}
+
+| Property | Public chain (order-execute) | Permissioned (execute-order-validate) |
+|---|---|---|
+| **Membership** | Open, unaccountable | Fixed, named, accountable |
+| **Sybil resistance** | Costly scarce resource | Not needed |
+| **Consensus** | Nakamoto or stake | Classical BFT [@castro1999practical], or crash-fault-tolerant in practice |
+| **Energy** | Large by design | Negligible |
+| **Throughput** | Low | High |
+| **Health fit** | Rare | The usual case |
+
+Where, then, has the health sector actually put these
+ideas to work? The literature is by now sizeable.
+Azaria and colleagues' MedRec [@azaria2016medrec] proposed
+a ledger for medical-record access and permission
+management, and it remains the most cited work in the
+area. The informatics community's own assessments
+[@kuo2017blockchain], the systematic review of Agbo and
+colleagues [@agbo2019systematic], proposals for
+clinical-trial provenance [@benchoufi2017trials], designs
+for patient-driven interoperability [@gordon2018interoperability],
+and integrations with the FHIR health-data standard
+[@zhang2018fhirchain] together describe an active decade
+of work. A public-health reader could be forgiven for
+concluding that the matter is settled and the ledgers are
+in the clinics.
+
+Unfortunately, they are largely not, and it is worth
+asking why. The systematic reviews are consistent on this
+point: the great majority of these efforts are pilots and
+proofs of concept, and few have reached production scale.
+The explanation is not a failure of engineering but a
+failure of fit, and Wust and Gervais give the decision
+criterion that makes the failure legible
+[@wust2018need]. A blockchain earns its considerable cost,
+they argue, only when three conditions hold together:
+there are multiple writers, no trusted third party is
+available, and the writers' interests may conflict. Many
+health proposals satisfy the first and third conditions
+but not the second, because a trusted custodian, a
+hospital's information-technology department or a trial's
+data-coordinating centre, is in fact available and
+acceptable. When such a custodian exists, a well-governed
+database with cryptographic audit logging delivers
+tamper-evidence at a fraction of the cost, and the ledger
+is machinery in search of a problem.
+
+::: {.callout-important}
+## The sceptic's reflex
+
+'Blockchain for health records' is, in the majority of
+the proposals that carry the phrase, a tier-four
+narrative wearing the costume of a tier-one protocol
+fact. The reflex is to apply the Wust and Gervais test
+before believing the pitch: name the writers, ask whether
+a trusted custodian is genuinely unavailable, and ask
+whether their interests actually conflict. Most proposals
+fail at the second question.
+:::
+
+This returns us to the trial ledger, and to an honest
+verdict. Of the health cases in the literature, a fixed
+consortium of hospitals sharing a trial record is among
+the strongest, since the distrust among named parties is
+real and the regulatory demand for an independent audit
+is genuine. Even here, however, the permissioned ledger
+does not win by default. It competes against a simpler
+arrangement in which one operator maintains a signed,
+append-only log that every site replicates and checks, and
+the choice between them turns on a single question: can
+the consortium agree on who operates the log? If it can,
+the database is the better tool; if it genuinely cannot,
+the permissioned ledger earns its place. We shall keep
+this question in view as the machinery grows more
+elaborate in the chapters ahead.
+
+::: {.callout-note icon=false collapse=true}
+## Check your understanding: does the trial ledger need a chain?
+
+A pharmaceutical sponsor proposes to run the trial ledger
+on a public blockchain 'for maximum transparency and
+immutability'. Applying the Wust and Gervais criterion,
+what is the first question to ask, and what cheaper design
+should be the comparator?
+
+The first question is whether a trusted custodian is
+genuinely unavailable, because if the sites will accept
+any single operator, no blockchain of any kind is
+warranted. A public chain is doubly wrong here: it exposes
+enrolment and outcome data to the world, which the
+hashing of @sec-intro shows is not anonymised by hashing
+alone, and it pays proof-of-work costs to solve a Sybil
+problem that a closed consortium does not have. The
+correct comparator is a signed, replicated, append-only
+audit log, and only if the sites cannot agree on its
+operator does a permissioned consortium ledger become the
+answer.
+:::
+
+## Worked example
+
+The quorum-feasibility argument behind $n \geq 3f+1$ was
+given algebraically above. This worked example checks it
+computationally: for a range of fault counts $f$, is a
+quorum of the required size simultaneously (a) large
+enough to guarantee two quorums share a loyal member, and
+(b) small enough to be reachable using loyal parties
+alone? The function below implements exactly the two
+inequalities derived earlier, and nothing else.
+
+```{r ch01-quorum-bound}
+quorum_exists <- function(n, f) {
+  q_min <- ceiling((n + f + 1) / 2)
+  q_min <= n - f
+}
+
+f_vals <- 1:6
+
+# n = 3f: one short of the classical bound
+purrr::map2_lgl(3 * f_vals, f_vals, quorum_exists)
+
+# n = 3f + 1: exactly at the classical bound
+purrr::map2_lgl(3 * f_vals + 1, f_vals, quorum_exists)
+```
+
+The first line is `FALSE` at every tested $f$: with only
+$n = 3f$ parties, no quorum size satisfies both the
+safety and the liveness inequality simultaneously, so no
+protocol relying on quorum intersection can guarantee
+both properties. The second line is `TRUE` at every
+tested $f$: adding a single additional party, reaching
+$n = 3f+1$, is both necessary and sufficient. The bound
+derived by hand in the previous section is not an
+approximation or a rule of thumb; it is exact, and the
+simulation above is merely evaluating the same two
+inequalities Lamport, Shostak, and Pease established, at
+a handful of parameter values, as a check that the algebra
+was not mis-transcribed.
+
+## Collaborating with an LLM
+
+**Prompt:** 'Explain why proof-of-work solves the
+Byzantine Generals problem.'
+**Watch for:** Most LLM answers to this prompt conflate
+the *classical*, fixed-membership Byzantine Generals
+problem, already solved by PBFT, with the *open-
+membership* Sybil-resistance problem that proof-of-work
+actually addresses. An answer that does not distinguish
+the two, or that claims proof-of-work gives a
+deterministic guarantee, is repeating a common but
+imprecise account.
+**Verification:** Ask the model to state explicitly
+whether its claimed guarantee is deterministic or
+probabilistic, and under what fault model. Cross-check
+the stated fault model against @castro1999practical for
+the permissioned case and against the tail-probability
+argument of @sec-pow for the permissionless case.
+
+**Prompt:** 'Derive the minimum number of nodes needed to
+tolerate f Byzantine faults.'
+**Watch for:** Models frequently state $n \geq 3f+1$
+correctly as a fact but skip or garble the derivation,
+particularly the step requiring quorum overlap to contain
+a *loyal* member rather than merely a nonempty
+intersection.
+**Verification:** The reader may reproduce the two
+inequalities, $2q - n \geq f+1$ and $q \leq n-f$,
+independently, and check that the model's derivation
+actually combines them rather than asserting the bound.
+The `quorum_exists()` function
+above is a fast independent check at specific values of
+$n$ and $f$.
+
+**Prompt:** 'Design a consensus mechanism for a
+multi-hospital clinical trial consortium.'
+**Watch for:** A default LLM answer often proposes a
+permissionless, proof-of-work or proof-of-stake design by
+association with 'blockchain' generally, without asking
+whether membership is in fact fixed and known.
+**Verification:** Before accepting any design, establish
+whether the participant set is fixed, named, and
+contractually accountable. If so, insist the model justify
+any permissionless component against a plain PBFT-style
+consortium ledger, or a conventional audited database, on
+concrete operational grounds rather than by assertion.
+
+## Exercises
+
+1. A protocol uses quorums of size $q = \lceil (n+1)/2
+   \rceil$ (a bare majority) among $n$ parties, of which
+   $f$ may be Byzantine. Derive the largest $f$, as a
+   function of $n$, for which this quorum size still
+   satisfies both the overlap inequality and the
+   achievability inequality from this chapter. Compare it
+   to the $3f+1$ bound and explain the gap.
+2. Extend the `quorum_exists()` function to also return the
+   minimal feasible $q$ itself (not just a logical), and
+   use it to tabulate, for $f = 1, \dots, 10$, the smallest
+   $n$ at which a feasible quorum first appears. Confirm
+   the pattern matches $n = 3f+1$ exactly.
+3. Modify the Sybil-vote simulation so that the adversary's
+   total resource budget, rather than being fixed at 30, is
+   drawn as `total_attacker_resource <- n_honest * runif(1, 0, 1)`
+   for a single simulated draw. At what fraction of
+   `n_honest` does the resource-weighted vote flip in the
+   adversary's favor? Is this threshold sensitive to
+   `n_sybil`? Explain why or why not, referring to the
+   mechanics of the simulation.
+4. Prove that no protocol using a single, fixed quorum size
+   $q$ can be both safe and live against $f \geq n/3$
+   Byzantine parties, without assuming the specific
+   inequalities of this chapter as given; construct the
+   adversary strategy directly (i.e. exhibit two quorums an
+   adversary can force to disagree).
+5. A consortium of five named hospitals wants Byzantine
+   fault tolerance against the possibility that any single
+   member's system is compromised or misreports. Using the
+   $3f+1$ bound, determine the largest $f$ the consortium
+   can tolerate, and state what changes about the required
+   design if the consortium later wants to tolerate two
+   simultaneous compromised members instead.
+6. Write one paragraph arguing, in the tier-language of
+   @sec-intro, whether 'a permissionless blockchain is
+   more secure than a permissioned consortium ledger' is a
+   protocol fact, an empirical claim, an economic claim, or
+   a narrative, as usually stated. Identify the missing
+   qualifiers that would be needed to promote it to a
+   tier-one or tier-two claim.
+
+## Further reading
+
+@lamport1982byzantine is the founding paper of this entire
+chapter and should be read before anything else; the
+generals allegory is a device, but the impossibility and
+possibility results are the mathematical content. Read
+@castro1999practical next for the first practical,
+deployable BFT protocol, and note precisely which
+assumptions (fixed membership, known $n$, partial
+synchrony) make its efficiency possible.
+@douceur2002sybil is short and should be read in full; it
+is the paper that explains why every naive open-membership
+voting scheme one might invent independently has already
+been shown broken. @nakamoto2008bitcoin is the primary
+source for the resolution this chapter previews and
+@sec-pow develops in full; read it before any secondary
+account. @narayanan2016bitcoin gives the fullest rigorous
+textbook treatment of the material in this chapter and the
+next several. @bonneau2015sok is the standard systematization
+of the broader research literature this chapter draws its
+first vocabulary from, and is the right next stop once the
+primary sources are read. @dwork1993pricing and
+@back2002hashcash are the pre-Bitcoin lineage of
+'computation as a costly toll'; reading them clarifies
+exactly what Nakamoto added and what was already known.
+
+In conclusion, three points are to be emphasised. First,
+the object every protocol in this book pursues is
+agreement on one ordered history among mutually
+distrusting parties, and for the trial ledger it is this
+object, not any particular technology, that a regulator
+ultimately audits. Second, the classical theory is sharp
+and known: agreement among $n$ fixed, identified parties
+tolerating $f$ Byzantine faults is possible precisely when
+$n \geq 3f+1$, and no cleverness recovers the guarantee
+below that threshold. Third, the permissionless machinery
+of the later chapters earns its considerable extra cost
+only under open, unaccountable membership, as in a public
+disease registry, whereas when the participants are in
+fact a fixed, named consortium, as the trial hospitals
+are, a permissioned ledger, or even a well-governed
+audited database, is the more responsible choice.
