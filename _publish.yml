@@ -1,0 +1,4 @@
+- source: project
+  netlify:
+    - id: 76826a22-dbe9-4b6d-800f-2659eb495ddf
+      url: https://blockchain-curriculum.netlify.app

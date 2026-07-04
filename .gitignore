@@ -13,3 +13,6 @@ node_modules/
 
 # Personal self-study drafts, not part of the published volume
 source-rmd/
+
+# Local Netlify folder
+.netlify
