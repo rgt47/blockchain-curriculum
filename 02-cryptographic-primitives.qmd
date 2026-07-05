@@ -1,5 +1,19 @@
 # Cryptographic Primitives {#sec-crypto}
 
+::: {.bookepigraph}
+```{=latex}
+\begin{flushright}\small
+```
+*We stand today on the brink of a revolution in
+cryptography.*
+
+[Diffie and Hellman]{.smallcaps}, *New Directions in
+Cryptography* (1976)
+```{=latex}
+\end{flushright}
+```
+:::
+
 ## Learning objectives
 
 By the end of this chapter the reader should be

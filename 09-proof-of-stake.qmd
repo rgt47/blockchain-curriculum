@@ -1,5 +1,21 @@
 # Proof-of-Stake, Finality, and Restaking {#sec-pos}
 
+::: {.bookepigraph}
+```{=latex}
+\begin{flushright}\small
+```
+*We present 'Ouroboros', the first blockchain protocol
+based on proof of stake with rigorous security
+guarantees.*
+
+[Kiayias, Russell, David, and Oliynykov]{.smallcaps},
+*Ouroboros: A Provably Secure Proof-of-Stake Blockchain
+Protocol* (2017)
+```{=latex}
+\end{flushright}
+```
+:::
+
 ## Learning objectives
 
 By the end of this chapter the reader should be

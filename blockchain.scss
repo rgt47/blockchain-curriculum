@@ -42,3 +42,21 @@ img.cover {
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
+
+.bookepigraph {
+  max-width: 30em;
+  margin: 0.2em 0 2.2em auto;
+  text-align: right;
+  font-size: 0.95em;
+  color: #555;
+  line-height: 1.4;
+}
+
+.bookepigraph em {
+  font-style: italic;
+}
+
+.bookepigraph .smallcaps {
+  font-variant: small-caps;
+  color: #333;
+}

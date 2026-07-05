@@ -1,5 +1,19 @@
 # The Consensus Problem {#sec-consensus}
 
+::: {.bookepigraph}
+```{=latex}
+\begin{flushright}\small
+```
+*A reliable computer system must be able to cope with the
+failure of one or more of its components.*
+
+[Lamport, Shostak, and Pease]{.smallcaps}, *The Byzantine
+Generals Problem* (1982)
+```{=latex}
+\end{flushright}
+```
+:::
+
 ## Learning objectives
 
 By the end of this chapter the reader should be able

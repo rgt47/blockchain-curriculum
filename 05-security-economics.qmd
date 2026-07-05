@@ -1,5 +1,19 @@
 # Security Economics and Attacks {#sec-security}
 
+::: {.bookepigraph}
+```{=latex}
+\begin{flushright}\small
+```
+*We show that the Bitcoin protocol is not
+incentive-compatible.*
+
+[Eyal and Sirer]{.smallcaps}, *Majority Is Not Enough:
+Bitcoin Mining Is Vulnerable* (2014)
+```{=latex}
+\end{flushright}
+```
+:::
+
 ## Learning objectives
 
 By the end of this chapter the reader should be

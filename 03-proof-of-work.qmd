@@ -1,5 +1,19 @@
 # Proof-of-Work and Nakamoto Consensus {#sec-pow}
 
+::: {.bookepigraph}
+```{=latex}
+\begin{flushright}\small
+```
+*The race between the honest chain and an attacker chain
+can be characterized as a Binomial Random Walk.*
+
+[Satoshi Nakamoto]{.smallcaps}, *Bitcoin: A Peer-to-Peer
+Electronic Cash System* (2008)
+```{=latex}
+\end{flushright}
+```
+:::
+
 ## Learning objectives
 
 By the end of this chapter the reader

@@ -103,6 +103,7 @@ format:
         \usepackage{fontspec}
         \usepackage{graphicx}
         \setmonofont{DejaVu Sans Mono}[Scale=0.9]
+        \newenvironment{bookepigraph}{\par\begin{flushright}\small}{\end{flushright}\par\medskip}
 
 bibliography: references.bib
 csl: https://www.zotero.org/styles/apa

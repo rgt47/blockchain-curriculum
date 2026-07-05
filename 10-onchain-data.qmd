@@ -1,5 +1,20 @@
 # On-Chain Data Analysis and Tokenomics {#sec-onchain}
 
+::: {.bookepigraph}
+```{=latex}
+\begin{flushright}\small
+```
+*Bitcoin has the unintuitive property that while the
+ownership of money is implicitly anonymous, its flow is
+globally visible.*
+
+[Meiklejohn et al.]{.smallcaps}, *A Fistful of Bitcoins*
+(2013)
+```{=latex}
+\end{flushright}
+```
+:::
+
 ## Learning objectives
 
 By the end of this chapter the reader should be

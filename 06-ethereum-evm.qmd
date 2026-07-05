@@ -1,5 +1,21 @@
 # Ethereum and Programmable State {#sec-ethereum}
 
+::: {.bookepigraph}
+```{=latex}
+\begin{flushright}\small
+```
+*What Ethereum intends to provide is a blockchain with a
+built-in fully fledged Turing-complete programming
+language that can be used to create 'contracts' that can
+be used to encode arbitrary state transition functions.*
+
+[Vitalik Buterin]{.smallcaps}, *Ethereum Whitepaper*
+(2014)
+```{=latex}
+\end{flushright}
+```
+:::
+
 ## Learning objectives
 
 By the end of this chapter the reader should be

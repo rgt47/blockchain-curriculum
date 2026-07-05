@@ -1,5 +1,21 @@
 # Decentralised Finance as Mathematics {#sec-defi}
 
+::: {.bookepigraph}
+```{=latex}
+\begin{flushright}\small
+```
+*We focus on the analysis of a very large class of
+automated market makers, called constant function market
+makers (or CFMMs) which includes existing popular market
+makers such as Uniswap, Balancer, and Curve.*
+
+[Angeris and Chitra]{.smallcaps}, *Improved Price Oracles:
+Constant Function Market Makers* (2020)
+```{=latex}
+\end{flushright}
+```
+:::
+
 ## Learning objectives
 
 By the end of this chapter the reader should be

@@ -1,5 +1,21 @@
 # Introduction: a quantitative stance {#sec-intro}
 
+::: {.bookepigraph}
+```{=latex}
+\begin{flushright}\small
+```
+*What is needed is an electronic payment system based on
+cryptographic proof instead of trust, allowing any two
+willing parties to transact directly with each other
+without the need for a trusted third party.*
+
+[Satoshi Nakamoto]{.smallcaps}, *Bitcoin: A Peer-to-Peer
+Electronic Cash System* (2008)
+```{=latex}
+\end{flushright}
+```
+:::
+
 ## The problem we begin with
 
 Consider a multi-centre clinical trial conducted by five

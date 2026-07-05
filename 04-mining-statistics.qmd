@@ -1,5 +1,20 @@
 # The Statistics of Mining {#sec-mining}
 
+::: {.bookepigraph}
+```{=latex}
+\begin{flushright}\small
+```
+*In the original Bitcoin paper, it was suggested that the
+blockchain arrivals occur according to a homogeneous
+Poisson process.*
+
+[Bowden, Keeler, Krzesinski, and Taylor]{.smallcaps},
+*Block Arrivals in the Bitcoin Blockchain* (2018)
+```{=latex}
+\end{flushright}
+```
+:::
+
 ## Learning objectives
 
 By the end of this chapter the reader should be

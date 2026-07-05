@@ -1,5 +1,19 @@
 # Maximal Extractable Value {#sec-mev}
 
+::: {.bookepigraph}
+```{=latex}
+\begin{flushright}\small
+```
+*We additionally show that high fees paid for priority
+transaction ordering pose a systemic risk to
+consensus-layer security.*
+
+[Daian et al.]{.smallcaps}, *Flash Boys 2.0* (2020)
+```{=latex}
+\end{flushright}
+```
+:::
+
 ## Learning objectives
 
 By the end of this chapter the reader should be
