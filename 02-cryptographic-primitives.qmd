@@ -2,8 +2,8 @@
 
 ## Learning objectives
 
-By the end of this chapter you should be able
-to:
+By the end of this chapter the reader should be
+able to:
 
 - State the random-oracle idealisation of a
   cryptographic hash and name the five
@@ -56,17 +56,19 @@ hashes lets an auditor verify a single record
 without possessing the whole database. Digital
 signatures attach to each entry the identity of the
 coordinator who made it, so that attribution of an
-eCRF record becomes itself cryptographically
-checkable. Digital cash and cryptocurrency are where
+eCRF record (an electronic case report form, the
+record of one subject's data in the trial) becomes
+itself cryptographically checkable. Digital cash and cryptocurrency are where
 these primitives were sharpened, and we shall keep
 that history in view; but for our purposes they are
 the historical setting and not the frame.
 
 The primitives are usually taught as engineering
-artefacts: call this library, get that guarantee.
-For a reader with graduate probability and algebra
-they are better understood as mathematical objects
-with statistical behaviour that can be measured. A
+artefacts, a matter of invoking a library and
+obtaining a guarantee. For a reader with graduate
+probability and algebra they are better understood
+as mathematical objects with statistical behaviour
+that can be measured. A
 cryptographic hash is, to the precision that matters
 here, a random function. An elliptic curve over a
 finite field is a finite abelian group in which one
@@ -106,6 +108,52 @@ what they do and do not establish. They verify that
 its output is consistent with the random-oracle
 model, which is the assumption every later
 probability calculation silently uses.
+
+::: {.callout-note}
+## The vocabulary of this chapter
+
+The argument turns on a handful of terms that a
+first-year public-health reader is unlikely to
+have met. We define them here and use them
+consistently thereafter.
+
+- **Random oracle.** An idealised hash function
+  imagined as assigning each distinct input an
+  independent, uniformly random output. It is the
+  working model under which every probability in
+  the chapter is computed.
+- **Preimage resistance.** The property that,
+  given a digest, no feasible search recovers an
+  input producing it; the expected work is about
+  $2^{n}$ for an $n$-bit digest.
+- **Collision resistance.** The property that no
+  feasible search finds two distinct inputs
+  sharing a digest. The birthday bound makes this
+  cost about $2^{n/2}$, far less than preimage
+  resistance.
+- **Birthday bound.** The result that a collision
+  among random draws from a space of size $N$
+  becomes likely after only about $\sqrt{N}$
+  draws rather than $N$; it is the familiar
+  birthday problem applied to digests.
+- **Merkle tree.** A hash-based summary that
+  commits to many records at once. Its top hash,
+  the *Merkle root*, is a single fingerprint of
+  the whole set, and an *inclusion proof* is the
+  short list of hashes showing that one record
+  belongs to it.
+- **Discrete-logarithm problem.** The problem of
+  recovering the scalar $d$ from the point $dG$ in
+  an elliptic-curve group. Its presumed hardness
+  is the wall between a public key and the private
+  key behind it.
+- **Commitment.** A short value binding a party to
+  hidden data (*binding*) while revealing nothing
+  about it until it is opened (*hiding*).
+- **Zero-knowledge proof.** A protocol by which
+  one party convinces another that a statement is
+  true while conveying nothing beyond its truth.
+:::
 
 ## The statistician's contribution
 
@@ -464,14 +512,14 @@ ggplot(tibble(ham = ham), aes(ham)) +
 
 A single input change scrambles the output as if it
 were independently re-randomised. This is the
-avalanche property stated as a measurable fact.
-Note the epistemic status carefully: the observed
-$\mathrm{Binomial}(256, 0.5)$ shape is consistent
-with the random-oracle model, and it is what makes
-a one-character edit to a trial record betray
-itself. It is not a proof that SHA-256 has no
-exploitable structure, only that no structure shows
-up in this margin.
+avalanche property stated as a measurable fact. We
+should note the epistemic status carefully: the
+observed $\mathrm{Binomial}(256, 0.5)$ shape is
+consistent with the random-oracle model, and it is
+what makes a one-character edit to a trial record
+betray itself. It is not a proof that SHA-256 has
+no exploitable structure, only that no structure
+shows up in this margin.
 
 ### Uniformity of the output
 
@@ -535,10 +583,12 @@ the condition, demote the claim and ask for both.
 
 ## Merkle trees
 
-A Merkle tree turns a list of records into a single
-digest, the root, such that membership of any one
-record can be proven with a number of hashes
-logarithmic in the list length. Leaves are the
+A Merkle tree, named for Ralph Merkle who
+introduced the hash-tree construction, turns a list
+of records into a single digest, the root, such
+that membership of any one record can be proven
+with a number of hashes logarithmic in the list
+length. Leaves are the
 hashes of the records; each internal node is the
 hash of its two children concatenated; the root is
 the hash at the top. Two facts make the structure
@@ -1003,8 +1053,9 @@ random-number-generator flaw becomes a total key
 compromise, which is a lesson in why the uniformity
 tests earlier in this chapter are not academic.
 
-Schnorr signatures [@schnorr1991efficient] achieve
-the same authentication with a cleaner algebraic
+Schnorr signatures, named for Claus Schnorr who
+proposed them [@schnorr1991efficient], achieve the
+same authentication with a cleaner algebraic
 structure. Because the Schnorr verification equation
 is linear in the key and the nonce, signatures and
 keys can be aggregated: several signers can produce a
@@ -1017,8 +1068,9 @@ combining $n$ signatures into one shrinks both. This
 linearity is why Bitcoin's Taproot upgrade adopted
 Schnorr.
 
-BLS signatures [@boneh2001short] push aggregation
-further using a pairing on a suitable curve. A BLS
+BLS signatures, named for Boneh, Lynn and Shacham
+[@boneh2001short], push aggregation further using a
+pairing on a suitable curve. A BLS
 signature is a single group element, and, crucially,
 signatures from many signers on the same message
 aggregate into one short signature verifiable against
@@ -1136,10 +1188,11 @@ not. Can one party convince another that a statement
 is true while conveying nothing whatever beyond its
 truth, not even the reason it is true? The
 affirmative answer, formalised by Goldwasser, Micali
-and Rackoff [@goldwasser1989knowledge] in their study
+and Rackoff [@goldwasser1989knowledge], whose study
 of the knowledge complexity of interactive proof
-systems, is among the deeper results of modern
-cryptography, and it rests on three properties that a
+systems founded the subject, is among the deeper
+results of modern cryptography, and it rests on
+three properties that a
 reader trained in statistics will find unusually
 congenial. Consider a prover, who claims to hold a
 witness to some statement, and a verifier, who will
@@ -1283,7 +1336,7 @@ issue the challenge $c$. But what if the prover wishes
 to leave behind a proof that anyone can check later,
 with no live verifier at all? The device that removes
 the verifier is the Fiat-Shamir heuristic, and its
-intuition is disarmingly simple. The challenge is meant
+intuition is simple. The challenge is meant
 to be unpredictable to the prover before she commits,
 and a cryptographic hash, which the earlier part of
 this chapter established behaves as a random oracle,
@@ -1484,8 +1537,9 @@ blockchain: a hash tree and one honest publication.
 
 Language models are fluent about cryptography and
 confidently wrong at its edges, which is precisely
-where security lives. Use them to accelerate, and
-verify the parts that matter.
+where security lives. They are of use in
+accelerating routine work, provided the parts that
+matter are verified against a primary source.
 
 **Prompt.** 'Write an R function to compute a Merkle
 root and an inclusion proof using the digest
@@ -1512,10 +1566,11 @@ sometimes assert collisions cost $2^{256}$, missing
 the birthday factor entirely, or garble which
 property protects which use case.
 
-*Verification:* re-derive the birthday bound yourself
-($m \approx 2^{n/2}$) and check the model's numbers
-against it. The truncated-hash simulation in this
-chapter is a fast empirical cross-check.
+*Verification:* the reader should re-derive the
+birthday bound independently ($m \approx 2^{n/2}$)
+and check the model's numbers against it. The
+truncated-hash simulation in this chapter is a fast
+empirical cross-check.
 
 **Prompt.** 'Is it safe to reuse the same nonce
 across two ECDSA signatures?'

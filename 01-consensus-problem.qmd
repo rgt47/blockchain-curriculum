@@ -44,8 +44,8 @@ The difficulty is not that any one hospital cannot keep
 good records. The difficulty is that the several copies
 must agree, and that they must be shown to agree to a
 party who trusts none of the sites individually. To see
-where the difficulty bites, consider three ways in which
-the arrangement can fail.
+where the difficulty is sharpest, consider three ways in
+which the arrangement can fail.
 
 The first failure is a conflict of order. The same
 participant, or equivalently the same randomisation
@@ -73,8 +73,10 @@ tell, from its own copy alone, which sites have been
 told what. Agreement among parties of whom some unknown
 subset may send conflicting messages to different
 recipients is the Byzantine Generals problem, posed by
-Lamport, Shostak and Pease [@lamport1982byzantine], and
-it is the abstract core of this chapter.
+Lamport, Shostak and Pease [@lamport1982byzantine], the
+computer scientists who in 1982 gave the problem its
+now-standard formulation, and it is the abstract core of
+this chapter.
 
 The third failure appears only once membership is
 opened. Suppose that in place of a fixed consortium of
@@ -104,7 +106,7 @@ place in the book where each is treated in full.
 
 These three failures motivate the chapter, but we should
 state plainly at the outset where the argument is going
-to land. When the parties are a fixed, named,
+to lead. When the parties are a fixed, named,
 contractually accountable consortium, as the trial
 hospitals are, the problem is the classical one of
 agreement among known participants, solved by the
@@ -120,6 +122,49 @@ wherever it arises, since reaching for the permissionless
 tool when the parties are in fact known and few is a
 design error, and one this book is written in part to
 help the reader avoid.
+
+::: {.callout-note}
+## The vocabulary of this chapter
+
+Several terms recur throughout the chapter. We define
+them here, in plain form, and use them consistently
+thereafter. Each receives a fuller treatment in the
+section that develops it.
+
+- **Byzantine fault, Byzantine agreement.** A Byzantine
+  fault is a failure in which a participant may behave
+  arbitrarily, and even dishonestly, rather than merely
+  stopping. Byzantine agreement is the problem of bringing
+  the honest participants to a single common decision even
+  when some unknown subset of them is Byzantine.
+- **Safety and liveness.** The two properties an
+  agreement protocol is required to provide. Safety is the
+  guarantee that no two honest parties ever decide
+  differently; liveness is the guarantee that every honest
+  party eventually decides.
+- **Quorum.** A subset of the parties large enough that
+  its agreement is taken as a decision for the whole
+  system, in the manner of a voting threshold.
+- **The 3f+1 bound.** The classical result that agreement
+  among n parties, of whom up to f may be Byzantine, is
+  attainable only when n is at least 3f+1, that is, only
+  when fewer than a third of the parties are faulty.
+- **Sybil attack.** An attack in which a single actor
+  fabricates many identities in order to exert
+  disproportionate influence over a system that counts
+  identities, named after a documented case of multiple
+  personality.
+- **State-machine replication.** A design in which many
+  computers apply the same ordered list of inputs to the
+  same starting state, and therefore reach the same
+  result, so that the collection behaves as one reliable
+  machine despite running on many.
+- **Permissioned versus permissionless.** A permissioned
+  system admits only a fixed, credentialed set of
+  participants; a permissionless system allows any party
+  to join without authorisation. The distinction organises
+  much of what follows.
+:::
 
 Digital cash and cryptocurrency furnish the historical
 setting in which these problems were first isolated and
@@ -265,9 +310,9 @@ without requiring one party to be trusted.
 
 ## Byzantine agreement and the 3f+1 bound
 
-The general problem behind 'get everyone to agree on an
-order' was posed abstractly by Lamport, Shostak and Pease
-[@lamport1982byzantine] as the Byzantine Generals
+The general problem of bringing every party to agree on a
+single order was posed abstractly by Lamport, Shostak and
+Pease [@lamport1982byzantine] as the Byzantine Generals
 problem. We are given a set of $n$ generals, some unknown
 subset of whom may be traitors, who must agree on a
 common plan of action (attack or retreat) by exchanging
@@ -496,14 +541,18 @@ enrolment, randomisation and outcome events, the state is
 the current enrolment and endpoint tally, and the
 transition function admits an event if it is well formed
 and consistent with the log so far. Every consensus
-protocol in this book, from PBFT to Nakamoto's chain to
-the proof-of-stake protocols of @sec-pos, is best
+protocol in this book, from PBFT (a classical agreement
+protocol for a fixed membership, defined just below) to
+Nakamoto's chain to the proof-of-stake protocols of
+@sec-pos, is best
 understood as an implementation of SMR under a particular
 fault model and a particular membership assumption.
 
-Castro and Liskov [@castro1999practical] gave the first
-BFT SMR protocol efficient enough for real deployment:
-Practical Byzantine Fault Tolerance (PBFT). PBFT runs
+Castro and Liskov [@castro1999practical], working at the
+Massachusetts Institute of Technology in 1999, gave the
+first BFT SMR protocol efficient enough for real
+deployment: Practical Byzantine Fault Tolerance (PBFT).
+PBFT runs
 among a *fixed, known*
 set of $n$ replicas, tolerates up to
 $f = \lfloor (n-1)/3 \rfloor$ Byzantine replicas exactly
@@ -512,9 +561,9 @@ in a small, bounded number of message rounds per decision.
 It is the template for every permissioned (consortium)
 blockchain in production today.
 
-The catch is in the phrase 'fixed, known set.' PBFT and
-its relatives require that the identities of the $n$
-participants be established in advance, typically by a
+The difficulty lies in the phrase 'fixed, known set.'
+PBFT and its relatives require that the identities of the
+$n$ participants be established in advance, typically by a
 credentialing authority admitting named institutions.
 This is a perfectly reasonable requirement in many real
 settings, and a fatal one in others, which is exactly the
@@ -528,8 +577,9 @@ allow anyone to claim a seat in the consensus protocol
 by, say, announcing a network address or registering as a
 reporter. Nothing then prevents a single adversary from
 announcing a thousand addresses. Douceur
-[@douceur2002sybil] named this the Sybil attack and
-established a stronger result: absent some mechanism that
+[@douceur2002sybil], in a 2002 study of peer-to-peer
+systems, named this the Sybil attack and established a
+stronger result: absent some mechanism that
 makes acquiring an identity costly, no distributed
 protocol can bound the number of identities a single
 adversary controls, and therefore no identity-counting
@@ -598,8 +648,9 @@ tapply(weights, side, sum)
 
 The fraudulent side's total weight is fixed at 30 no
 matter how many identities it is divided among; minting
-more Sybils only slices the same budget more thinly. This
-is the general principle: influence proportional to a
+more Sybils only divides the same fixed budget more
+finely. This is the general principle: influence
+proportional to a
 scarce, externally verifiable resource is Sybil-resistant
 by construction, while influence proportional to
 identity-count is not. Which resource to use, and how to
@@ -828,8 +879,10 @@ for the health scientist, the exception and not the rule.
 
 What does a ledger look like when the membership is
 known in advance? The most widely deployed permissioned
-design, Hyperledger Fabric, is instructive precisely
-because it departs from the Bitcoin template. The public
+design, Hyperledger Fabric, an open-source
+permissioned-ledger framework hosted by the Linux
+Foundation, is instructive precisely because it departs
+from the Bitcoin template. The public
 chains of the preceding sections follow an order-execute
 discipline: the consensus protocol orders the
 transactions first, and every node then executes all of
@@ -900,18 +953,19 @@ clinical-trial provenance [@benchoufi2017trials], designs
 for patient-driven interoperability [@gordon2018interoperability],
 and integrations with the FHIR health-data standard
 [@zhang2018fhirchain] together describe an active decade
-of work. A public-health reader could be forgiven for
-concluding that the matter is settled and the ledgers are
-in the clinics.
+of work. A public-health reader might reasonably conclude
+that the matter is settled and that these ledgers are in
+routine clinical use.
 
 Unfortunately, they are largely not, and it is worth
 asking why. The systematic reviews are consistent on this
 point: the great majority of these efforts are pilots and
 proofs of concept, and few have reached production scale.
 The explanation is not a failure of engineering but a
-failure of fit, and Wust and Gervais give the decision
-criterion that makes the failure legible
-[@wust2018need]. A blockchain earns its considerable cost,
+failure of fit, and Wust and Gervais [@wust2018need], in a
+2018 analysis of when a blockchain is genuinely needed,
+give the decision criterion that makes the failure
+legible. A blockchain earns its considerable cost,
 they argue, only when three conditions hold together:
 there are multiple writers, no trusted third party is
 available, and the writers' interests may conflict. Many
@@ -929,9 +983,9 @@ is machinery in search of a problem.
 
 'Blockchain for health records' is, in the majority of
 the proposals that carry the phrase, a tier-four
-narrative wearing the costume of a tier-one protocol
+narrative presented in the guise of a tier-one protocol
 fact. The reflex is to apply the Wust and Gervais test
-before believing the pitch: name the writers, ask whether
+before granting the claim: name the writers, ask whether
 a trusted custodian is genuinely unavailable, and ask
 whether their interests actually conflict. Most proposals
 fail at the second question.

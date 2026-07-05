@@ -63,8 +63,9 @@ mechanism was born, our interest here is in
 what it offers the trial ledger. The
 vocabulary is one the reader already owns.
 The proof-of-work puzzle is a sequence of
-independent Bernoulli trials with a minuscule
-success probability. The security of a
+independent Bernoulli trials, that is,
+repeated yes-or-no experiments, each with a
+minuscule success probability. The security of a
 confirmed record is the tail of a biased
 random walk. The choice of how long to wait
 before treating a record as settled is the
@@ -88,10 +89,67 @@ We shall build every claim twice: once as a
 piece of mathematics, and once as runnable R
 that the reader may re-execute. The
 attacker-success calculation reproduced here
-is Satoshi's own, from Section 11 of
-@nakamoto2008bitcoin, and we verify his
-six-confirmations claim rather than repeat it
-on faith.
+is that of Satoshi Nakamoto, the pseudonymous
+author of the 2008 Bitcoin whitepaper, given
+in its Section 11 [@nakamoto2008bitcoin], and
+we verify the six-confirmations claim rather
+than repeat it on faith.
+
+Before proceeding we fix the terminology on
+which the remainder of the chapter depends, so
+that the reader need not carry these terms as
+mysteries.
+
+::: {.callout-note}
+## The vocabulary of this chapter
+
+- **Proof-of-work.** A scheme in which
+  appending a block requires solving a
+  computational puzzle that is costly to
+  perform but cheap to check, so that influence
+  over the ledger is bought with computation
+  rather than with identity.
+- **Nonce.** A number placed in a block header
+  and varied by the miner in search of a header
+  whose hash meets the target. It is the one
+  field the miner is free to change at will.
+- **Target and difficulty.** The target is the
+  threshold a block hash must fall below to be
+  valid; the difficulty is the reciprocal
+  measure of how demanding that threshold is. A
+  smaller target means a higher difficulty and
+  more expected work per block.
+- **Nakamoto consensus.** The procedure,
+  introduced with Bitcoin, by which open and
+  mutually distrusting parties agree on one
+  history: they extend and accept the chain
+  carrying the most accumulated proof-of-work.
+- **Longest-chain (heaviest-chain) rule.** The
+  fork-choice component of Nakamoto consensus:
+  honest nodes treat the chain with the greatest
+  total work as authoritative, which reduces to
+  the longest chain when difficulty is held
+  constant.
+- **Fork and orphan block.** A fork is a
+  temporary split in which two valid blocks
+  extend the same parent. When one branch is
+  abandoned, the discarded block is termed an
+  orphan, and the transactions it held return to
+  the pending pool.
+- **Double-spend.** The canonical attack, in
+  which a party spends a record, waits for it to
+  be accepted, and then publishes a competing
+  chain that erases it, thereby reversing a
+  transaction already treated as settled.
+- **Probabilistic finality and confirmation
+  depth.** A confirmed record is never permanent
+  with certainty; the probability of its
+  reversal merely shrinks as further blocks
+  accumulate above it. The confirmation depth is
+  the number of such blocks, written $z$, at
+  which one agrees to treat the record as
+  settled.
+:::
 
 ## The statistician's contribution
 
@@ -111,7 +169,7 @@ a monitoring board acting on an interim
 endpoint should not use the same depth.
 
 **2. The model's assumptions are where the
-real risk lives.** Satoshi's bound assumes a
+real risk resides.** Satoshi's bound assumes a
 fixed attacker hash share $q$, honest blocks
 arriving as a Poisson process, and no network
 partition. Each assumption can fail:
@@ -135,7 +193,9 @@ adjective, is the contribution.
 
 A block header commits to the previous
 block's hash, a Merkle root of the
-transactions, a timestamp, and a nonce. To
+transactions (a hash-based summary that commits
+to every transaction in the block), a
+timestamp, and a nonce. To
 mine a block a miner searches for a nonce
 such that the header hash, read as a 256-bit
 integer, falls below a target $T$:
@@ -144,7 +204,9 @@ $$
 H(\text{header}) < T .
 $$
 
-Because $H$ behaves as a random oracle
+Because $H$ behaves as a random oracle, an
+idealised function whose every output is, in
+effect, an independent uniform draw
 (@sec-crypto), each distinct nonce yields an
 output that is, for all practical purposes,
 uniform on $\{0, 1, \dots, 2^{256}-1\}$.
@@ -157,7 +219,7 @@ $$
 
 independently across nonces. Mining is a
 sequence of i.i.d. Bernoulli$(p)$ trials with
-$p$ astronomically small.
+$p$ extremely small.
 
 It is often more intuitive to state the
 puzzle in leading zero bits. If the target
@@ -209,15 +271,17 @@ each
 run their own tiny-$p$ Bernoulli search in
 parallel, the time until some miner succeeds
 is, in the continuous limit, exponential, and
-the stream of blocks is a Poisson process.
+the stream of blocks is a Poisson process (the
+standard model for events that arrive
+independently at a steady average rate).
 That is the entire statistical foundation of
 the next chapter, so we flag it here and
 develop it in @sec-mining.
 
 Progress-freedom is also what makes hash-power
-the only thing that matters. One cannot be
-clever about finding a nonce; one can only try
-more of them per second. Mining reduces one
+the sole determinant of success. One cannot be
+clever about finding a nonce; one can only
+attempt more of them per second. Mining reduces one
 resource, computation, to one number, and that
 reduction is what lets cost stand in for
 identity.
@@ -252,10 +316,11 @@ search itself.
 
 ### The longest-chain rule
 
-Proof-of-work solves the puzzle of who gets
-to append the next block. Nakamoto consensus
-solves the puzzle of which chain everyone
-agrees on. The rule is deceptively simple:
+Proof-of-work resolves the question of which
+party may append the next block. Nakamoto
+consensus resolves the question of which chain
+the parties agree upon. The rule is simple to
+state:
 honest nodes always extend the chain with the
 most accumulated proof-of-work, and treat that
 chain as the truth. In the common case where
@@ -356,7 +421,7 @@ identities can manufacture a majority: the
 Sybil attack [@douceur2002sybil]. Nakamoto
 consensus makes identities free but makes
 influence expensive. Creating a thousand fake
-nodes buys nothing, because each block still
+nodes confers no advantage, because each block still
 requires the same expected $1/p$ hash
 attempts. To outweigh the honest network an
 attacker must out-compute it, which is the
@@ -415,10 +480,12 @@ This is the deepest contrast with the
 classical Byzantine-fault-tolerant protocols
 studied in @sec-consensus and revisited for
 proof-of-stake in @sec-pos. A protocol such as
-PBFT [@castro1999practical] delivers
-deterministic finality within a known number
-of rounds, at the cost of a fixed, known
-validator set. Nakamoto consensus buys
+PBFT, or Practical Byzantine Fault Tolerance,
+the protocol of Castro and Liskov
+[@castro1999practical], delivers deterministic
+finality within a known number of rounds, at
+the cost of a fixed, known validator set.
+Nakamoto consensus buys
 open membership at the price of finality that
 is only ever probabilistic. Neither is
 strictly better; they price the same guarantee
@@ -428,16 +495,17 @@ is buying is the point.
 ::: {.callout-important}
 ## The sceptic's reflex
 
-You will read that a blockchain is
-'immutable' and that confirmed transactions
-are 'permanent'. Name the tier. 'Immutable' is
+The reader will encounter the claim that a
+blockchain is 'immutable' and that confirmed
+transactions are 'permanent'. The tier should
+be named. 'Immutable' is
 delivered in the cadence of a protocol fact,
 but the protocol fact is weaker and more
 precise: a confirmed transaction is
 exponentially expensive to revise, with a
 reversal probability that is small but never
 zero and that depends on the attacker's
-hash share. Demote 'immutable' to
+hash share. 'Immutable' should be demoted to
 'exponentially expensive to revise, and here
 is the exponent'. The adjective hides exactly
 the quantity a statistician is equipped to
@@ -449,10 +517,13 @@ report.
 Satoshi's whitepaper argued security by a
 single tail-probability calculation. A decade
 of formal work, initiated by the Bitcoin
-Backbone paper of @garay2015backbone and
-extended to the asynchronous setting by
-@pass2017asynchronous, distilled the protocol
-into three properties that hold with
+Backbone analysis of Garay, Kiayias, and
+Leonardos [@garay2015backbone], which recast
+Nakamoto's informal security argument as a set
+of provable guarantees, and extended to the
+asynchronous setting by @pass2017asynchronous,
+distilled the protocol into three properties
+that hold with
 overwhelming probability provided the honest
 parties control a sufficient majority of
 hash-power. The properties are stated over the
@@ -498,8 +569,9 @@ The three properties are complementary. Common
 prefix is safety (agreement), chain growth is
 liveness (progress), and chain quality is a
 fairness or censorship-resistance guarantee
-sitting between them. A slogan: common prefix
-says honest parties agree, chain growth says
+sitting between them. Stated compactly: common
+prefix says honest parties agree, chain growth
+says
 they keep moving, chain quality says the
 adversary cannot fill the chain with its own
 blocks. All three degrade gracefully rather
@@ -526,7 +598,8 @@ slow relative to the block interval, forks are
 frequent, orphaned work is large, and security
 suffers because the effective honest hash-power
 is fragmented. The GHOST rule (Greedy Heaviest
-Observed Subtree) of @sompolinsky2015ghost
+Observed Subtree) of Sompolinsky and Zohar
+[@sompolinsky2015ghost]
 changes the fork-choice: rather than following
 the longest chain, a node at each fork follows
 the subtree containing the most total work,
@@ -576,8 +649,11 @@ $p$ and $-1$ (attacker closes the gap) with
 probability $q$. The attacker wins if this walk
 ever reaches zero starting from a lead of $z$.
 
-This is the gambler's ruin, and its solution is
-classical. For a walk biased away from the
+This is the classical gambler's ruin, the
+problem of a bettor with finite capital playing
+against a richer adversary until one side is
+exhausted, and its solution is well known. For
+a walk biased away from the
 origin ($q < p$), the probability of ever
 reaching zero starting from distance $z$ is
 
@@ -667,7 +743,8 @@ confirming the whitepaper's assertion that six
 confirmations suffice against an attacker with
 ten percent of hash-power. This is the origin of
 the folk rule 'wait for six confirmations': it
-is not a magic number but the depth at which the
+is not an arbitrary constant but the depth at
+which the
 Section 11 tail probability drops below a
 tolerance a merchant, or a monitoring board, is
 willing to accept. A different tolerance implies
@@ -724,8 +801,8 @@ ggplot(grid, aes(z, p, colour = factor(q))) +
 
 Read @fig-pow-family as a statistician reads a
 power curve. For $q = 0.10$ the reversal
-probability plummets, and six confirmations
-already put it out of reach. For $q = 0.40$ the
+probability falls steeply, and six confirmations
+already place it out of reach. For $q = 0.40$ the
 curve is nearly flat: an attacker with forty
 percent of hash-power is so close to parity that
 no realistic confirmation depth secures the
@@ -1023,9 +1100,9 @@ ggplot() +
 ## Collaborating with an LLM
 
 An AI assistant is useful for this material and
-also a reliable source of confident errors.
-Three patterns, each as a Prompt, a Watch-for,
-and a Verification.
+also a frequent source of confidently stated
+errors. We consider three patterns, each as a
+Prompt, a Watch-for, and a Verification.
 
 **Prompt.** 'Derive the probability that a
 proof-of-work double-spend attacker with hash
@@ -1170,9 +1247,10 @@ itself part of the analyst's contribution.
 
 - @nakamoto2008bitcoin is the primary source and
   the origin of the Section 11 attacker-success
-  calculation reproduced in this chapter. Read
-  Section 11 before any secondary account; it is
-  two pages and it is the ground truth.
+  calculation reproduced in this chapter. The
+  reader should consult Section 11 before any
+  secondary account; it is two pages and it is
+  the ground truth.
 
 - @garay2015backbone is the foundational formal
   treatment, defining common prefix, chain
@@ -1195,8 +1273,9 @@ itself part of the analyst's contribution.
   whitepaper's bound. @grunspan2018double
   provides a rigorous closed-form treatment of the
   double-spend probability and corrects several
-  approximations in circulation; read it to see
-  the Poisson mixture placed on firm footing.
+  approximations in circulation; it repays
+  reading, for it places the Poisson mixture on
+  firm footing.
 
 - @dwork1993pricing is the original proposal to
   price access via a computational cost function,

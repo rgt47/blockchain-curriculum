@@ -2,8 +2,8 @@
 
 ## Learning objectives
 
-By the end of this chapter you should be able
-to:
+By the end of this chapter the reader should be
+able to:
 
 - Derive the constant-product invariant, show
   that the marginal price of a pool equals its
@@ -19,7 +19,7 @@ to:
   explain how forced selling cascades.
 - Explain why oracles are the trust boundary of
   decentralised finance and how a flash loan
-  weaponises a single-block spot price.
+  exploits a single-block spot price.
 - Classify stablecoin designs and diagnose a
   deleveraging spiral of the kind that destroyed
   TerraUSD.
@@ -124,6 +124,56 @@ from the start (@tbl-defi-primitives).
 | **Lending market** | Earns interest on the float | Liquidation cascade; dependence on a price oracle |
 
 : Each decentralised-finance primitive maps to a role a parametric health instrument would ask of it and to a distinct risk that role imports {#tbl-defi-primitives}
+
+::: {.callout-note}
+## The vocabulary of this chapter
+
+- **Decentralised finance (DeFi).** The
+  reconstruction of financial services, exchange,
+  lending, and the issuance of stable value, as
+  programs running on a public blockchain rather
+  than through banks or brokers.
+- **Automated market maker (AMM).** An exchange
+  that holds a pool of two assets and prices every
+  trade by a fixed algebraic rule on its reserves,
+  in place of an order book that matches buyers to
+  sellers. The constant-product design is the
+  canonical case treated below.
+- **Slippage.** The amount by which the average
+  price actually paid on a finite trade exceeds the
+  marginal price quoted for an infinitesimal one. It
+  grows with the size of the order relative to the
+  depth of the pool.
+- **Liquidity provider and impermanent loss.** A
+  liquidity provider deposits both assets of a pool
+  and receives a share of the trading fees in
+  return for bearing the pool's price risk.
+  Impermanent loss is the shortfall in value that
+  the provider suffers, relative to simply holding
+  the two assets, whenever their relative price
+  moves.
+- **Oracle.** A contract or signed data feed that
+  reports an off-chain quantity, such as a market
+  price or a case count, to on-chain code. It is the
+  point at which an external number, and the trust
+  in whoever supplies it, re-enters an otherwise
+  trust-minimised system.
+- **Flash loan.** An uncollateralised loan of any
+  size that must be borrowed and repaid within a
+  single transaction, so that the lender bears no
+  credit risk. It grants a borrower large capital
+  for the length of one block.
+- **Stablecoin, peg, and depeg.** A stablecoin is a
+  token engineered to hold a constant value, almost
+  always one United States dollar. Its peg is that
+  target value, and a depeg is a departure from it.
+- **Collateralisation and liquidation.** A
+  decentralised loan is over-collateralised when the
+  collateral pledged is worth more than the debt.
+  Liquidation is the forced sale of that collateral
+  once its value, measured against the debt, falls
+  below a protocol threshold.
+:::
 
 Stripped of the promotional language, almost all of
 that plumbing is elementary applied mathematics: a
@@ -232,12 +282,13 @@ our behalf.
    is familiar ground.
 
 3. **Separate cash-flow yield from emission.**
-   An advertised annual percentage yield is a sum
-   of two very different quantities: fees or
+   An advertised annual percentage yield, meaning
+   the headline return a protocol promises on
+   deposited capital expressed as an annual rate, is
+   a sum of two very different quantities: fees or
    interest paid by real counterparties, which is
    income, and freshly minted governance tokens,
-   which is dilution wearing the costume of
-   income. The first is sustainable; the second is
+   which is dilution in the guise of income. The first is sustainable; the second is
    a wealth transfer from later entrants to
    earlier ones and decays as emission schedules
    taper. Decomposing a headline number into these
@@ -254,8 +305,10 @@ of the reserves unchanged. Let the pool hold
 reserves $x$ of asset $X$ and $y$ of asset $Y$.
 The dominant design, which Adams and colleagues
 introduced at scale in the Uniswap protocol
-[@adams2020uniswapv2], is the constant-product
-market maker (CPMM), whose invariant is
+[@adams2020uniswapv2], the first automated market
+maker to reach large-scale use, is the
+constant-product market maker (CPMM), whose
+invariant is
 
 $$
 x \, y = k .
@@ -287,9 +340,10 @@ counterparty quote, only the ratio of what the
 pool currently holds. The question of when such a
 function admits sensible prices and bounded losses
 is taken up rigorously by Angeris and colleagues
-[@angeris2020improved; @angeris2021analysis], and
-the constant product is the canonical case they
-treat.
+[@angeris2020improved; @angeris2021analysis], who
+placed constant-function markets on a rigorous
+mathematical footing, and the constant product is
+the canonical case they treat.
 
 Execution price degrades with trade size. For a
 finite purchase the trader pays, on average,
@@ -553,8 +607,8 @@ when it is not.
 
 The reassurance that the loss is 'impermanent',
 recovered if the price returns to where it started,
-is a tier-four narrative dressed as a tier-one
-fact (@sec-intro). The recovery is conditional on
+is a tier-four narrative presented in the guise of
+a tier-one fact (@sec-intro). The recovery is conditional on
 an event, mean reversion, that the provider does
 not control and cannot assume. What is guaranteed,
 unconditionally, is the expectation: for any
@@ -564,9 +618,10 @@ holding, because $\mathrm{IL}(r) \le 0$ pointwise
 and equals zero only on a measure-zero set. A more
 honest name, now common in the literature, is
 'loss versus rebalancing', or simply the cost of
-being short gamma. Rename it and the fog lifts: the
-provider is selling volatility and must be paid the
-premium in fees, or the position is losing.
+being short gamma. Once it is renamed the matter is
+clear: the provider is selling volatility and must
+be paid the premium in fees, or the position is
+losing.
 :::
 
 ::: {.callout-note icon=false collapse=true}
@@ -601,7 +656,8 @@ not.
 ## Lending and liquidation
 
 The second pillar of DeFi is over-collateralised
-lending, exemplified by Aave and Compound. Because
+lending, exemplified by Aave and Compound, the two
+largest decentralised lending protocols. Because
 borrowers are pseudonymous and cannot be pursued
 for a deficiency, a loan must be secured by
 collateral worth more than the debt at all times.
@@ -966,8 +1022,9 @@ analogy is useful for intuition about the existence
 of tipping points; it is misleading if it suggests
 that the interventions which calm a human panic
 would have saved an algorithmic peg. Broadening the
-view, Werner and colleagues [@werner2022sok] place
-these mechanisms, their oracles, and their attack
+view, Werner and colleagues, in a systematisation
+of the field [@werner2022sok], place these
+mechanisms, their oracles, and their attack
 surfaces in a single framework worth reading in
 full.
 
@@ -1225,9 +1282,9 @@ chapter has been arguing for throughout.
 ## Collaborating with an LLM
 
 A language model is a capable assistant for DeFi
-mathematics and a dangerous one for DeFi claims.
-Use it to derive and to draft; verify the economics
-yourself.
+mathematics and a dangerous one for DeFi claims. It
+may be used to derive and to draft, but the
+economics should be verified independently.
 
 - **Prompt:** 'Derive the impermanent loss of a
   constant-product pool as a function of the price

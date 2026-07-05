@@ -2,8 +2,8 @@
 
 ## Learning objectives
 
-By the end of this chapter you should be able
-to:
+By the end of this chapter the reader should be
+able to:
 
 - Frame the analysis of a public ledger as an
   observational study, and name the selection,
@@ -91,12 +91,17 @@ more besides.
 
 The reader already owns the tools, under other
 names. Wealth concentration is a Lorenz curve and
-a Gini coefficient (@kondor2014rich), the very
-instruments of health-inequity measurement. Block
-arrivals are a renewal process whose fit can be
-tested (@sec-mining). De-anonymisation is entity
+a Gini coefficient (@kondor2014rich, an empirical
+study of the concentration of Bitcoin holdings),
+the very instruments of health-inequity
+measurement. Block arrivals are a renewal process
+(a sequence of independent waiting times between
+successive events) whose fit can be tested
+(@sec-mining). De-anonymisation is entity
 resolution, the record-linkage problem of registry
-deduplication (@meiklejohn2013fistful). Token
+deduplication (@meiklejohn2013fistful, the study
+of Meiklejohn and colleagues that clustered the
+Bitcoin address graph into economic actors). Token
 release is a deterministic schedule whose future
 supply is a piece of cohort bookkeeping,
 computable today. The work of the chapter is to
@@ -108,6 +113,57 @@ in the next section, then clustering,
 concentration, the block-interval model,
 tokenomics, and finally the forecasting log with
 which the book closes.
+
+Several terms recur through the chapter, and we
+gather the least familiar of them here so that the
+reader need not hold them as mysteries while the
+argument proceeds.
+
+::: {.callout-note}
+## The vocabulary of this chapter
+
+- **On-chain data.** The permanent, world-readable
+  record of confirmed transactions on a public
+  blockchain, read here as an observational dataset
+  rather than as a designed experiment.
+- **Address clustering (entity resolution).** The
+  grouping of many pseudonymous addresses into the
+  single economic actor that controls them. The
+  workhorse rule is the common-input-ownership
+  heuristic: when one transaction spends several
+  inputs together, all those input addresses are
+  presumed to belong to one owner, since the spender
+  had to sign for each. It is the record-linkage
+  problem of a patient registry applied to a ledger.
+- **Pseudonymity versus anonymity.** Pseudonymity
+  hides only the map from addresses to identities
+  while leaving every transaction permanently public;
+  anonymity would hide the activity itself. A chain
+  is pseudonymous, and pseudonymity degrades under
+  analysis.
+- **Mixer.** A service that pools funds from many
+  users and redistributes them, deliberately breaking
+  the input-output linkage on which clustering
+  depends.
+- **Market capitalisation versus fully diluted
+  valuation (FDV).** Market capitalisation is the
+  circulating supply times price; FDV is the total
+  eventual supply times price. The gap between them is
+  the value of the supply not yet released.
+- **Total value locked (TVL).** The token value
+  deposited in a protocol, denominated in the very
+  tokens whose prices it aggregates, and therefore not
+  a direct measure of adoption or of safety.
+- **Vesting and unlock schedule.** The deterministic
+  timetable, fixed in a token's contract, by which
+  allocated but locked tokens (to a team, to early
+  investors) become circulating, each unlock adding to
+  the effective supply.
+- **Ponzinomics.** A token structure in which the
+  returns paid to existing participants are funded
+  from the capital of new entrants rather than from
+  any revenue exogenous to the token.
+:::
 
 Because each instrument arrives under a name the
 reader already owns, we set the correspondence out
@@ -140,8 +196,10 @@ no tool performs them for us.
    entities that transact on-chain differ
    systematically from those that do not, custodial
    addresses aggregate many users behind one
-   pseudonym, and wash trading manufactures volume.
-   Naming the estimand, and the gap between it and
+   pseudonym, and wash trading, the practice of
+   trading with oneself to fabricate the appearance
+   of activity, manufactures volume. Naming the
+   estimand, and the gap between it and
    what the chain actually measures, is prior to any
    number.
 
@@ -154,17 +212,17 @@ no tool performs them for us.
    coefficient on stake. 'Sustainable yield' becomes
    a question about whether returns are paid from
    exogenous cash flow or from new entrants. Once a
-   claim has a test, it can be wrong, which is the
-   whole point.
+   claim has been given a test it can be shown false,
+   which is the entire purpose of formulating it.
 
-3. **Scoring your own forecasts.** Scepticism
-   that is never recorded and never graded is just a
+3. **Scoring one's own forecasts.** Scepticism
+   that is never recorded and never graded is merely a
    posture. The calibration log introduced in
    @sec-intro and closed here holds the analyst's own
    predictions to the same standard demanded of the
    promoters: a probability, an outcome, and a Brier
-   score. A well-calibrated critic is worth more than
-   a loud one.
+   score. A well-calibrated critic is of more value
+   than a loud one.
 
 The second judgement is the engine of the whole
 chapter, so we make its machinery explicit.
@@ -226,8 +284,10 @@ quantity we should like to have measured.
 
 An address is a public key, not a person. One
 person may control thousands of addresses, and
-one address, an exchange's hot wallet, may hold
-the pooled balances of millions of people. The
+one address, an exchange's hot wallet, that is, the
+online account it uses for day-to-day settlement,
+may hold the pooled balances of millions of people.
+The
 unit of observation the chain hands us is
 therefore not the unit of analysis we want. This
 is a measurement problem in the precise sense of
@@ -255,9 +315,11 @@ organise the caution.
 - **Measurement.** Balances, volumes, and active-
   address counts are proxies. Volume can be
   fabricated by wash trading at near-zero cost.
-  Active-address counts are inflated by dust and by
-  wallet software that splits change across new
-  addresses. The proxy and the target diverge, and
+  Active-address counts are inflated by dust, that
+  is, economically negligible amounts scattered
+  across many addresses, and by wallet software that
+  splits change across new addresses. The proxy and
+  the target diverge, and
   the divergence is not random.
 
 The methodological posture that follows is the
@@ -446,7 +508,8 @@ registry statistician calls deduplication, and it
 is neither more nor less than that here.
 
 The heuristic is a classifier, and like any
-classifier it makes errors. CoinJoin transactions
+classifier it makes errors. CoinJoin transactions,
+which several independent users construct jointly,
 deliberately violate common-input-ownership by
 having many independent signers co-spend, injecting
 false-positive links, and wallets that avoid
@@ -502,7 +565,7 @@ running example commits only integrity hashes and
 access-controlled pointers, never the clinical
 payload itself.
 
-### The mixers strike back: the de-anonymisation arms race
+### The de-anonymisation arms race
 
 The heuristics of the previous section are not the
 end of the story but a move in a continuing game.
@@ -530,10 +593,14 @@ privacy-by-design chain, which builds concealment
 into the protocol rather than bolting it on
 afterward, and here two contrasting constructions
 merit mention. Monero hides the true spender among a
-set of decoys using ring signatures, whereas
-Zerocash, the design underlying Zcash, conceals the
-transaction graph altogether behind zero-knowledge
-shielded transactions (@bensasson2014zerocash). The
+set of decoys using ring signatures (a scheme in
+which a signature is valid for any member of a group,
+so that the true signer cannot be singled out),
+whereas Zerocash, the construction of Ben-Sasson and
+colleagues that underlies the Zcash chain, conceals
+the transaction graph altogether behind
+zero-knowledge shielded transactions
+(@bensasson2014zerocash). The
 latter is the zero-knowledge machinery of @sec-crypto
 put to work: a shielded transfer proves that a valid
 spend occurred without revealing the sender, the
@@ -545,10 +612,11 @@ finding is two-sided. On the one hand the clustering
 literature shows that pseudonymity leaks, for the
 heuristics recover far more structure than the naive
 user expects. On the other hand the privacy tools
-are themselves fallible. Moser and colleagues traced
-a substantial fraction of Monero inputs by
-exploiting weaknesses in the early decoy sampling
-(@moser2018monero), which is to say that a
+are themselves fallible. Moser and colleagues, in a
+traceability study of Monero, traced a substantial
+fraction of its inputs by exploiting weaknesses in
+the early decoy sampling (@moser2018monero), which
+is to say that a
 concealment scheme is only as strong as its
 implementation and its parameters. Neither anonymity
 nor de-anonymisation is therefore absolute. The
@@ -582,7 +650,9 @@ registry, and the privacy of a released dataset is a
 property to be tested empirically against a
 motivated adversary, not asserted by the custodian
 who released it. The mixing service and the
-k-anonymity transform are two answers to one
+k-anonymity transform, which coarsens a release
+until every record is indistinguishable from at
+least k-1 others, are two answers to one
 question, namely how much identifying structure
 survives an adversary who is actively trying to
 recover it.
@@ -742,9 +812,12 @@ ninety percent of addresses hold a negligible
 fraction of the wealth, while the top sliver holds
 almost all of it. For a proof-of-work chain this
 is a distributional curiosity. For a proof-of-stake
-chain it is a security parameter. Sybil resistance
-under proof-of-stake (@sec-pos, @douceur2002sybil)
-presumes that influence is proportional to stake
+chain it is a security parameter. Sybil resistance,
+the property that an actor cannot gain
+disproportionate influence merely by creating many
+identities, under proof-of-stake (@sec-pos,
+@douceur2002sybil) presumes that influence is
+proportional to stake
 and that stake is not trivially concentrated in a
 few hands. A high stake Gini means a small number
 of entities approach the thresholds that matter for
@@ -759,8 +832,9 @@ is an input to the safety analysis.
 ::: {.callout-note icon=false collapse=true}
 ## Check your understanding: address Gini versus entity Gini
 
-You compute a stake Gini of 0.82 across addresses
-and conclude the chain is dangerously concentrated.
+An analyst computes a stake Gini of 0.82 across
+addresses and concludes the chain is dangerously
+concentrated.
 A defender replies that many of those addresses are
 retail users of one large exchange, so the true
 concentration is lower. Who is right, and which
@@ -833,7 +907,9 @@ SYNTHETIC exercise: it establishes what a passing
 result looks like, so that a failure on real data is
 legible. On a real chain the interesting science is
 precisely where the exponential frays. Around a
-difficulty retarget the rate parameter is stale, so
+difficulty retarget, the periodic adjustment that
+resets the mining difficulty toward the target
+block time, the rate parameter is stale, so
 intervals cluster short or long until the controller
 catches up. During a hash-rate shock, the exogenous
 migration of miners, the interval distribution
@@ -956,8 +1032,10 @@ tier-two empirical quantity masquerading as a
 measure of adoption or safety. TVL is denominated
 in the very tokens whose prices it aggregates, so
 it inflates during a bubble by construction; it
-double-counts value that is rehypothecated across
-protocols; and it says nothing about whether the
+double-counts value that is rehypothecated, that is,
+pledged as collateral in one protocol and then
+re-pledged in another, across protocols; and it says
+nothing about whether the
 locked capital can actually exit. A protocol whose
 TVL doubled because its own token tripled has not
 become twice as used or twice as safe. Demote both
@@ -999,8 +1077,11 @@ a pyramid.
 ### Stablecoin fragility, revisited
 
 The empirical counterpart to this analysis is the
-stablecoin, studied in detail by
-@briola2023anatomy. An algorithmic stablecoin that
+stablecoin, a token engineered to hold a fixed
+value against a reference such as the dollar,
+studied in detail by @briola2023anatomy, an
+on-chain and market-microstructure account of a
+stablecoin collapse. An algorithmic stablecoin that
 maintains its peg through a reflexive relationship
 with a companion token, minting one to defend the
 other, is a Ponzi-like structure with a fixed point
@@ -1059,8 +1140,8 @@ well-calibrated forecaster, drawing each outcome as
 a Bernoulli variable at the stated probability, so
 the calibration curve should track the diagonal up
 to sampling noise. Replacing this simulated log with
-a real `predictions.csv` turns the same code into a
-report card on your own judgement.
+a real `predictions.csv` turns the same code into an
+assessment of one's own judgement.
 
 ```{r}
 #| label: fig-calibration
@@ -1279,7 +1360,8 @@ The defensible pattern that follows is the one this book
 has stated wherever the question has arisen: personal
 health data stays off-chain, in a governed store that can
 honour an erasure request, and the ledger commits only to
-non-identifying proofs, a Merkle root of a locked dataset,
+non-identifying proofs, a Merkle root (a single hash that
+commits to an entire dataset) of a locked dataset,
 a signature over an access grant, a timestamp of an event.
 The chain then attests that something happened without
 recording what, to whom, or containing any datum a

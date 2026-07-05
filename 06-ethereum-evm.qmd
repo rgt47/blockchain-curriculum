@@ -90,8 +90,12 @@ a pricing mechanism before it is anything else.
 
 This chapter also introduces the first genuine
 feedback controller we shall simulate end to end,
-namely the base fee of EIP-1559. It is a smaller and
-more transparent system than the mining difficulty
+namely the base fee of EIP-1559, the standard
+adopted in 2021 under which the protocol itself
+computes the per-gas price and adjusts it block by
+block rather than leaving it to an open auction. It
+is a smaller and more transparent system than the
+mining difficulty
 adjustment of @sec-mining, and studying it here, with
 the earlier controller already in hand, makes the
 general pattern, an error signal driving a
@@ -112,7 +116,56 @@ response, return to the programmable-consent problem
 with which we opened and scope precisely what a
 contract can and cannot be trusted to hold, and
 close with the data-availability pricing of
-EIP-4844.
+EIP-4844, a 2024 change that adds a cheap,
+short-lived form of bulk on-chain storage.
+
+Before proceeding we fix the vocabulary on which
+the chapter depends, so that the reader need not
+carry these terms as mysteries. Each is given in
+plain form here and treated more fully, with its
+statistical reading, in the section or table that
+follows.
+
+::: {.callout-note}
+## The vocabulary of this chapter
+
+- **The UTXO and account models.** Two ways a
+  ledger may represent balances. In the UTXO
+  (unspent-transaction-output) model, used by
+  Bitcoin, the ledger stores discrete unspent
+  outputs, and a balance is obtained by summing the
+  ones an owner may still spend. In the account
+  model, used by Ethereum, the ledger stores one
+  running balance per address and overwrites it as
+  transactions arrive.
+- **Ethereum Virtual Machine (EVM).** The shared,
+  rule-bound computer that every Ethereum node runs
+  identically, so that a given program applied to
+  given inputs yields one and only one result on
+  every machine.
+- **Smart contract.** A program stored on the
+  ledger that runs automatically and identically on
+  every node when it is called, enforcing its rules
+  without any custodian trusted to execute them
+  faithfully.
+- **Gas and gwei.** Gas is the unit in which the
+  EVM meters computational work, each operation
+  costing a fixed amount. Gwei is the small unit of
+  ether, $10^{-9}$ ether, in which the price paid
+  per unit of gas is quoted.
+- **Account nonce.** A per-account counter,
+  advanced by one with each transaction the account
+  sends, that orders that account's transactions
+  and prevents a signed transaction from being
+  replayed. It is unrelated to the mining nonce of
+  proof-of-work met in @sec-pow.
+- **Externally owned and contract accounts.** An
+  externally owned account is controlled by a
+  private key held by a person or institution and
+  may originate a transaction; a contract account
+  is controlled by its own stored code and acts
+  only when it is called.
+:::
 
 ## The statistician's contribution
 
@@ -132,10 +185,12 @@ EIP-4844.
    into per-unit costs applies directly.
 3. **Auditing determinism and its limits.** The EVM
    is deterministic by specification, but a system
-   'wired to' the chain (an oracle feeding it a price,
-   a multisig with an admin key) reintroduces
-   trust and single points of failure that the
-   deterministic core does not have. Distinguishing
+   'wired to' the chain (an oracle feeding it a
+   price, or a multisig, a wallet that requires
+   several keys to authorise an action, holding an
+   admin key) reintroduces trust and single points
+   of failure that the deterministic core does not
+   have. Distinguishing
    what the protocol guarantees from what a particular
    deployment adds is an exercise in scoping a claim
    correctly, which is exactly the discipline of
@@ -392,11 +447,15 @@ nonce 6), which a content hash alone cannot express.
 
 ## The EVM as a shared deterministic state machine
 
-The Ethereum Virtual Machine is a stack-based virtual
-machine specified precisely enough that any two
-independent, correct implementations execute any
-transaction to bit-identical resulting state
-[@wood2014yellow]. That determinism is the entire
+The Ethereum Virtual Machine is a stack-based
+virtual machine specified precisely enough that any
+two independent, correct implementations execute
+any transaction to bit-identical resulting state.
+That specification is Wood's Ethereum Yellow Paper
+[@wood2014yellow], the formal mathematical
+definition of the machine and of its
+state-transition rules. That determinism is the
+entire
 point: thousands of independently operated nodes
 must agree on the result of running arbitrary code
 without communicating during the computation, and
@@ -431,10 +490,11 @@ contract account.
 
 : Externally owned accounts and contract accounts contrasted {#tbl-eoa-contract}
 
-Buterin, in the original Ethereum whitepaper
-[@buterin2014ethereum], describes this design as a
-single shared computer that anyone may submit
-programs to and whose entire history of execution is
+Buterin, who proposed Ethereum in 2013, in the
+original Ethereum whitepaper [@buterin2014ethereum]
+describes this design as a single shared computer
+that anyone may submit programs to and whose entire
+history of execution is
 public and auditable. The framing is useful and also
 easy to over-read: it is one *logical* computer with
 thousands of *redundant* physical executions, which
@@ -457,8 +517,10 @@ without first solving a problem known to be
 undecidable?
 
 Ethereum does not solve the halting problem. No one
-can. It sidesteps it economically: every EVM opcode
-has a fixed gas cost, a sender must pre-purchase a
+can. It sidesteps it economically: every EVM
+opcode, that is, every single primitive machine
+instruction, has a fixed gas cost, a sender must
+pre-purchase a
 gas limit for a transaction by paying up front, and
 execution halts the instant the gas supplied is
 exhausted, reverting all state changes made by that
@@ -536,9 +598,9 @@ transaction should have been killed.
 Prior to EIP-1559, Ethereum used a first-price
 auction for block space: senders bid a gas price,
 miners included the highest bidders, and the market
-cleared with high variance and poor UX (bidders
-routinely over- or under-paid relative to the true
-clearing price). EIP-1559 [@eip1559] replaced this
+cleared with high variance and a poor user
+experience, in that bidders routinely over- or
+under-paid relative to the true clearing price. EIP-1559 [@eip1559] replaced this
 with a protocol-computed **base fee** that adjusts
 block by block toward a target utilisation, plus an
 optional **priority fee** (tip) that senders set to
@@ -632,7 +694,7 @@ down, because the controller only reacts to the
 *current* deviation from target; the cooldown phase
 is what actually drives the fee back down, and is a
 realistic feature of fee markets, not an artefact
-introduced to make the plot look nicer.
+introduced for cosmetic effect.
 
 ```{r ch06-eip1559-sim}
 #| label: fig-basefee
@@ -846,16 +908,20 @@ caps throughput.
 The dominant response, and the one the EIP-4844
 material was quietly preparing, is to stop asking the
 base chain to execute everything. A rollup executes
-transactions off-chain, on a separate system with its
-own sequencer, and posts back to the base chain only
-a compressed record of what it did, together with
+transactions off-chain, on a separate system with
+its own sequencer, the party that decides the order
+in which the incoming transactions are processed,
+and posts back to the base chain only a compressed
+record of what it did, together with
 enough information for anyone to check the result.
 Crucially, the rollup does not run its own consensus
 over who may write history; it borrows the base
 chain's. Its data, or a proof of its correctness, is
 anchored on Ethereum, so that the security of the
 batched transactions reduces to the security of the
-layer they settle on. The throughput gain comes from
+layer they settle on. In the standard vocabulary the
+base chain is called layer one and the rollup built
+upon it layer two. The throughput gain comes from
 doing the expensive work, execution, once and
 off-chain, while the base chain is asked only to
 store the data and check a summary. We set the
@@ -930,17 +996,22 @@ without proof; the assertion is accepted by default,
 subject to a challenge window during which any honest
 party who has recomputed the batch may submit a fraud
 proof demonstrating an invalid transition and reverse
-the result. Arbitrum [@kalodner2018arbitrum] is the
-canonical instance of this design. Its security rests
+the result. Arbitrum [@kalodner2018arbitrum], one of
+the most widely used optimistic rollups in
+production, is the canonical instance of this
+design. Its security rests
 on the assumption that at least one honest and
 attentive verifier exists and will act within the
 window, and on the underlying data being available
 for that verifier to check, which is exactly why
 blobs [@eip4844] matter: the fraud proof is possible
 only if the data was published in the first place. A
-VALIDITY rollup, commonly a zero-knowledge rollup,
-instead posts a succinct cryptographic proof that the
-state transition was computed correctly, which the
+VALIDITY rollup, commonly a zero-knowledge rollup
+(one whose proof establishes that the computation
+was performed correctly while disclosing nothing
+about its inputs), instead posts a succinct
+cryptographic proof that the state transition was
+computed correctly, which the
 base chain verifies directly; there is no challenge
 window and no honest-verifier assumption, because an
 invalid batch cannot produce a valid proof. The proof
@@ -1077,8 +1148,9 @@ the sequencer cannot make a particular user wait.
 
 ## When code is law: smart-contract security
 
-The phrase most often used to sell the smart contract
-is that with it, code is law: the agreement executes
+The phrase most often used to commend the smart
+contract is that with it, code is law: the agreement
+executes
 itself exactly as written, and no clerk, no court, and
 no counterparty may intervene to alter the outcome.
 The determinism this chapter has emphasised is exactly
@@ -1411,9 +1483,10 @@ public repository of the underlying operational data.
 ::: {.callout-warning}
 ## Most 'health records on Ethereum' proposals fail this test
 
-Read any concrete proposal for its precise placement
-of the boundary between what is committed on-chain
-and what is stored off-chain. A proposal that puts
+The reader should examine any concrete proposal for
+its precise placement of the boundary between what
+is committed on-chain and what is stored off-chain.
+A proposal that puts
 diagnosis codes, lab values, or free-text clinical
 notes on a public chain, encrypted or not, has
 misunderstood the guarantee a blockchain provides.

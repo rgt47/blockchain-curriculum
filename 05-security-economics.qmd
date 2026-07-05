@@ -2,8 +2,8 @@
 
 ## Learning objectives
 
-By the end of this chapter you should be able
-to:
+By the end of this chapter the reader should be
+able to:
 
 - Distinguish what cryptography guarantees in
   Bitcoin from what economic incentives
@@ -61,7 +61,9 @@ habit this chapter formalises for a shared ledger.
 The mechanics for such a ledger were built in the
 previous two chapters, which constructed
 proof-of-work and studied mining as a renewal
-process. This chapter asks the question those
+process (a sequence of block discoveries separated
+by independent, identically distributed waiting
+times). This chapter asks the question those
 mechanics defer: why does anyone follow the rules?
 A miner, or a custodian of the trial ledger, is
 free software running on hardware its owner
@@ -83,8 +85,11 @@ participant can spend another's coins or silently
 rewrite a committed block. Cryptography says nothing
 about whether a majority coalition of miners will
 choose to reorganise the chain, or whether a large
-miner will withhold blocks to farm orphans from its
-rivals. Those are not cryptographic questions. The
+miner will withhold blocks so as to orphan its
+rivals' work, that is, to cause validly mined
+blocks to be discarded because a competing chain
+has outpaced them. Those are not cryptographic
+questions. The
 reader trained on clinical data will recognise the
 shape of the argument at once, for research
 integrity too is maintained not by cryptography but
@@ -96,13 +101,15 @@ chapter proceeds.
 A reader with masters-level game theory and
 probability already owns the tools. The
 cost-of-attack is a comparison of two revenue
-streams. Selfish mining is a Markov chain on the
-lead a miner holds over the public chain, and its
-profitability is a rational function of two
-parameters. Incentive compatibility is the
-statement that honest mining is a Nash
-equilibrium, or close enough to one that deviation
-does not pay. The work of the chapter is to write
+streams. Selfish mining is a Markov chain (a random
+process whose next state depends only on the
+current one) on the lead a miner holds over the
+public chain, and its profitability is a rational
+function of two parameters. Incentive compatibility
+is the statement that honest mining is a Nash
+equilibrium (a strategy profile from which no
+participant gains by deviating alone), or close
+enough to one that deviation does not pay. The work of the chapter is to write
 these down and check them, because the field states
 them as slogans ('51 percent is the security
 threshold') that the arithmetic does not support.
@@ -111,8 +118,55 @@ attack and examine what its cost recovers. We then
 derive the selfish-mining threshold and read it as
 a security parameter. We close by returning to the
 trial ledger and asking, candidly, whether the
-permissionless machine is the right custodian for
-it at all.
+permissionless machine, meaning the open system
+that any party may join without approval, is the
+right custodian for it at all.
+
+The chapter turns on a compact vocabulary, which we
+fix here before proceeding, so that the reader need
+not carry these terms as unknowns through the
+argument that follows.
+
+::: {.callout-note}
+## The vocabulary of this chapter
+
+- **The 51 percent (majority) attack.** An attack
+  in which a single party commands more than half of
+  the network's mining power and uses it to rewrite
+  recent history, to reorder or exclude entries, and
+  to spend the same coins twice.
+- **Cost of attack.** The expenditure a party must
+  incur to mount such an attack. Here it is priced
+  as the cost of renting a majority of the mining
+  power for the duration of the attack window.
+- **Selfish mining.** A strategy in which a miner
+  keeps the blocks it finds secret and releases them
+  at moments of its own choosing, so as to waste the
+  effort of honest miners and capture more than its
+  fair share of the reward.
+- **Hash-power fraction (alpha).** The share of the
+  network's total mining power that a given miner
+  controls, written $\alpha$.
+- **Communication (propagation) advantage (gamma).**
+  The fraction of honest miners that side with a
+  selfish miner's block, rather than the competing
+  honest block, when the two are released at once.
+  Written $\gamma$, it measures how effectively the
+  selfish miner wins the race to propagate its block
+  first.
+- **Relative revenue.** The share of the total block
+  reward a miner earns in the long run. Honest mining
+  earns a relative revenue equal to $\alpha$; an
+  attack pays only when it earns more.
+- **Incentive compatibility.** The property that
+  following the protocol honestly is the strategy
+  that maximises a participant's own payoff, so that
+  no participant gains by deviating from it.
+- **Eclipse attack.** An attack that surrounds a
+  node's network connections with the attacker's own
+  peers, so that the victim is fed a false view of
+  the ledger or has its own entries suppressed.
+:::
 
 Before pricing any single attack, we lay out the
 four we shall meet and the layer that stops each,
@@ -196,8 +250,11 @@ wrong one.
 
 ### What a majority actually buys
 
-Recall the double-spend analysis of @sec-pow. An
-attacker with hash-power fraction $q$ who trails
+Recall the double-spend analysis of @sec-pow, where
+a double-spend is the act of spending the same coins
+twice by rewriting the ledger after a payment has
+been accepted. An attacker with hash-power fraction
+$q$ who trails
 the honest chain by $z$ confirmations is running a
 biased random walk, and the probability of ever
 catching up is $(q/p)^{z}$ when $q < p = 1 - q$,
@@ -219,6 +276,8 @@ issuance schedule; those are enforced by every
 node's validation rules, which a majority of hash
 power does not override. The 51 percent attack is
 a liveness-and-ordering attack on recent history,
+that is, an attack on whether and in what order
+entries appear rather than on their authenticity,
 not a theft of arbitrary funds. That distinction
 is exactly the cryptography-versus-incentives
 boundary this chapter is about.
@@ -302,8 +361,9 @@ precisely what is wrong with this claim and what a
 
 Draining arbitrary wallets requires spending coins
 whose private keys the attacker does not hold,
-which is a forgery of ECDSA signatures. That is
-prevented cryptographically and is not affected by
+which is a forgery of ECDSA signatures, ECDSA being
+the elliptic-curve digital-signature scheme Bitcoin
+uses. That is prevented cryptographically and is not affected by
 hash-power share; every node rejects a transaction
 whose signatures do not verify, regardless of who
 mined the block containing it. A 55 percent
@@ -323,7 +383,9 @@ describe an economic-ordering attack.
 
 The 51 percent analysis suggests a comforting
 threshold: stay below half the hash power and the
-chain is safe. Eyal and Sirer demolished the
+chain is safe. Eyal and Sirer, whose selfish-mining
+result first showed that a miner can profit by
+withholding the blocks it finds, overturned that
 comfort [@eyal2014majority]. They exhibit a
 strategy, selfish mining, under which a miner with
 strictly less than half the hash power earns
@@ -655,12 +717,15 @@ regard for exchange-rate consequences, and no
 difficulty-adjustment feedback within the analysis
 window. Sapirshtein and colleagues tightened the
 picture by solving for the optimal withholding
-policy as a Markov decision process, showing that
-Eyal and Sirer's strategy is not always optimal and
+policy as a Markov decision process (a Markov chain
+in which a decision-maker chooses actions so as to
+maximise long-run reward), showing that Eyal and
+Sirer's strategy is not always optimal and
 that the true profitability threshold can be lower
 still [@sapirshtein2016optimal]. That is a
 strengthening of the result, not a refutation:
-optimising the attacker only lowers the bar. The honest reading is that
+optimising the attacker only lowers the threshold
+further. The honest reading is that
 $1/3$ at $\gamma = 0$ is an upper bound on the
 safe share under this family of attacks, and the
 safe share is smaller once the attacker plays
@@ -721,10 +786,13 @@ suffering them.
 ### Mining pools and centralisation pressure
 
 The variance of solo mining is punishing. A small
-miner finds blocks as a Poisson process with a
-minute rate, so its reward is a high-variance
-lottery with long dry spells. Pooling hash power
-and sharing rewards pro rata converts the lottery
+miner finds blocks as a Poisson process (events
+arriving independently at a constant average rate)
+with a minute rate, so its reward is a high-variance
+lottery with long dry spells. Pooling hash power,
+meaning that many miners combine their effort in a
+mining pool and share the rewards in proportion to
+the work each contributes, converts the lottery
 into a near-deterministic income stream, reducing
 variance without changing expected reward. That is
 a rational risk-management response, and it is why
@@ -749,11 +817,16 @@ quantifiable. Gervais and colleagues built a
 framework that, for given block interval, block
 size, and network propagation, computes the cost of
 attacks such as double-spending and selfish mining,
-mapping out a security-performance frontier
-[@gervais2016security]. Shorter block intervals and larger
-blocks raise throughput but also raise the stale-
-block rate, which improves an attacker's relative
-position: more natural forks mean a withholding
+mapping out a security-performance frontier, the
+boundary describing how much security must be
+surrendered to gain throughput and conversely
+[@gervais2016security]. Shorter block intervals and
+larger blocks raise throughput but also raise the
+stale-block rate, meaning the frequency with which
+validly mined blocks are discarded as the network
+converges on one chain, which improves an attacker's
+relative position: more natural forks mean a
+withholding
 attacker's manufactured forks are cheaper to win.
 The frontier makes explicit that 'faster' and
 'more secure' are competing objectives on a

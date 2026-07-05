@@ -2,8 +2,8 @@
 
 ## Learning objectives
 
-By the end of this chapter you should be able
-to:
+By the end of this chapter the reader should be
+able to:
 
 - Derive block discovery as a Poisson process
   from tiny-probability Bernoulli hashing, and
@@ -42,8 +42,8 @@ a point process of precisely the kind one meets in
 survival analysis and in the surveillance of
 incident cases. Nothing in the machinery below is
 foreign to a reader trained on time-to-event
-outcomes; it is an old subject wearing unfamiliar
-clothing.
+outcomes; it is a familiar subject presented in
+unfamiliar terms.
 
 The public-health problem that motivates the
 chapter is one of settlement timing. The running
@@ -82,6 +82,68 @@ superposition of Poisson processes, memorylessness,
 and a proportional controller correcting a noisy
 plant.
 
+::: {.callout-note}
+## The vocabulary of this chapter
+
+The statistical terms below will be familiar to a
+reader trained in survival analysis; we state them
+here in the arrival-time language this chapter uses,
+alongside the few terms specific to mining.
+
+- **Bernoulli trial and the geometric distribution.**
+  A Bernoulli trial is a single success-or-failure
+  experiment with fixed success probability $p$; one
+  hashing attempt is such a trial. The geometric
+  distribution is the law of the number of trials
+  needed to obtain the first success, with mean
+  $1/p$; here it counts the hashes a block costs.
+- **Exponential distribution and memorylessness.**
+  The exponential is the continuous waiting-time law
+  with a constant hazard, meaning that the chance of
+  an event in the next instant does not depend on how
+  long one has already waited. This 'memoryless'
+  property is the survival-analysis constant-hazard
+  assumption, and it makes the wait for the next
+  block indifferent to past failures.
+- **Poisson process and superposition.** A Poisson
+  process is a stream of events in continuous time
+  whose counts in disjoint windows are independent
+  Poisson variables and whose gaps are exponential;
+  it is the standard model for events arriving at
+  random, as in disease surveillance. Superposition
+  is the fact that merging several independent
+  Poisson processes yields one Poisson process whose
+  rate is the sum of the parts, which is how many
+  independent miners combine into a single arrival
+  stream.
+- **Hash rate.** The number of hashing attempts a
+  miner, or the whole network, performs per second.
+  It sets the block-arrival rate and is not published
+  by the chain, so it must be estimated.
+- **Difficulty retarget.** The rule by which the
+  protocol periodically rescales the mining
+  difficulty, and hence the per-attempt success
+  probability, so as to hold the mean interval
+  between blocks at a fixed target.
+- **Feedback controller and set point.** A feedback
+  controller is a rule that measures a system's
+  output, compares it with a desired value called
+  the set point, and adjusts an input to reduce the
+  discrepancy. The retarget is such a controller,
+  with the ten-minute mean interval as its set point.
+- **Orphan (or fork) rate.** The fraction of mined
+  blocks that are discarded because two miners found
+  a block at nearly the same time and the network
+  eventually kept only one. A discarded block is
+  called an orphan or stale block.
+- **Quantile-quantile (QQ) plot.** A diagnostic that
+  plots the ordered observed values against the
+  quantiles a fitted distribution predicts; points on
+  the diagonal indicate agreement in distribution,
+  and systematic departure signals that the assumed
+  law is wrong.
+:::
+
 The identification with event and arrival data is
 exact, and we shall exploit it in line rather than
 reserve it for a closing remark. A block
@@ -109,7 +171,7 @@ fork-rate estimate and a hash-rate estimator. We
 close by asking where the tidy exponential model
 breaks on real chains, because that boundary,
 whether on a chain or in a surveillance stream, is
-where the interesting science lives.
+where the interesting science resides.
 
 ## The statistician's contribution
 
@@ -121,7 +183,10 @@ performs when deciding how to treat a stream of
 adverse-event or incidence times.
 
 1. **Recognising the renewal and Poisson
-   structure.** Seeing that independent
+   structure.** A renewal process is one in which
+   the waiting-time clock restarts afresh after each
+   event, so the gaps are independent and
+   identically distributed. Seeing that independent
    tiny-probability hashing produces a Poisson
    arrival process, and therefore that inter-arrival
    times are exponential and memoryless, is what
@@ -139,7 +204,9 @@ adverse-event or incidence times.
    a hash-power surge?') into precise ones about
    transient response, stability, and oscillation,
    answerable with the tools of control theory
-   rather than intuition [@kraft2016difficulty].
+   rather than intuition, following Kraft, who
+   analysed the retarget rule as a control problem
+   [@kraft2016difficulty].
 
 3. **Knowing the exponential model's failure
    modes.** The memoryless model is exact under
@@ -147,8 +214,11 @@ adverse-event or incidence times.
    propagation, and it frays predictably when those
    assumptions fail: propagation delay, non-constant
    hash rate across a retarget epoch, and
-   deviations documented on real chains
-   [@bowden2020modeling]. A statistician's value is
+   deviations documented on real chains by Bowden
+   and colleagues, who modelled Bitcoin
+   block-arrival times and identified where the
+   simple Poisson model fails [@bowden2020modeling].
+   A statistician's value is
    as much in stating where the model stops holding
    as in fitting it.
 
@@ -194,7 +264,7 @@ check it (@tbl-distribution-map).
 
 | Object | Distribution | Public-health twin | Diagnostic |
 |---|---|---|---|
-| **Single hash attempt** | Bernoulli$(p)$ | Event indicator | — |
+| **Single hash attempt** | Bernoulli$(p)$ | Event indicator | n/a |
 | **Attempts to success** | Geometric$(p)$ | Trials to first event | Geometric QQ |
 | **Waiting time to next block** | Exponential$(\lambda)$ | Survival time under constant hazard | Exponential QQ, KS |
 | **Arrivals in a window** | Poisson$(\lambda w)$ | Surveillance case counts | Dispersion check |
@@ -269,8 +339,9 @@ ggplot(mem, aes(t, survival, colour = curve,
 We measure this on a toy chain whose hashing is
 genuine SHA-256. The mining primitive below is the
 one from @sec-pow, reused verbatim: it increments a
-nonce until the digest carries the required prefix,
-and records the attempt count.
+nonce (a counter varied to change the hashed input)
+until the digest (the hash output) carries the
+required prefix, and records the attempt count.
 
 ```{r ch04-mine-primitive}
 library(digest)
@@ -455,9 +526,9 @@ rule as a control problem, and it is the framing we
 adopt: the retarget is a discrete-time feedback
 controller acting on a stochastic plant. The control
 action is applied once per epoch, not continuously,
-so the loop has a built-in dead time:
-a change in hash rate is uncorrected until the next
-retarget.
+so the loop has a built-in dead time (a delay before
+any correction can take effect): a change in hash
+rate is uncorrected until the next retarget.
 
 It is worth drawing the loop before analysing it.
 Read as a block diagram, the retarget is an ordinary
@@ -728,8 +799,9 @@ relatively insensitive here, because a fifty-fifty
 mixture of two exponentials remains roughly
 exponential in its unordered distribution, so a
 quantile-quantile plot or a Kolmogorov-Smirnov test
-applied to all six hundred gaps at once may fail to
-reject. The change is a sequential phenomenon, not a
+(a goodness-of-fit test comparing an empirical
+distribution with a hypothesised one) applied to all
+six hundred gaps at once may fail to reject. The change is a sequential phenomenon, not a
 marginal one, and it is visible only when the data
 are read in arrival order. This is the same lesson a
 survival analyst learns from an unmodelled
@@ -768,8 +840,10 @@ precisely why an auditor must wait a number of
 confirmations before treating a record as settled.
 How often, then, does such a competing block occur?
 Under the Poisson model the rate is a short
-calculation [@decker2013information]. Let $\mu$ be
-the mean
+calculation, and Decker and Wattenhofer, who
+measured block propagation in the live Bitcoin
+network, ground it in observed delays
+[@decker2013information]. Let $\mu$ be the mean
 block time, so blocks arrive as a Poisson process
 of rate $\lambda = 1/\mu$, and let $\Delta$ be the
 propagation window: the time for a newly found
@@ -831,7 +905,7 @@ fraction of its work on blocks that lose the fork
 race, which both wastes hash power and weakens
 security, since orphaned work does not defend the
 chain. The propagation window $\Delta$ is a network
-property that no protocol parameter can wish away,
+property that no protocol parameter can eliminate,
 so it sets a floor on the block time below which
 orphan rates become costly.
 
@@ -872,8 +946,10 @@ divided by mean interval,
 $\hat{R} = 16^{d} / \bar{t}$. The sampling
 variability is inherited from $\bar{t}$: for $n$
 exponential intervals the mean has relative standard
-error $1/\sqrt{n}$, and by the delta method
-$\hat{R}$ has the same relative standard error,
+error $1/\sqrt{n}$, and by the delta method (the
+first-order propagation of variance through a smooth
+transformation) $\hat{R}$ has the same relative
+standard error,
 because $\hat{R}$ is a smooth reciprocal of
 $\bar{t}$.
 
@@ -909,8 +985,10 @@ blocks. This is why hash-rate figures quoted from a
 single day of blocks are noisy, and why practitioners
 average over a difficulty epoch or longer. The
 estimator is nothing more exotic than a
-method-of-moments fit of an exponential rate,
-rescaled by the known per-block work.
+method-of-moments fit of an exponential rate (one
+that equates the sample mean to its theoretical
+value and solves for the rate), rescaled by the
+known per-block work.
 
 ## When the exponential model frays
 
@@ -1050,15 +1128,15 @@ and timestamp noise, as in fitting it, for those
 rejections, whether encountered on a chain or in a
 disease-surveillance stream, are where the science
 resides. The reader who carries these three points
-away has, we believe, understood the chapter, whether
-or not another block is ever mined in view.
+away has, we believe, grasped the essential argument
+of the chapter.
 
 ## Collaborating with an LLM
 
 An AI assistant is a capable partner for the algebra
 and the plotting here, and an unreliable one for the
-modelling judgements. Use it with the following
-discipline.
+modelling judgements. It should be used with the
+following discipline.
 
 **Prompt.** 'Derive the orphan-rate formula for a
 Poisson block process with mean interval mu and
@@ -1071,8 +1149,9 @@ approximation.'
   long-run fraction of orphaned blocks (they differ
   once forks can themselves fork).
 - *Verification:* re-derive from
-  $P(T < \Delta) = 1 - e^{-\Delta/\mu}$ yourself,
-  and confirm the $\Delta/\mu$ limit against the
+  $P(T < \Delta) = 1 - e^{-\Delta/\mu}$
+  independently, and confirm the $\Delta/\mu$ limit
+  against the
   simulation in the fork-rate section. The model
   presupposes a single competing miner within the
   window; state that assumption explicitly.
@@ -1173,10 +1252,11 @@ minutes after hash rate doubles.'
   in the real Bitcoin network and connects
   propagation delay to the fork rate, grounding the
   orphan-rate calculation in observed data.
-- @goffard2023blockastics is the closest existing
+- @goffard2023blockastics, the BLOCKASTICS course
+  materials, are the closest existing
   statistics-course precedent, presenting blockchain
   as a subject for a probability and statistics
-  curriculum; it is the natural next text for a
+  curriculum; they are the natural next text for a
   reader who wants this chapter's viewpoint extended.
 - @narayanan2016bitcoin remains the rigorous
   reference textbook; its treatment of mining and

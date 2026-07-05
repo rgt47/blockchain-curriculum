@@ -21,8 +21,8 @@ able to:
   auction that redistributes rather than abolishes
   MEV;
 - audit a claim of 'MEV protection' by quantifying
-  the residual extractable value it leaves on the
-  table;
+  the residual extractable value it leaves
+  unaddressed;
 - transfer the ordering-tax lesson to any
   allocation queue, recognising that ordering
   power together with advance visibility
@@ -52,11 +52,14 @@ anyone troubles to name it.
 Maximal extractable value (MEV) is the
 cryptocurrency instance of this general
 phenomenon. Its setting is the automated market
-maker of @sec-defi, which priced a swap by a
-deterministic curve: given the reserves, the
-output of any trade is a known function of its
-size. That determinism was presented as a virtue,
-and for a lone trader it is. Here we study its
+maker of @sec-defi (a venue that prices each trade
+by a fixed formula against a pool of reserves
+rather than by matching buyers to sellers), which
+priced a swap by a deterministic curve: given the
+reserves, the output of any trade is a known
+function of its size. That determinism was
+presented as a virtue, and for a lone trader it
+is. Here we study its
 adversarial consequence. If the price a user
 receives is a known function of the pool state,
 and if the pool state can be altered by inserting
@@ -64,10 +67,10 @@ a transaction immediately before the user's, then
 the profit an adversary can extract by choosing
 what to insert, and in what order, is itself a
 deterministic function of the user's trade and the
-pool depth. It is not luck, not a mystery, and not
-a rare exploit. It is an optimisation problem with
-a closed-form-adjacent solution, solved thousands
-of times per day.
+pool depth. It is not a matter of luck or of rare
+exploitation but an optimisation problem with a
+closed-form-adjacent solution, solved thousands of
+times per day.
 
 MEV carries one property that its public-health
 analogues lack, and that property is what makes it
@@ -75,9 +78,11 @@ worth our close study: on a public chain the
 extraction is measurable to the dollar. A waiting
 list manipulated for advantage leaves, at best, a
 statistical residue open to dispute, whereas a
-sandwich attack leaves an auditable trail of
-transactions from which the extracted value can be
-computed exactly. We shall exploit that
+sandwich attack (an adversary bracketing a
+victim's trade with its own transactions in order
+to worsen the victim's price) leaves an auditable
+trail of transactions from which the extracted
+value can be computed exactly. We shall exploit that
 measurability to make the general lesson precise,
 and then carry the lesson back to the settings in
 which it cannot be measured but nonetheless
@@ -87,15 +92,18 @@ The reader arrives equipped for the technical
 work. Choosing an inclusion set and an order to
 maximise a payoff is a scheduling problem. The
 attacker's profit as a function of front-run size
-is a smooth objective on a compact set, to be
-maximised by the same reasoning used for any
-one-dimensional optimum. The market that sells the
-right to order transactions is an auction,
+(the size of the trade the attacker inserts ahead
+of the victim) is a smooth objective on a compact
+set, to be maximised by the same reasoning used
+for any one-dimensional optimum. The market that
+sells the right to order transactions is an
+auction,
 analysable with the tools of auction theory. The
 work of the chapter is to make these translations
-and, in doing so, to strip MEV of the mystique it
-is usually granted and to expose it as market
-microstructure.
+and, in doing so, to remove the mystique MEV is
+usually granted and to exhibit it as market
+microstructure (the study of how the mechanics of
+trading and order handling determine prices).
 
 The stakes are not only pecuniary. Ordering that
 is economically valuable and visible before
@@ -122,14 +130,66 @@ classify the three canonical strategies by whether
 they close or manufacture an inefficiency. We then
 treat the sandwich quantitatively, correcting a
 common misdescription of its profit function, and
-follow @daian2020flash in tracing how competition
-for MEV destabilises the consensus layer beneath
-it. Proposer-builder separation is examined as an
+follow @daian2020flash, the study published as
+'Flash Boys 2.0', in tracing how competition for
+MEV destabilises the consensus layer beneath it.
+Proposer-builder separation is examined as an
 auction that redistributes rather than abolishes
 the tax. Lastly we return to the trial ledger and
 to allocation-order integrity in health systems
 generally, where the mechanism recurs but the
 remedy is regulatory rather than market-based.
+
+Before proceeding we fix the vocabulary on which
+the argument depends, so that the reader need not
+carry these terms as mysteries.
+
+::: {.callout-note}
+## The vocabulary of this chapter
+
+Several terms recur throughout the chapter. We
+define them here and use them consistently
+thereafter.
+
+- **Maximal (miner) extractable value (MEV).** The
+  value a block producer can capture through its
+  power to decide which pending transactions enter
+  a block and in what order, over and above the
+  ordinary transaction fees and block reward. The
+  term arose as 'miner extractable value' under
+  proof-of-work and was reread as 'maximal' under
+  proof-of-stake.
+- **The mempool.** The public holding area of
+  pending transactions. In an open network a
+  proposed transaction broadcasts to every node
+  and waits there, visible to all, until some
+  producer includes it in a block.
+- **Transaction ordering.** The producer's right
+  to choose both which transactions to include and
+  the sequence in which they execute. Because a
+  trade's price depends on the pool state it meets,
+  the sequence is economically consequential, and
+  it is ordering, not mere inclusion, that MEV
+  monetises.
+- **Front-running and back-running.** Placing
+  one's own transaction immediately before a target
+  transaction (front-running) or immediately after
+  it (back-running) in order to profit from the
+  price movement the target causes.
+- **The sandwich attack.** The pairing of a
+  front-run and a back-run around a victim's trade,
+  so that the victim executes at a price the
+  front-run has deliberately worsened while the
+  attacker unwinds its position immediately after.
+- **Arbitrage.** A trade that profits by equalising
+  a price that differs between two venues, or
+  between a pool and an external reference, thereby
+  restoring a single price.
+- **Liquidation.** The forced closing of a
+  collateralised loan whose collateral has fallen
+  below a required threshold, for which the lending
+  protocol pays the closing party a discount.
+:::
 
 ## The statistician's contribution
 
@@ -156,7 +216,9 @@ to make, and no tool makes them automatically.
    trades and a block producer free to order them.
    The extractable value is therefore a levy on
    users that scales with their trade size and
-   their tolerance for slippage. Naming it a tax,
+   their tolerance for slippage, the gap between
+   the price a trade is quoted and the price it in
+   fact receives. Naming it a tax,
    and estimating its rate, is more useful than
    naming it an attack.
 
@@ -182,8 +244,10 @@ builds, the producer chooses the inclusion set and
 the order.
 
 That freedom has value. Under the fee market of
-@eip1559 a transaction carries a priority fee, a
-tip paid directly to the producer, so the naive
+@eip1559 (the 2021 reform that split each
+transaction's fee into a base fee and a priority
+tip) a transaction carries a priority fee, a tip
+paid directly to the producer, so the naive
 value of ordering is the sum of tips the producer
 can collect. Maximal extractable value is the
 larger quantity that includes the profit the
@@ -193,8 +257,9 @@ to its advantage. The term originated as 'miner
 extractable value' in proof-of-work, where the
 miner producing a block was the ordering
 authority; under proof-of-stake (@sec-pos) the
-proposer plays that role, and the initialism was
-retained by reading it as 'maximal'.
+proposer, the validator whose turn it is to
+produce the block, plays that role, and the
+initialism was retained by reading it as 'maximal'.
 
 Two roles populate the supply chain. A searcher is
 an agent who scans the mempool for profitable
@@ -265,7 +330,9 @@ When the same asset trades at different prices on
 two venues, or when a pool's price diverges from an
 external reference, a trade that equalises them
 earns the difference. On a constant-product pool
-with reserves $R_x, R_y$ and no fee, the marginal
+with reserves $R_x, R_y$ (a market maker whose
+reserves multiply to a constant $R_x R_y = k$ that
+every trade preserves) and no fee, the marginal
 price of $X$ is $R_y/R_x$. If an external market
 prices $X$ at $p$, the pool is mispriced whenever
 $R_y/R_x \neq p$, and the trade that restores
@@ -310,6 +377,7 @@ the benign end of MEV: it is a deterministic
 optimisation, it is competed for, and its social
 effect is to keep pool prices aligned with the
 wider market. It taxes liquidity providers (the
+participants who fund the pool and stand as
 counterparty to the correcting trade) but it does
 not target any individual user's transaction.
 
@@ -1153,11 +1221,13 @@ framing. Read it for the mechanism, and hold its
 empirical magnitudes to the tier-two standard the
 book applies to all measured claims.
 
-@adams2020uniswapv2 specifies the constant-product
-pool on which every computation in this chapter
-runs, including the fee accounting that Exercise 3
-asks you to implement. It is the ground truth for
-the curve, and reading it removes any ambiguity
+@adams2020uniswapv2, the Uniswap v2 protocol
+specification, sets out the constant-product pool
+on which every computation in this chapter runs,
+including the fee accounting that Exercise 3
+asks the reader to implement. It is the ground
+truth for the curve, and reading it removes any
+ambiguity
 about how a swap alters the reserves, which is the
 whole basis of the extraction model.
 

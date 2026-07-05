@@ -2,8 +2,8 @@
 
 ## Learning objectives
 
-By the end of this chapter you should be able
-to:
+By the end of this chapter the reader should be
+able to:
 
 - Explain how proof-of-stake replaces the burned
   energy of proof-of-work with slashable capital
@@ -47,8 +47,8 @@ sound, but it is extravagant, and for a consortium
 of hospitals the prospect of defending a
 patient-safety record by incinerating electricity
 has little intuitive appeal. The matter may be put
-as a question. What secures a shared ledger when
-burning energy is taken off the table?
+as a question. What secures a shared ledger once the
+burning of energy is set aside?
 
 Proof-of-stake offers an answer by changing the
 collateral. Weight in the protocol is no longer
@@ -61,6 +61,60 @@ the protocol can confiscate. This single
 substitution reorganises the entire security
 argument, and we shall find it best read not as a
 change of technology but as a change of collateral.
+
+Before proceeding we fix the vocabulary on which the
+rest of the chapter depends, so that the reader need
+not carry these terms as mysteries.
+
+::: {.callout-note}
+## The vocabulary of this chapter
+
+Several terms recur throughout the chapter. We define
+them here and use them consistently thereafter.
+
+- **Proof-of-stake.** A consensus protocol in which a
+  participant's influence is proportional to the
+  capital it locks in a bond, rather than to the
+  computation it performs, and in which misbehaviour is
+  punished by destroying part of that bonded capital.
+- **Validator.** A participant that locks a quantity of
+  the chain's native asset in a bond and in return
+  takes part in proposing and voting on blocks. Its
+  influence is the share of the total staked capital
+  that its bond represents.
+- **Stake and slashing.** The *stake* is the bonded
+  capital a validator places at risk. *Slashing* is the
+  protocol's destruction of part of that bond as the
+  penalty for a provable violation, so that misbehaviour
+  costs a validator its own capital rather than a
+  forgone reward.
+- **Accountable (economic) finality.** A guarantee that
+  once a block is finalised, reverting it forces a
+  large and identifiable set of validators to have
+  provably broken a rule, so that reversal carries a
+  price denominated in slashed stake. It is contrasted
+  with the merely *probabilistic* finality of
+  proof-of-work, under which a reversal grows unlikely
+  with depth but is never ruled out.
+- **Finality gadget.** A protocol component layered on a
+  chain that periodically marks certain blocks as
+  finalised, thereby converting the probabilistic
+  guarantee into the accountable one.
+- **Sortition.** The random selection of validators for
+  a consensus duty, drawn in proportion to stake. It is
+  a weighted lottery, and in statistical terms it is
+  sampling with probability proportional to size.
+- **Committee.** The random subset of validators that
+  sortition selects to attest to a given block. The
+  committee stands in for the whole validator set so
+  that not every validator need vote on every block.
+- **Restaking and rehypothecation.** *Restaking* reuses
+  capital already bonded to secure the base chain to
+  secure additional services at the same time.
+  *Rehypothecation* is the general term for pledging one
+  asset as collateral against several obligations at
+  once; restaking is its application to staked capital.
+:::
 
 The reader already owns the tools to analyse it. The
 claim that 'proof-of-stake is secure' is a
@@ -80,7 +134,9 @@ speaks fluently, and once translated, each becomes
 checkable.
 
 Two protocol facts anchor what follows. First,
-finality in the Casper sense is *accountable*: should
+finality in the Casper sense (Casper being Ethereum's
+finality gadget, treated in detail below) is
+*accountable*: should
 the chain ever finalise two conflicting histories, a
 large and identifiable fraction of the staked capital
 has provably broken a rule and can be slashed.
@@ -154,7 +210,8 @@ share $q$ of the global hash rate, and the cost of
 acquiring influence is the cost of the corresponding
 hardware and electricity. The defence against the
 Sybil attack, in which one adversary fabricates many
-identities, was broached by @douceur2002sybil:
+identities, was broached by @douceur2002sybil, who
+named and formalised the attack:
 fabricating identities does not multiply influence,
 because a thousand node identities backed by one
 machine still command only that machine's hash share.
@@ -192,8 +249,9 @@ two primitives.
   in favour of a particular block as the head of the
   chain and in favour of a particular *checkpoint*
   as a finalisation target. Attestations are the raw
-  material of both the fork-choice rule and the
-  finality gadget.
+  material of both the fork-choice rule (the rule that
+  selects the chain's head among competing branches)
+  and the finality gadget.
 
 Weight everywhere is stake, not head count. A
 block's support, a checkpoint's support, and the
@@ -311,7 +369,8 @@ stake.
 
 Casper the Friendly Finality Gadget, proposed by
 Buterin and Griffith [@buterin2017casper], operates
-on *checkpoints*, periodic blocks (one per epoch)
+on *checkpoints*, periodic blocks (one per epoch, an
+epoch being a fixed span of consecutive slots)
 that validators vote to justify and then finalise. A validator's vote is a
 *link* from a source checkpoint $s$ to a target
 checkpoint $t$, written $s \to t$. A checkpoint is
@@ -401,7 +460,9 @@ stake is controlled by honest parties, under a
 rigorously specified network and adversary model. The
 significance for a quantitative reader is the style of
 the guarantee: it is a theorem with stated
-assumptions, in the tradition of Garay, Kiayias and
+assumptions, in the tradition of the 'backbone'
+analyses that model a blockchain as a formal protocol
+and prove its properties, due to Garay, Kiayias and
 Leonardos [@garay2015backbone] and Pass, Seeman and
 Shelat [@pass2017asynchronous], not an appeal to
 observed behaviour. When assessing any proof-of-stake
@@ -420,11 +481,14 @@ and it removes a large recurring energy cost. It also
 introduces failure modes proof-of-work lacks:
 stake can be highly concentrated (a security-relevant
 Gini, revisited in @sec-onchain), long-range and
-weak-subjectivity attacks require out-of-band
-checkpoints to defend, and the same capital can be
-levered across services through restaking. 'More
-secure' is only meaningful once you name the threat
-model, the assumption, and the cost of violating it.
+weak-subjectivity attacks (in which an adversary
+rewrites history from far in the past, exploiting that
+staked capital, unlike burned energy, leaves no
+external trace) require out-of-band checkpoints to
+defend, and the same capital can be levered across
+services through restaking. 'More secure' is only
+meaningful once one names the threat model, the
+assumption, and the cost of violating it.
 Demote the unqualified claim to the economic tier and
 ask for its assumptions.
 :::
@@ -731,10 +795,13 @@ prominence, and the reader should know as much at
 the outset. The committee protocols of the
 preceding section, whether the stake-weighted
 lottery of Ouroboros [@kiayias2017ouroboros] or the
-cryptographic sortition of Algorand
-[@gilad2017algorand], draw one representative sample
-and let it vote. The Avalanche family
-[@rocket2019avalanche] reaches agreement by a
+cryptographic sortition of Algorand, the
+proof-of-stake protocol of Gilad and colleagues
+[@gilad2017algorand] that draws its committee by a
+verifiable random function, draw one representative
+sample and let it vote. The Avalanche family,
+proposed by Rocket and colleagues
+[@rocket2019avalanche], reaches agreement by a
 different device entirely, and it is a device a
 sampling statistician will find familiar. But how
 does a node decide what the network prefers without
@@ -759,7 +826,9 @@ does the opposite of what we need: its proportion is
 a bounded martingale that converges to a random,
 strictly interior limit, and it never locks to zero
 or one. The amplification to a near-unanimous
-absorbing state is instead the behaviour of a
+absorbing state (a configuration the process cannot
+leave once it has entered it) is instead the
+behaviour of a
 nonlinear, super-linear reinforcement urn, or
 equivalently of a biased majority (voter) dynamic,
 in which feedback stronger than linear creates a
@@ -776,8 +845,9 @@ section is clean: both are sampling designs, but
 sortition draws a single committee meant to
 represent the whole, whereas Avalanche iterates many
 small polls to drive a reinforcement process to a
-metastable, near-unanimous absorbing state with high
-probability. @fig-avalanche-metastable shows the
+metastable, near-unanimous absorbing state (a state
+that, once reached, persists indefinitely absent a
+large perturbation) with high probability. @fig-avalanche-metastable shows the
 reinforcement at work on a SYNTHETIC peer network,
 with several trajectories started from different
 initial fractions.
@@ -915,7 +985,8 @@ below its threshold.
 
 ## Worked example: restaking as correlated liquidation
 
-Restaking, set out in the EigenLayer whitepaper
+Restaking, set out in the whitepaper of EigenLayer,
+the protocol that introduced the practice to Ethereum
 [@eigenlayer2023], lets capital already bonded to
 secure the base chain be *rehypothecated* to secure
 additional services, called actively validated
@@ -1139,7 +1210,8 @@ cheaper instrument.
 An assistant is useful for drafting protocol summaries
 and simulation scaffolding, but the load-bearing
 judgements here are exactly the ones an assistant will
-paper over. Use the following triples.
+paper over. We offer three prompt-and-verification
+triples.
 
 **Prompt.** 'Explain why reverting a finalised
 Ethereum block costs at least one third of total
@@ -1151,9 +1223,10 @@ stake.'
   The safety bound (one-third overlap of two
   two-thirds supermajorities) and the liveness bound
   are different quantities.
-- *Verification*: reconstruct the counting argument
-  yourself. Two sets each exceeding $2/3$ of stake
-  overlap in more than $1/3$; confirm the assistant's
+- *Verification*: the reader should reconstruct the
+  counting argument independently. Two sets each
+  exceeding $2/3$ of stake overlap in more than $1/3$;
+  confirm the assistant's
   explanation reduces to this and cites the slashing
   conditions [@buterin2017casper].
 
