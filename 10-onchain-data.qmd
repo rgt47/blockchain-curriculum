@@ -580,6 +580,34 @@ running example commits only integrity hashes and
 access-controlled pointers, never the clinical
 payload itself.
 
+The health sciences did not need a blockchain to
+learn this lesson; they learned it the hard way, and
+earlier. @homer2008resolving showed that an
+individual contributing well under one per cent of a
+pooled DNA mixture could be detected from published
+allele frequencies alone, by a likelihood statistic
+of exactly the kind we have been constructing. The
+practical consequence was immediate and severe:
+funders withdrew aggregate genome-wide summary
+statistics from open access, and the controlled-
+access data enclave, with its committees and its
+data-use agreements, exists in the form it does
+largely because of that one paper. The lesson
+generalises past genomics. @raisaro2017beacon
+demonstrated that even an interface answering only
+*yes* or *no* to the question 'do you hold this
+variant?' leaks membership, and quantified the leak
+with a likelihood-ratio test whose power grows with
+the number of queries permitted; their mitigation is
+a *query budget*, which is to say the same
+accounting device that differential privacy calls a
+privacy budget [@johnson2013gwas]. Hold these
+results next to an immutable ledger and the tension
+is exact. A budget presumes the custodian can refuse
+the next query. An append-only public log has
+already answered every query anyone will ever think
+to ask, forever, and cannot take one back.
+
 ### The de-anonymisation arms race
 
 The heuristics of the previous section are not the
@@ -1353,6 +1381,24 @@ collision plainly [@finck2018gdpr]: a technology whose
 value proposition is that nothing can be removed sits
 uneasily with a body of law whose premise is that the
 individual may demand removal.
+
+Nor has the intervening decade dissolved the tension.
+A systematic review of fifty-five studies of revocable
+consent, published in the middle of this decade, found
+the conflict with the right to erasure still open and
+the propagation of a revocation in real time still
+unsolved [@phuyal2026consent], and the accompanying
+doctrinal analysis observes something more pointed
+[@phuyal2026law]: the European Health Data Space, the
+regime now being built to govern precisely these
+secondary uses, routes access through institutional
+data-access bodies and secure processing environments.
+That is to say the regulator, confronted with the
+problem this book is about, has designed a solution
+that has no ledger in it at all. When the law declines
+to adopt the architecture, the burden of explaining why
+the architecture is nonetheless necessary falls
+squarely on whoever proposes it.
 
 But surely, one might object, a hash or a ciphertext is
 not personal data, so why not commit those to the chain

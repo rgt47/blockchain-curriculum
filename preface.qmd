@@ -59,30 +59,62 @@ has, since 2019, checked the authenticity of prescription
 drugs across an entire continent, and the United States'
 Drug Supply Chain Security Act has, across the mid-2020s,
 phased in an interoperable package-level tracing
-requirement for the drug supply, which the pharmaceutical
-MediLedger network [@fda2023dscsa] serves with a
-production ledger that uses zero-knowledge proofs to
-verify a package's legitimacy without exposing commercial
-data. Estonia has, since the 2010s, protected the
-integrity of its national health records with a
-blockchain-style hash-linked timestamping service
-[@guardtime2016estonia], committing only cryptographic
-digests, never patient data, to the ledger.
+requirement for the drug supply [@fda2023dscsa]. Estonia
+has, since the 2010s, protected the integrity of its
+national health records with a hash-linked timestamping
+service [@guardtime2016estonia], committing only
+cryptographic digests, never patient data, to the ledger.
 
-Now the honest half, for it is the more instructive.
-Scarcely any of these successes is the thing the
+Now the honest half, for it is the more instructive, and
+it begins by qualifying both of those examples. The drug
+supply chain is the one place where a distributed ledger
+was given a fair trial and lost: the regulator ran a
+twenty-project pilot programme, stayed scrupulously
+technology-neutral, and in its final guidance recommended
+neither a blockchain nor anything resembling one, but the
+EPCIS document standard exchanged over conventional
+networks [@fda2024edds; @fda2023pilot]. The consortium
+that had filed the flagship blockchain pilot on behalf of
+two dozen manufacturers and wholesalers sold its
+traceability product in 2023 and withdrew to financial
+reconciliation. And Estonia, the deployment most often
+offered as proof that the technology works in health, is
+on inspection a tamper-evident audit log rather than a
+distributed ledger at all: the interoperability backbone
+that actually carries Estonian health data uses no such
+technology, and a study of the programme concludes that
+what was built reinforces the central authority rather
+than dispersing it [@semenzin2022estonia].
+
+Scarcely any of these successes, then, is the thing the
 promoters of the last decade promised. The pattern, which
 we shall meet throughout the book, is stark: the
 verifiable-data ideas that succeeded in health quietly
 shed the word 'blockchain' and won as cryptographic-
 signature infrastructure, while the ventures that clung to
-tokens and 'data marketplaces' largely failed. Nebula
-Genomics, which promised consumers ownership of their
-genome on a chain, closed its consumer service in 2025,
-and systematic reviews through the middle of the decade
-find that the great majority of patient-data blockchain
-ventures never left the pilot stage. A reader who cannot
-tell the two apart is at the mercy of whoever is selling.
+tokens and 'data marketplaces' largely failed.
+
+The reviews are unsparing, and what gives them their force
+is that they were written by the field's own proponents
+rather than its critics. A survey of blockchain in health
+care screened some eighty-five thousand articles, examined
+four hundred and fifteen in full, and found nine, or two
+per cent, that had reached real-world clinical application
+[@ng2021blockchain]. A later review, restricting attention
+to systems that had actually been built *and*
+quantitatively evaluated, found eleven such papers in the
+entire biomedical literature, of which exactly one
+described a deployment at a medical facility
+[@lacson2024biomedical]. Of the patient-controlled health
+record designs capable in principle of connecting to a
+real hospital system, a systematic review found that all
+eighteen remained conceptual, with not one implemented
+[@fang2021phr]; a review searching through 2025 could
+locate sixteen empirical studies worldwide, and
+characterised the resulting evidence base as consisting of
+non-production analyses [@chandak2026ehr]. A reader who
+cannot tell the successes from the promises is at the
+mercy of whoever is selling.
 
 That distinction is precisely the competence this book
 exists to build, and it is why the moment is now. The

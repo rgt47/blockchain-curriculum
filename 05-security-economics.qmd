@@ -932,6 +932,35 @@ high-stakes data with a low-value security budget,
 an economic mismatch the cost-of-attack framing
 makes explicit.
 
+There is a further failure, and it is the one that
+actually occurs. A threat model is a claim about
+where trust resides, and a system can satisfy every
+consensus property we have derived while placing its
+trust somewhere the analysis never looked. The
+clearest documented instance is a health credential:
+an international travel pass, built on a permissioned
+identity ledger, deployed at scale, and audited
+independently. The audit found that the laboratories
+issuing the credentials did not hold their own
+signing keys. A single commercial intermediary held
+them [@lin2022iata]. Whatever the ledger's consensus
+guarantees may have been, an adversary who compromised
+that one firm could mint whatever credentials it
+pleased, and the decentralisation the architecture
+advertised was, in the auditors' assessment,
+nullified in practice. The ledger appeared in the
+architecture diagram and was absent from the threat
+model. We commend this as the first question to ask
+of any health-ledger proposal put before a committee,
+in preference to any question about consensus: *who
+holds the keys, and what happens if that party is
+compromised?* The chain is rarely the weakest link.
+It is merely the most conspicuous one, and the
+literature on data quality in these systems makes the
+complementary point that a ledger records faithfully
+whatever it is given, including what is false
+[@abuhalimeh2023quality].
+
 To illustrate, consider a consortium of six
 hospitals that proposes to host the trial ledger on
 a small proof-of-work chain, chosen for its low

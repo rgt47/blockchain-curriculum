@@ -1111,6 +1111,31 @@ accurate, timely, and free of manipulation by a
 party with a financial stake in the outcome? Was
 the threshold set low enough to fire when help was
 needed, and high enough not to fire spuriously?
+These questions are not rhetorical, and the burden
+they carry can be quantified. The disease models on
+which any such trigger would have to rest are
+themselves estimates with intervals: an agent-based
+model of substandard antimalarials in Nigeria
+attributes some twelve thousand deaths and near nine
+hundred million dollars of cost per year to the
+problem [@beargie2019nigeria], and a companion model
+in Zambia finds that eliminating those medicines
+would avert some eight per cent of deaths in children
+under five [@jackson2020zambia]. Note what a
+parametric contract does with numbers of this kind.
+It must convert a modelled quantity, carrying an
+uncertainty interval the modellers are careful to
+report, into a *binary* event: paid, or not paid. The
+uncertainty does not vanish at that step. It is
+transferred, whole, onto whichever party sits on the
+wrong side of the threshold, and the ledger's
+much-advertised determinism serves only to make the
+transfer irreversible. A worked example the reader
+may attempt: take the reported interval on either
+model, and ask what fraction of plausible worlds
+would see the contract fail to fire in a year when
+the intervention was needed.
+
 These are the same questions, and the same trust
 boundary, as the price oracle of the previous
 section, and a blockchain answers none of them. The

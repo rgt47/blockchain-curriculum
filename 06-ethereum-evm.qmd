@@ -1314,6 +1314,38 @@ self-executing rule the opening asked for, and to
 that extent the intuitive appeal of the proposal is
 warranted.
 
+It has also, unusually for this literature, been
+tried on human beings. A dynamic-consent ledger was
+deployed across two centres in a sixty-subject
+decentralised trial, with protocol amendments
+deliberately introduced so that re-consent behaviour
+could be measured rather than assumed
+[@huh2022metory]. The consent mechanism itself
+performed well: participants agreed to amendments in
+some ninety-six per cent of instances, at a median
+response time of a fifth of an hour, which is a
+turnaround no paper-based re-consent process can
+approach. What degraded was everything the ledger did
+not control. Adherence to the *schedule* of
+measurements ran at sixty-nine per cent against
+ninety-one per cent adherence to the intervention
+itself, and it fell further after each major
+amendment. The study is worth dwelling on precisely
+because its authors report the disappointing number
+alongside the flattering one, and because the pattern
+it reveals is the pattern of the whole field: the
+cryptographic mechanism did what it promised, and the
+human process around it remained the binding
+constraint. A biobank consent portal in Malta
+[@mamo2020dwarna] reaches the same accommodation from
+the engineering side, and it is the accommodation
+every workable design in this literature converges on:
+the personal data live off the chain, the consent
+*events* live on it, and erasure is effected by
+destroying keys. That is a sound architecture. It is
+also a quiet admission that the chain is not doing
+the interesting work.
+
 The proposal breaks, however, the moment it is
 extended to storing the protected health information
 itself on chain. Every full node holds a complete copy of

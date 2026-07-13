@@ -775,6 +775,31 @@ a synthetic record of six hundred cases in which the
 incidence doubles midway through, at case three
 hundred.
 
+Before we simulate it, a caution about what the
+simulation quietly assumes. Our synthetic cases
+arrive the instant they occur, and every case
+arrives. Real surveillance enjoys neither property.
+Cases are ascertained where there is capacity to
+ascertain them, which is why the global picture of
+substandard and falsified medicines, to take a
+well-documented instance, reports far more from
+Africa than from Southeast Asia, a pattern that
+reflects where the surveillance systems are and not
+where the problem is [@who2017sf]. No country has
+ever measured the market-wide prevalence of the thing
+it is nominally monitoring, and the recommended
+remedy is not a census but a designed sample: a
+risk-based sentinel scheme, with all the estimator
+consequences that design entails [@pisani2021surveillance].
+The reader should hold this against the ledger
+proposals of the preceding chapters. A tamper-evident
+log of reported cases guarantees the integrity of the
+reports it receives. It has no view whatever of the
+cases that were never reported, and it is the
+unreported cases that determine whether the arrival
+rate we are so carefully modelling means anything at
+all.
+
 ```{r}
 #| label: fig-surveillance
 #| fig-cap: 'SYNTHETIC disease-surveillance case

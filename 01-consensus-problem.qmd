@@ -973,9 +973,32 @@ that the matter is settled and that these ledgers are in
 routine clinical use.
 
 Unfortunately, they are largely not, and it is worth
-asking why. The systematic reviews are consistent on this
-point: the great majority of these efforts are pilots and
-proofs of concept, and few have reached production scale.
+asking why, and worth first establishing *how far* they
+are not, since the gap between the literature and the
+ward is the single most important quantity in this
+subject and it can be stated numerically. The reviews
+are consistent, and they were written from inside the
+field rather than against it. Of four hundred and fifteen
+reports examined in a survey of the whole area, nine, or
+two per cent, described a system in real-world clinical
+use [@ng2021blockchain]. A later review asked a stricter
+and more revealing question, admitting only work that had
+been *implemented* and then *quantitatively evaluated*:
+across the entire biomedical blockchain literature it
+found eleven such papers, and among those eleven exactly
+one described a deployment at a medical facility
+[@lacson2024biomedical]. Restricting attention to the
+patient-record designs capable of connecting to a real
+hospital system, a further review found all eighteen to
+be conceptual and none implemented [@fang2021phr]. The
+reader will search this book in vain for a more
+compressed statement of the field's condition, and should
+notice one more detail before moving on: what these
+reviews chiefly *measure*, when the primary studies
+report anything at all, is transaction latency and
+throughput [@fonseca2024his]. The literature audits its
+own plumbing. It does not audit a patient.
+
 The explanation is not a failure of engineering but a
 failure of fit, and Wust and Gervais [@wust2018need], in a
 2018 analysis of when a blockchain is genuinely needed,

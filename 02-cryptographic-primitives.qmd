@@ -950,6 +950,36 @@ timestamping lineage that predates blockchains
 [@haber1991timestamp] made exactly this point:
 tamper-evident chronology is a hashing problem, and
 was solved as one.
+
+It was also, and this is the part the promotional
+literature omits, *standardised* as one. The
+Internet time-stamping protocol of 2001 accepts a
+hash, never the underlying record, and returns a
+signed token establishing that the datum existed
+before a stated moment [@rfc3161]; the certificate
+transparency standard supplies an append-only Merkle
+log with logarithmic inclusion and consistency
+proofs, and has run at internet scale for over a
+decade [@rfc6962; @trillian]. Between them these
+deliver every property our locked-dataset example
+requires: proof of existence, proof of inclusion,
+and proof that the log was only ever appended to.
+Bitcoin's own data structure, as its academic
+genealogy makes plain, was borrowed from this
+lineage with little modification
+[@narayanan2017pedigree], which means the
+hash-linked log is separable from the consensus
+machinery and can be had without it. A trial ledger
+that names no adversary the notary cannot handle is
+therefore not buying tamper-evidence with its
+blockchain; it already had tamper-evidence, and is
+buying only expense. Readers who wish to see the
+regulatory question taken seriously, control by
+control against the electronic-records requirements
+of 21 CFR Part 11, should consult @oakley2023scrybe,
+which is nearly alone in the literature in doing so,
+and which concludes that the public chains fail
+those controls.
 :::
 
 ## Digital signatures over elliptic curves

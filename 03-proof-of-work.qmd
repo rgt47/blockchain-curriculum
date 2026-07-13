@@ -948,6 +948,41 @@ cost. The decision is a threshold on a quantified
 reversal probability, and it should be set by the
 consequence of a reversal, not by a default.
 
+We pause to note what has just been done, because
+the habit is one this book means to instil. We
+named a tolerance, derived the depth that meets it,
+and reported the latency it costs. The estimate was
+accompanied by the assumption it rests on, namely
+$q$, and a reader who disputes the assumption can
+recompute the answer. Contrast this with the
+standard to which the public-health literature holds
+itself when it evaluates a digital intervention in
+earnest. The English exposure-notification
+application of the early 2020s was assessed by two
+independent estimators, one built from an
+epidemiological model and one from a matched
+statistical comparison of neighbouring districts.
+They disagreed. The model-based estimate put the
+cases averted in the first months at roughly
+284,000; the design-based comparison put them at
+roughly 594,000, better than twice as many
+[@wymant2021nhsapp]. The authors published both,
+with intervals, and declined to choose. Over the
+first year the same programme was credited with
+averting on the order of a million cases and nine
+thousand deaths [@kendall2023nhsapp]. Two features
+of that work should be held in mind for the whole of
+this book. The first is that a two-fold disagreement
+between estimators, honestly reported, is worth more
+than a single confident number, and the reader who
+becomes uncomfortable at such a spread has
+misunderstood what an estimate is. The second is
+that the intervention thus evaluated ran on Bluetooth
+radios and public-key signatures, and contained no
+ledger of any kind. It is, so far, the only digital
+public-health intervention of the decade with a
+credible estimate of the deaths it prevented.
+
 Here candour is owed, and we state the limit
 plainly. For most health-data integrity problems
 the parties share a regulator or a sponsor who can
