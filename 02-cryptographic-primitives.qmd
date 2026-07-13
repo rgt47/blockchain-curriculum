@@ -1257,7 +1257,7 @@ ec_mul <- function(k, P, a, p) {      # double-and-add
   }
   Rr
 }
-G <- pts[1, ]                          # a generator (order 79)
+G <- unname(pts[1, ])                  # a generator (order 79)
 
 sign_ecdsa <- function(m, d, k) {
   R <- ec_mul(k, G, a, p); r <- R[1] %% n
