@@ -659,24 +659,34 @@ Stated plainly, because a completion claim covers only the work done:
 
 ## Epistemic status
 
-All PMIDs and DOIs above were verified by search agents against PubMed
-records or successfully fetched publisher and agency pages. I re-checked
-five of the load-bearing entries directly against PubMed, and that spot
-check found three metadata errors in my own transcription, which is
-strong evidence that a full pass is necessary rather than optional:
+**Full mechanical verification completed 2026-07-13.** All 71 PMIDs in
+this list were resolved against NCBI E-utilities and every title, author
+list, journal, volume, issue and page range was reconciled against the
+canonical PubMed record. The pass found and corrected nine errors:
 
-- `lacson2024biomedical`: first author is Roger Lacson, not Ronilda
-  (corrected). The two search agents also disagreed on the volume and
-  page range; PubMed confirms *JAMIA* 31(6):1423-1435.
-- `kuo2020explorerchain`: the title I first recorded was a plausible
-  paraphrase rather than the actual title (corrected).
-- `huh2022metory`: third author is Jeong Sang-Un, not Sae-Ung
-  (corrected).
+- Two wrong publication years, which changed citation keys:
+  `teo2024retinal` is 2025 (*Ophthalmology* 132(4):484-494);
+  `oakley2022scrybe` is 2023.
+- `lacson2024biomedical`: first author Roger, not Ronilda; the two search
+  agents had disagreed on pagination, PubMed confirms 31(6):1423-1435.
+- `elhussein2024sharing`: pages 3578-3589, not 3155-3163.
+- `kuo2020explorerchain` and `coustasse2016rfid`: paraphrased titles
+  replaced with the exact titles.
+- `huh2022metory`: third author Jeong Sang-Un; also completed the
+  author list.
+- Missing issue numbers on Mamo, Cho, Warnat-Herresthal, Grishin, and
+  the three iDASH papers.
 
-**The remaining entries have not had this treatment.** Before any of this
-reaches print, resolve every DOI and PMID and confirm author lists,
-titles and page numbers mechanically. The error rate in my spot check
-was three of five.
+The 10 entries without a PMID (RFCs 3161/6962, Trillian, the FDA
+guidance documents, the WHO report, the NCSC white paper, the Citizen Lab
+audit, Semenzin) fall outside the E-utilities pass and rest on direct
+fetch only.
+
+All 81 entries have been merged into `references.bib` (which now holds
+182 keys, no duplicates). Of them, 27 are cited in the chapter text; the
+remaining 54 sit in the bibliography database as the vetted candidate
+pool and are catalogued, with rationale, in this report. Per scholarly
+convention the book's rendered reference list shows only cited works.
 
 Specific items carrying residual uncertainty, flagged by the agents:
 
@@ -694,5 +704,5 @@ Specific items carrying residual uncertainty, flagged by the agents:
   page, not from the full report PDF.
 
 ---
-*Rendered on 2026-07-13 at 17:04 AEST.*<br>
+*Rendered on 2026-07-17 at 13:38 NZST.*<br>
 *Source: ~/prj/tch/11-blockchain-curriculum/blockchain-public-health-citations.md*
