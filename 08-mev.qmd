@@ -905,6 +905,35 @@ public before commitment is an information-integrity
 hazard, and the analyst should treat 'the pending
 list is visible' as a finding, not a convenience.
 
+The trial ledger's enrolment pipeline is worth
+dwelling on, because the hazard it imports is one the
+methodological literature named and measured decades
+ago under a different word. What a randomised trial
+protects, above almost all else, is *allocation
+concealment*: the person deciding whether and when to
+enrol a participant must not be able to foresee the
+arm to which that participant would be assigned, for
+if they can, they can enrol the favourable case and
+defer the unfavourable one, and the randomisation is
+quietly subverted. @schulz2002concealment call this
+foreknowledge 'deciphering' the sequence, and warn
+that investigators will be crafty in obtaining it, so
+that designers must be craftier in denying it. This
+is front-running in the precise sense of this
+chapter: a queue of pending assignments, visible to a
+party with an interest in the order, exploited before
+the assignments settle. The cost is not hypothetical.
+In a study of two hundred and fifty trials,
+@schulz1995empirical found that inadequate allocation
+concealment exaggerated estimated treatment effects
+by around forty per cent, a bias of the same
+character as the sandwich tax, extracted here not in
+tokens but in the credibility of a result. A public
+ledger that renders the enrolment queue observable
+does not merely risk a privacy breach; it reintroduces
+the exact selection channel that allocation
+concealment exists to close.
+
 The lesson also cuts against naive on-chain designs
 for health data. A public ledger for clinical
 operations would expose precisely the pre-settlement

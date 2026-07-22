@@ -991,12 +991,10 @@ and which concludes that the public chains fail
 those controls.
 :::
 
-## The algebra we have been assuming {#sec-algebra}
+## Digital signatures over elliptic curves
 
-The preface asked for comfort with groups and finite
-fields, and we now cash that cheque, because the rest of
-this chapter is unintelligible without them and because
-the reader who takes el The Merkle
+Hashing makes the trial ledger tamper-evident;
+signatures make its entries attributable. The Merkle
 commitment settles whether a record was altered, but
 it says nothing about who entered it. In the trial
 ledger we also wish to know which site coordinator

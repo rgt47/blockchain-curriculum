@@ -1191,6 +1191,23 @@ couples individual hazards, is structurally the same
 device as the Gaussian copula above, with the frailty
 playing the role of the common latent normal, and both
 are the reinsurer's device deployed for the same reason.
+The correspondence is not merely rhetorical.
+@clayton1978bivariate introduced association into
+bivariate survival precisely by letting a shared latent
+term act multiplicatively on otherwise independent
+hazards, which is the copula construction we used above
+written in the language of failure times, and
+@hougaard1995frailty gives the general treatment,
+including the point most relevant here: the choice of
+mixing distribution governs *where in the tail* the
+dependence concentrates, so that two models agreeing on
+the marginal and the average correlation can still
+disagree sharply on the extreme joint loss. That is the
+restaking problem exactly. Fixing the marginal slashing
+probability and the nominal correlation does not fix the
+tail, and the yield-focused literature, which rarely
+looks past the marginal, is systematically blind to the
+object a frailty model is built to expose.
 
 The transferable lesson, we would suggest, is that a
 statistician trained to distrust independence
