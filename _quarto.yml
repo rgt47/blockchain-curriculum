@@ -57,6 +57,7 @@ book:
     - references.qmd
 
   appendices:
+    - appendix-algebra.qmd
     - credits.qmd
     - colophon.qmd
 

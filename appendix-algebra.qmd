@@ -1,0 +1,161 @@
+# A Short Algebra Primer {#sec-algebra-primer .unnumbered}
+
+The preface asks for comfort with groups and finite
+fields, and one chapter, @sec-crypto, genuinely relies on
+them. This appendix is a self-contained refresher for the
+reader whose training was in probability and statistics
+rather than abstract algebra. It develops only what the
+signatures of Bitcoin actually use, and no more. A reader
+who is fluent here may skip it; a reader who is rusty
+should be able to read @sec-crypto after it.
+
+## Sets and operations
+
+An *operation* on a set combines two elements of the set
+to produce a third. Ordinary addition is an operation on
+the integers: it takes 3 and 5 and returns 8. What
+follows is a study of sets equipped with one such
+operation, chosen so that the operation is well behaved
+in a few specific ways.
+
+## Groups
+
+A **group** is a set $\mathcal{G}$ with one operation,
+written here as $+$, satisfying four conditions:
+
+- *Closure.* Combining two elements of $\mathcal{G}$
+  yields an element of $\mathcal{G}$.
+- *Associativity.* $(a + b) + c = a + (b + c)$ for all
+  elements.
+- *Identity.* There is an element $0$ with $a + 0 = a$
+  for every $a$.
+- *Inverses.* Every $a$ has an inverse $-a$ with
+  $a + (-a) = 0$.
+
+You already use groups. The integers under addition are a
+group, with identity $0$ and the inverse of $5$ being
+$-5$. The hours on a clock face are a group under
+addition that wraps around at twelve, with $12$ playing
+the role of $0$, so that $7 + 5 = 0$ on the clock. That
+wrapping is the idea the next section makes precise.
+
+Two further terms are used throughout @sec-crypto. A
+group is **abelian** if its operation commutes, that is
+$a + b = b + a$ for all elements; every group in this
+book is abelian. A group is **cyclic** if some single
+element $g$, called a **generator**, produces the whole
+set when combined with itself repeatedly:
+$$\mathcal{G} = \{0,\; g,\; g + g,\; g + g + g,\; \dots\}.$$
+Adding $1$ to itself repeatedly walks through every hour
+on the clock, so the clock group is cyclic and $1$ is a
+generator.
+
+The **order** of a finite group is the number of elements
+it contains. The **order of an element** $g$ is the
+smallest positive $k$ for which $g$ combined with itself
+$k$ times returns to the identity. A theorem of Lagrange
+states that the order of any element divides the order of
+the group. When the group order is a prime $n$, the only
+divisors are $1$ and $n$, so every element other than the
+identity has order exactly $n$ and is therefore a
+generator. This is the reason cryptographic groups are
+chosen to have prime order: it leaves no small subgroups
+for an attacker to exploit, a point @sec-crypto returns
+to.
+
+## Modular arithmetic
+
+Fix a positive integer $m$, the *modulus*. To compute
+*modulo* $m$, carry out ordinary arithmetic and then take
+the remainder on division by $m$. Write $a \bmod m$ for
+that remainder, and $a \equiv b \pmod m$ when $a$ and $b$
+leave the same remainder. This is clock arithmetic on a
+clock with $m$ hours. The set $\{0, 1, \dots, m-1\}$ with
+addition modulo $m$ is a cyclic group, written
+$\mathbb{Z}_{m}$, and it is the smallest nontrivial
+example most readers already hold in their heads.
+
+## Finite fields
+
+A group has one operation. A **field** has two, an
+addition and a multiplication, each with an identity and
+with inverses (except that $0$ has no multiplicative
+inverse), arranged so that the two operations distribute
+in the familiar way. The decisive property, the one that
+names the structure, is that you may **divide by any
+nonzero element**, because every nonzero element has a
+multiplicative inverse. The rational numbers form a
+field; so do the reals.
+
+The fields that matter for cryptography are finite. For a
+prime $p$, the set $\{0, 1, \dots, p-1\}$ with addition
+and multiplication carried out modulo $p$ is a finite
+field, written $\mathbb{F}_{p}$. Addition and its
+inverses are just the group $\mathbb{Z}_{p}$ from above.
+What is new, and what earns the name *field*, is that
+every nonzero element has a multiplicative inverse: for
+each $a \neq 0$ there is a unique $a^{-1}$ with
+$a\,a^{-1} \equiv 1 \pmod p$.
+
+That inverse exists precisely because $p$ is prime. Since
+$p$ is prime, any $a$ in $\{1, \dots, p-1\}$ shares no
+factor with it, so $\gcd(a, p) = 1$, and a classical
+result (Bézout's identity) supplies integers $x, y$ with
+$a x + p y = 1$; reading that modulo $p$ gives
+$a x \equiv 1$, so $x$ is the inverse. Primality is not
+decoration. Modulo a *composite* $m$, an element sharing
+a factor with $m$ has no inverse, division by it is
+undefined, and the field structure collapses. This is why
+cryptographic moduli are prime, and it is the single
+algebraic fact on which the curve arithmetic of
+@sec-crypto depends, because the slope of a line is a
+ratio and a ratio requires a reciprocal.
+
+One convenient consequence, used in the code of
+@sec-crypto, is **Fermat's little theorem**: for prime
+$p$ and $a \not\equiv 0$, $a^{p-1} \equiv 1 \pmod p$,
+from which $a^{-1} \equiv a^{p-2} \pmod p$. The inverse
+is therefore computable by exponentiation, though for the
+tiny fields in this book a direct search is simpler. The
+following confirms both the definition and the theorem in
+$\mathbb{F}_{97}$.
+
+```{r appendix-modinv}
+mod_inv <- function(a, p) {          # brute-force inverse
+  a <- a %% p
+  for (x in 1:(p - 1)) if ((a * x) %% p == 1) return(x)
+  stop('no inverse')
+}
+p <- 97; a <- 42
+inv_search <- mod_inv(a, p)          # by direct search
+inv_fermat <- 1                      # a^(p-2) mod p
+for (i in seq_len(p - 2)) inv_fermat <- (inv_fermat * a) %% p
+c(a = a,
+  inverse = inv_search,
+  fermat_agrees = inv_fermat == inv_search,
+  product_is_one = (a * inv_search) %% p == 1)
+```
+
+The two routes agree, and the product of an element with
+its inverse is $1$, as a field demands. Try the same with
+a composite modulus and a divisor of it, say $a = 6$
+modulo $m = 9$, and the search reports no inverse: the
+concrete face of the collapse described above.
+
+## Where this is used
+
+Bitcoin's public keys are points on an *elliptic curve*,
+and those points form a cyclic group of prime order. The
+curve itself is defined over a finite field
+$\mathbb{F}_{p}$, which supplies the coordinates of the
+points and the arithmetic that adds them. Two moduli are
+therefore in play at once, and keeping them apart is
+essential: the field prime $p$ bounds the coordinates,
+while the group order $n$, a different prime, bounds the
+scalars that serve as private keys. Multiplying the
+generator by a scalar is easy; recovering the scalar from
+the resulting point is the *discrete logarithm problem*,
+believed infeasible, and that asymmetry is the whole
+basis of the signature scheme. @sec-crypto builds the
+elliptic-curve group law, the signatures, and the
+discrete logarithm on the foundation laid here.
