@@ -27,9 +27,9 @@ able to:
   the roles of validators, attestations, and
   proposals.
 - State the accountable-safety guarantee of Casper
-  FFG and its realisation in Gasper, and relate it
+  FFG and its realization in Gasper, and relate it
   to the provably-secure Ouroboros family.
-- Name the behaviours that slashing punishes
+- Name the behaviors that slashing punishes
   (equivocation and surround voting) and explain
   why the penalty must destroy stake rather than
   merely forfeit reward.
@@ -38,7 +38,7 @@ able to:
   rental cost of a proof-of-work attack with the
   self-inflicted capital loss of a proof-of-stake
   attack.
-- Recognise leader and committee selection as
+- Recognize leader and committee selection as
   weighted sampling, and bound the representativeness
   of a sampled committee with a concentration
   argument.
@@ -51,13 +51,13 @@ able to:
 
 We return once more to the trial ledger. Several
 hospitals maintain a shared, append-only record of
-enrolment, randomisation, and outcome events, with
+enrollment, randomization, and outcome events, with
 no single institution trusted to hold the master
 copy, and a regulator who audits the record only
 after the fact. In @sec-pow we learned to secure
 such a ledger by proof-of-work: to append a block a
 participant must burn energy, and to rewrite
-finalised history an attacker must out-burn the
+finalized history an attacker must out-burn the
 honest network (@sec-security). The mechanism is
 sound, but it is extravagant, and for a consortium
 of hospitals the prospect of defending a
@@ -70,11 +70,11 @@ Proof-of-stake offers an answer by changing the
 collateral. Weight in the protocol is no longer
 proportional to the energy a participant burns but
 to the capital the participant locks in a bond, and
-misbehaviour is punished not by wasted electricity
+misbehavior is punished not by wasted electricity
 but by destroying part of that bond. The scarce
 resource is no longer electricity but capital that
 the protocol can confiscate. This single
-substitution reorganises the entire security
+substitution reorganizes the entire security
 argument, and we shall find it best read not as a
 change of technology but as a change of collateral.
 
@@ -91,7 +91,7 @@ them here and use them consistently thereafter.
 - **Proof-of-stake.** A consensus protocol in which a
   participant's influence is proportional to the
   capital it locks in a bond, rather than to the
-  computation it performs, and in which misbehaviour is
+  computation it performs, and in which misbehavior is
   punished by destroying part of that bonded capital.
 - **Validator.** A participant that locks a quantity of
   the chain's native asset in a bond and in return
@@ -101,11 +101,11 @@ them here and use them consistently thereafter.
 - **Stake and slashing.** The *stake* is the bonded
   capital a validator places at risk. *Slashing* is the
   protocol's destruction of part of that bond as the
-  penalty for a provable violation, so that misbehaviour
+  penalty for a provable violation, so that misbehavior
   costs a validator its own capital rather than a
   forgone reward.
 - **Accountable (economic) finality.** A guarantee that
-  once a block is finalised, reverting it forces a
+  once a block is finalized, reverting it forces a
   large and identifiable set of validators to have
   provably broken a rule, so that reversal carries a
   price denominated in slashed stake. It is contrasted
@@ -114,7 +114,7 @@ them here and use them consistently thereafter.
   with depth but is never ruled out.
 - **Finality gadget.** A protocol component layered on a
   chain that periodically marks certain blocks as
-  finalised, thereby converting the probabilistic
+  finalized, thereby converting the probabilistic
   guarantee into the accountable one.
 - **Sortition.** The random selection of validators for
   a consensus duty, drawn in proportion to stake. It is
@@ -132,7 +132,7 @@ them here and use them consistently thereafter.
   once; restaking is its application to staked capital.
 :::
 
-The reader already owns the tools to analyse it. The
+The reader already owns the tools to analyze it. The
 claim that 'proof-of-stake is secure' is a
 cost-of-attack inequality, and cost of attack is
 capital at risk, a quantity a statistician prices
@@ -153,10 +153,10 @@ Two protocol facts anchor what follows. First,
 finality in the Casper sense (Casper being Ethereum's
 finality gadget, treated in detail below) is
 *accountable*: should
-the chain ever finalise two conflicting histories, a
+the chain ever finalize two conflicting histories, a
 large and identifiable fraction of the staked capital
 has provably broken a rule and can be slashed.
-Reverting finalised history therefore carries a price
+Reverting finalized history therefore carries a price
 floor denominated in stake, and we shall let that
 price arrive, as a number, through the cost-of-attack
 comparison below. Second, restaking rehypothecates
@@ -169,7 +169,7 @@ ignores.
 
 ## The statistician's contribution
 
-Three judgements in this chapter are automated by no
+Three judgments in this chapter are automated by no
 client software and by no audit tool. They are the
 work, and each is a translation of a protocol slogan
 into a statistical object the reader can interrogate.
@@ -224,10 +224,10 @@ yield-focused literature systematically underprices.
 In proof-of-work, an identity's influence is its
 share $q$ of the global hash rate, and the cost of
 acquiring influence is the cost of the corresponding
-hardware and electricity. The defence against the
+hardware and electricity. The defense against the
 Sybil attack, in which one adversary fabricates many
 identities, was broached by @douceur2002sybil, who
-named and formalised the attack:
+named and formalized the attack:
 fabricating identities does not multiply influence,
 because a thousand node identities backed by one
 machine still command only that machine's hash share.
@@ -262,9 +262,9 @@ two primitives.
   and each slot has one proposer selected by the
   protocol's sortition rule.
 - An *attestation* is a signed vote by a validator
-  in favour of a particular block as the head of the
-  chain and in favour of a particular *checkpoint*
-  as a finalisation target. Attestations are the raw
+  in favor of a particular block as the head of the
+  chain and in favor of a particular *checkpoint*
+  as a finalization target. Attestations are the raw
   material of both the fork-choice rule (the rule that
   selects the chain's head among competing branches)
   and the finality gadget.
@@ -364,7 +364,7 @@ analogue is exact with 'stake' substituted for 'hash
 rate': a thousand validator identities splitting one
 bond share that bond's stake, so total weight equals
 the total stake regardless of how many identities it
-is spread across. In both systems the Sybil defence
+is spread across. In both systems the Sybil defense
 is that weight is tied to an external scarce resource
 that fabricating identities does not multiply.
 :::
@@ -373,10 +373,10 @@ that fabricating identities does not multiply.
 
 Nakamoto consensus offers only *probabilistic*
 finality: a block $z$ deep can still be reverted, but
-the probability of a successful reorganisation decays
+the probability of a successful reorganization decays
 geometrically in $z$ (@sec-security). A *finality
 gadget* replaces this asymptotic guarantee with a
-sharp economic one. After a block is finalised,
+sharp economic one. After a block is finalized,
 reverting it is not merely unlikely; it is provably
 expensive, with a price denominated in slashable
 stake.
@@ -387,18 +387,18 @@ Casper the Friendly Finality Gadget, proposed by
 Buterin and Griffith [@buterin2017casper], operates
 on *checkpoints*, periodic blocks (one per epoch, an
 epoch being a fixed span of consecutive slots)
-that validators vote to justify and then finalise. A validator's vote is a
+that validators vote to justify and then finalize. A validator's vote is a
 *link* from a source checkpoint $s$ to a target
 checkpoint $t$, written $s \to t$. A checkpoint is
 *justified* when links from more than two thirds of
 total stake point to it from a justified source, and
-a justified checkpoint is *finalised* when its direct
+a justified checkpoint is *finalized* when its direct
 child is justified in the immediately following
 epoch.
 
 The two-thirds threshold is not arbitrary. It is the
 smallest supermajority for which two conflicting
-finalisations force a large, identifiable set of
+finalizations force a large, identifiable set of
 validators to have broken a rule. Casper imposes two
 slashing conditions on every validator:
 
@@ -416,7 +416,7 @@ From these two conditions follows the central result.
 ::: {.callout-tip}
 ## Accountable safety (informal)
 
-If two conflicting checkpoints are both finalised,
+If two conflicting checkpoints are both finalized,
 then validators controlling at least one third of
 the total stake have provably violated a slashing
 condition, and the violation is a publicly verifiable
@@ -426,7 +426,7 @@ contradictory attestations).
 
 The proof is a counting argument the reader can
 reconstruct. Each of the two conflicting
-finalisations required a two-thirds supermajority.
+finalizations required a two-thirds supermajority.
 Two sets each holding more than $2/3$ of the stake
 must overlap in more than $1/3$ of the stake, and the
 overlapping validators, having voted for both
@@ -436,7 +436,7 @@ the evidence. This is *economic* or *accountable*
 finality: safety is not unconditional, but any
 violation of it burns at least a third of all staked
 capital and leaves a signed confession. Reverting
-finalised history therefore has a hard price floor,
+finalized history therefore has a hard price floor,
 and that floor is the $0.34$ coefficient that will
 reappear in the cost-of-attack calculation below.
 
@@ -444,7 +444,7 @@ reappear in the cost-of-attack calculation below.
 
 A finality gadget must be married to a fork-choice
 rule that decides the chain head between
-finalisations. Gasper, set out by Buterin and
+finalizations. Gasper, set out by Buterin and
 colleagues [@buterin2020gasper], is that marriage: it
 combines a stake-weighted variant of the GHOST
 fork-choice rule (LMD-GHOST, which weights subtrees by
@@ -455,10 +455,10 @@ is to prove that the composite protocol is safe and
 live in a partially synchronous network under an
 honest-majority-of-stake assumption.
 It is the consensus core of Ethereum after its
-transition to proof-of-stake. The division of labour
+transition to proof-of-stake. The division of labor
 is worth naming: LMD-GHOST chooses a head every slot
 so the chain makes progress, while Casper FFG
-periodically stamps checkpoints as finalised so that
+periodically stamps checkpoints as finalized so that
 progress becomes irreversible at a known cost.
 
 ### Ouroboros: provable security from the ground up
@@ -470,7 +470,7 @@ proof-of-stake protocol with a formal security
 reduction. Its leader election is a stake-weighted
 lottery seeded by a jointly-generated randomness
 beacon, and its principal theorem shows that the
-protocol realises a robust transaction ledger (with
+protocol realizes a robust transaction ledger (with
 persistence and liveness) as long as a majority of
 stake is controlled by honest parties, under a
 rigorously specified network and adversary model. The
@@ -481,7 +481,7 @@ analyses that model a blockchain as a formal protocol
 and prove its properties, due to Garay, Kiayias and
 Leonardos [@garay2015backbone] and Pass, Seeman and
 Shelat [@pass2017asynchronous], not an appeal to
-observed behaviour. When assessing any proof-of-stake
+observed behavior. When assessing any proof-of-stake
 system,
 the first question is which of these two regimes it
 lives in, a provable-security reduction with explicit
@@ -512,7 +512,7 @@ ask for its assumptions.
 ## The cost of attack: capital at risk
 
 The accountable-safety result gives a lower bound on
-the cost of reverting finalised history: at least one
+the cost of reverting finalized history: at least one
 third of total stake is slashed. We can now make the
 proof-of-work versus proof-of-stake contrast concrete.
 The following helper is reused verbatim from the
@@ -575,13 +575,13 @@ consortium but as a public proof-of-stake chain, so
 that any party may validate by bonding the chain's
 asset. Suppose the total staked capital securing the
 ledger is one hundred million dollars. An adversary who
-wishes to revert a finalised randomisation record, so
+wishes to revert a finalized randomization record, so
 as to reassign a patient's arm after an adverse event
 has been observed, must, by the accountable-safety
 bound, place at least a third of that capital inside the
 blast radius and lose it to slashing once the
 equivocation is detected. The cost of tampering with a
-single finalised entry is therefore on the order of
+single finalized entry is therefore on the order of
 thirty-four million dollars of the attacker's own
 capital, which is what `pos_attack_cost(1e8)` records.
 We should say plainly, however, where the argument
@@ -591,12 +591,12 @@ such a body the analogue of slashing is not the
 destruction of a posted bond but a contractual and
 reputational penalty, which is proof-of-stake's logic
 without its machinery. Where a regulator can compel
-honest behaviour by contract, a thirty-four-million-dollar
+honest behavior by contract, a thirty-four-million-dollar
 bond is an expensive way to purchase what a signed
 audit obligation already provides.
 
 ::: {.callout-important}
-## The sceptic's reflex: 'security is capital at risk' as a tier-three claim
+## The skeptic's reflex: 'security is capital at risk' as a tier-three claim
 
 'Capital at risk' is an *economic* claim (tier
 three), true only under stated assumptions: that
@@ -645,7 +645,7 @@ caveat that keeps each row honest.
 | Concept | Survey sampling | Proof-of-stake | Caveat |
 |---------|-----------------|----------------|--------|
 | **Population units** | Sites or clusters of unequal size | Validators of unequal bond | Validators may collude; survey units do not |
-| **Size measure** | Enrolment or census count | Staked capital | Stake concentrates far more than a census |
+| **Size measure** | Enrollment or census count | Staked capital | Stake concentrates far more than a census |
 | **PPS draw** | Sites drawn proportional to size | Committee seats drawn proportional to stake | The committee is redrawn every slot |
 | **Estimator reliability** | Sample mean concentrates around the population | Honest committee share concentrates (Hoeffding) | The bound assumes independent seats and a fixed honest fraction |
 
@@ -720,7 +720,7 @@ the population stake distribution. This is the same
 assurance that licenses a well-designed survey: a
 regulator who audits a probability-proportional-to-size
 sample of the trial ledger's sites, drawn with
-probability proportional to enrolment, trusts the audit
+probability proportional to enrollment, trusts the audit
 for exactly the reason the protocol trusts the
 committee, namely that a weighted sample of adequate
 size concentrates around the population from which it
@@ -795,8 +795,8 @@ granularity of the distribution being sampled but not
 the sampling error of an $m$-seat draw (with
 replacement, or with negligible finite-population
 correction when $N \gg m$). The practical implication
-is favourable: a protocol can admit an arbitrarily
-large validator set for decentralisation and Sybil
+is favorable: a protocol can admit an arbitrarily
+large validator set for decentralization and Sybil
 resistance while keeping per-slot communication fixed,
 because a committee of a few hundred already delivers
 exponentially small misrepresentation probability
@@ -844,7 +844,7 @@ strictly interior limit, and it never locks to zero
 or one. The amplification to a near-unanimous
 absorbing state (a configuration the process cannot
 leave once it has entered it) is instead the
-behaviour of a
+behavior of a
 nonlinear, super-linear reinforcement urn, or
 equivalently of a biased majority (voter) dynamic,
 in which feedback stronger than linear creates a
@@ -854,7 +854,7 @@ familiarly to an epidemiologist, it is a contagion
 process on the peer graph, in which a preference
 spreads from node to node by contact and a majority
 past a threshold sweeps the network. A
-biostatistician will recognise the super-linear
+biostatistician will recognize the super-linear
 reinforcement and an epidemiologist the contagion
 framing at once. The contrast with the preceding
 section is clean: both are sampling designs, but
@@ -870,7 +870,7 @@ initial fractions.
 
 ```{r}
 #| label: fig-avalanche-metastable
-#| fig-cap: 'SYNTHETIC. Several repeated-subsampling trajectories of the network fraction preferring one option, over polling rounds, on a small peer network. Preferences starting below the one-half tipping fraction die out toward zero, while those above it sweep to near-unanimity, the two metastable absorbing states. The same threshold behaviour is the epidemic threshold of infectious-disease models in another costume.'
+#| fig-cap: 'SYNTHETIC. Several repeated-subsampling trajectories of the network fraction preferring one option, over polling rounds, on a small peer network. Preferences starting below the one-half tipping fraction die out toward zero, while those above it sweep to near-unanimity, the two metastable absorbing states. The same threshold behavior is the epidemic threshold of infectious-disease models in another costume.'
 #| fig-width: 6
 #| fig-height: 3.6
 library(ggplot2)
@@ -946,14 +946,14 @@ supermajority among the polled and an unbiased draw
 of peers, that merit exactly the scrutiny this
 chapter has applied elsewhere. A biased sample or a
 dishonest supermajority breaks the amplification in
-the adversary's favour, and neither assumption
+the adversary's favor, and neither assumption
 verifies itself.
 
 The contagion framing is not a loose metaphor. The
 mathematics of preference spread here is the
 mathematics of epidemic spread the reader may know
-from infectious-disease modelling, and the threshold
-behaviour is the same in both: a preference held
+from infectious-disease modeling, and the threshold
+behavior is the same in both: a preference held
 below a tipping fraction dies out, while one above it
 sweeps the network, which is the epidemic threshold
 in another costume, below the critical reproduction
@@ -1020,7 +1020,7 @@ a correlated-liquidation problem.
 
 The shape of the exposure is worth drawing.
 @fig-restaking-rehypothecation places one bonded pool
-at the centre, rehypothecated outward to secure
+at the center, rehypothecated outward to secure
 several services at once, and a single correlated
 shock that can strike all of them together. The
 arrows outward are the leverage; the red arc is the
@@ -1076,7 +1076,7 @@ calculation omits. We model it with a Gaussian copula,
 the same instrument by which a reinsurer binds a set of
 marginal failure probabilities to a dependence
 structure, drawing correlated latent normals via a
-Cholesky factorisation (and so avoiding a `MASS`
+Cholesky factorization (and so avoiding a `MASS`
 dependency), and we read a service as slashing when its
 latent variable falls below the threshold implied by
 its marginal slashing probability. The code is reused
@@ -1155,7 +1155,7 @@ ggplot(tail_curve, aes(rho, p_tail)) +
 ```
 
 ::: {.callout-important}
-## The sceptic's reflex: 'restaking is free extra yield'
+## The skeptic's reflex: 'restaking is free extra yield'
 
 The phrase 'extra yield with no additional risk'
 delivers a *narrative* (tier four) in the cadence of a
@@ -1218,7 +1218,7 @@ literature ignores is the tail that correlated-dropout
 methodology exists to quantify. Where a restaked
 service secures on-chain records on which a health
 system relies, the provenance of a vaccine cold chain,
-say, or the enrolment log of the trial ledger, the
+say, or the enrollment log of the trial ledger, the
 correlated-liquidation risk of the securing capital
 becomes a data-integrity risk for the health
 application, and the same correlation analysis governs
@@ -1233,7 +1233,7 @@ contractually accountable hospitals rather than an open
 set of anonymous bonders, the analogue of slashing is
 not the destruction of a posted bond but a contractual
 and reputational penalty. That is proof-of-stake's
-logic, the deterrence of misbehaviour by a credible
+logic, the deterrence of misbehavior by a credible
 loss, without proof-of-stake's machinery, and where a
 regulator can impose the penalty by contract it is the
 cheaper instrument.
@@ -1242,11 +1242,11 @@ cheaper instrument.
 
 An assistant is useful for drafting protocol summaries
 and simulation scaffolding, but the load-bearing
-judgements here are exactly the ones an assistant will
+judgments here are exactly the ones an assistant will
 paper over. We offer three prompt-and-verification
 triples.
 
-**Prompt.** 'Explain why reverting a finalised
+**Prompt.** 'Explain why reverting a finalized
 Ethereum block costs at least one third of total
 stake.'
 
@@ -1290,7 +1290,7 @@ stand-in for the whole set?'
 
 ## In conclusion
 
-In conclusion, three points are to be emphasised.
+In conclusion, three points are to be emphasized.
 First, the security of a proof-of-stake ledger is a
 cost-of-attack inequality and nothing more mysterious:
 the cost is capital placed at risk of slashing, and the
@@ -1317,12 +1317,12 @@ is frequently that a permissioned consortium bound by
 contract achieves the same integrity as a bonded chain
 at a fraction of the cost, and the cost-of-attack
 calculation developed here is the instrument by which
-that judgement is made.
+that judgment is made.
 
 ## Exercises
 
 1. **Reconstruct accountable safety.** Prove that if
-   two conflicting checkpoints are each finalised under
+   two conflicting checkpoints are each finalized under
    Casper FFG's two-thirds rule, then validators
    holding at least one third of total stake have
    violated a slashing condition. State precisely where
@@ -1347,7 +1347,7 @@ that judgement is made.
    become cheaper than the proof-of-work attack under
    the chapter's illustrative parameters? Interpret the
    result as a statement about which assumption in the
-   sceptic's-reflex callout is doing the work.
+   skeptic's-reflex callout is doing the work.
 
 4. **Correlated-loss tail (quantitative).** Using
    `simulate_restaking_loss`, plot the probability of a
@@ -1362,7 +1362,7 @@ that judgement is made.
 5. **Provable versus economic security.** Contrast the
    security guarantee of Ouroboros [@kiayias2017ouroboros]
    with the economic cost-of-attack argument for a
-   Casper-finalised chain. For each, state the threat
+   Casper-finalized chain. For each, state the threat
    model, the assumption, and what an adversary must
    control to break it. Which guarantee is falsifiable
    by which kind of evidence?
@@ -1370,7 +1370,7 @@ that judgement is made.
 6. **When restaking is the wrong tool.** Identify a
    public-health data-integrity problem for which a
    restaked service could in principle provide
-   trust-minimised verification, then argue whether the
+   trust-minimized verification, then argue whether the
    added correlated-liquidation risk is justified
    relative to a governed database with an audit log.
    Make the argument quantitative where you can.

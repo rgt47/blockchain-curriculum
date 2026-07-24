@@ -18,9 +18,9 @@ Electronic Cash System* (2008)
 
 ## The problem we begin with
 
-Consider a multi-centre clinical trial conducted by five
-hospitals. Each site enrols participants, assigns them to
-treatment through a shared randomisation scheme, and
+Consider a multi-center clinical trial conducted by five
+hospitals. Each site enrolls participants, assigns them to
+treatment through a shared randomization scheme, and
 records outcome events as they occur. Every site keeps a
 copy of the growing record, and a regulator will in due
 course audit it. Suppose now that no site is willing to
@@ -174,7 +174,7 @@ asked, repeatedly, to judge such systems: to say whether a
 vendor's claim is a verifiable fact or an unfalsifiable
 story, whether a shared ledger earns its cost over a
 well-kept database, and whether an attestation proves what
-it purports to prove. That judgement, and not the ability
+it purports to prove. That judgment, and not the ability
 to build a chain, is the competence this book develops,
 and it is the reason the subject belongs in a
 public-health education now.
@@ -220,7 +220,7 @@ The characteristic failure of the field is
 tier-slippage: a narrative delivered in the confident
 cadence of a protocol fact. Naming the tier is the
 remedy, and we shall ask the reader to do so as a matter
-of habit. The epidemiologist will recognise the exercise,
+of habit. The epidemiologist will recognize the exercise,
 for it is the same caution one brings to a causal claim
 drawn from an observational study.
 
@@ -233,7 +233,7 @@ against every layer of the technology.
 - **The trial ledger.** The multi-institution
   clinical-trial data-integrity ledger with which we
   opened: several hospitals sharing an append-only record
-  of enrolment, randomisation, and outcome events, made
+  of enrollment, randomization, and outcome events, made
   tamper-evident and attributable, auditable by a regulator
   after the fact, with no single party able to rewrite what
   has been recorded. Every chapter returns to it.
@@ -258,7 +258,7 @@ no.
 ::: {.callout-warning}
 ## When not to use a blockchain
 
-A blockchain provides trust-minimised agreement among
+A blockchain provides trust-minimized agreement among
 parties with no common authority, at a substantial cost in
 speed, delay, and complexity. If the parties already trust
 a custodian, or one could be appointed, then a
@@ -323,7 +323,7 @@ advance.
   attack unprofitable (@sec-security).
 - **Part III, Ethereum and programmable state.** The
   account model and the virtual machine that let a ledger
-  run programs (@sec-ethereum); decentralised finance,
+  run programs (@sec-ethereum); decentralized finance,
   treated as applied mathematics (@sec-defi); and the value
   that the ordering of transactions can be made to yield,
   known as maximal extractable value (@sec-mev).
@@ -351,7 +351,7 @@ Third, the reader should keep a calibrated record of
 forecasts, introduced in @sec-onchain and scored by the
 Brier score, a standard measure of how closely
 probabilistic predictions match the outcomes that follow,
-so that one's own scepticism is held to the same account
+so that one's own skepticism is held to the same account
 demanded of others.
 
 The reference textbook throughout is

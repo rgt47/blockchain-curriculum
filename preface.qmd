@@ -14,12 +14,12 @@ know what is actually true.
 
 We wrote this book for first-year graduate students in
 public health, and in particular with the students of the
-biostatistics and epidemiology programmes at UC San
+biostatistics and epidemiology programs at UC San
 Diego's school of public health in mind. The reader we
 imagine has a first course in probability, some comfort
 with algebraic structure, and working R. What such a
 reader brings to this subject is, in our view, an unusual
-advantage, and the book is organised to exploit it.
+advantage, and the book is organized to exploit it.
 Nakamoto consensus is a statement about the tail
 probability of a random walk. The ten-minute block time
 is the set point of a feedback controller. Committee
@@ -47,8 +47,8 @@ Consider what is already in production. The World Health
 Organization launched, in 2023, a Global Digital Health
 Certification Network [@who2023gdhcn], a global public-key
 trust directory through which a vaccination record, and in
-time an immunisation history, an international patient
-summary, or a clinician's licence, may be verified across
+time an immunization history, an international patient
+summary, or a clinician's license, may be verified across
 borders by cryptographic signature rather than by a
 telephone call to the issuing authority. In the United
 States the SMART Health Cards standard [@vci2024smart] put
@@ -69,7 +69,7 @@ Now the honest half, for it is the more instructive, and
 it begins by qualifying both of those examples. The drug
 supply chain is the one place where a distributed ledger
 was given a fair trial and lost: the regulator ran a
-twenty-project pilot programme, stayed scrupulously
+twenty-project pilot program, stayed scrupulously
 technology-neutral, and in its final guidance recommended
 neither a blockchain nor anything resembling one, but the
 EPCIS document standard exchanged over conventional
@@ -82,7 +82,7 @@ offered as proof that the technology works in health, is
 on inspection a tamper-evident audit log rather than a
 distributed ledger at all: the interoperability backbone
 that actually carries Estonian health data uses no such
-technology, and a study of the programme concludes that
+technology, and a study of the program concludes that
 what was built reinforces the central authority rather
 than dispersing it [@semenzin2022estonia].
 
@@ -111,7 +111,7 @@ real hospital system, a systematic review found that all
 eighteen remained conceptual, with not one implemented
 [@fang2021phr]; a review searching through 2025 could
 locate sixteen empirical studies worldwide, and
-characterised the resulting evidence base as consisting of
+characterized the resulting evidence base as consisting of
 non-production analyses [@chandak2026ehr]. A reader who
 cannot tell the successes from the promises is at the
 mercy of whoever is selling.
@@ -171,7 +171,7 @@ cost. A single running case study threads the entire
 book: a multi-institution clinical-trial data-integrity
 ledger, in which several hospitals that do not fully
 trust one another must agree on an append-only record of
-enrolment, randomisation, and outcome events. A vaccine
+enrollment, randomization, and outcome events. A vaccine
 cold-chain provenance system recurs as a secondary
 example. By the end the reader will have seen one
 realistic application developed against every layer of
@@ -182,10 +182,10 @@ For most health-data problems a well-governed database
 with an audit log is simpler, cheaper, and sufficient,
 and the chapters say so wherever it is true. Knowing when
 the elaborate machine is unnecessary is itself a
-statistician's contribution, and we treat that judgement
+statistician's contribution, and we treat that judgment
 as part of the subject rather than an aside.
 
-## The sceptical stance
+## The skeptical stance
 
 The book maintains a critical lens by default, not as a
 pose but as a discipline. The cryptography at the base of
@@ -202,14 +202,14 @@ fact, empirical claim, economic claim, narrative), and we
 ask the reader to demote each assertion to its true tier
 before believing it. The reader is also asked to keep a
 calibrated forecasting record, scored by the Brier score,
-so that scepticism itself is held to account rather than
+so that skepticism itself is held to account rather than
 merely asserted. Epidemiologists who have followed the
-epidemic-forecasting literature will recognise the
+epidemic-forecasting literature will recognize the
 discipline.
 
 ## What this book covers
 
-The ten chapters map to a ten-week course, organised in
+The ten chapters map to a ten-week course, organized in
 four parts.
 
 1. **Foundations.** The consensus problem (Byzantine
@@ -222,7 +222,7 @@ four parts.
    renewal and control system; and the security economics
    of attacks.
 3. **Ethereum and programmable state.** The account model
-   and the virtual machine; decentralised finance treated
+   and the virtual machine; decentralized finance treated
    as applied mathematics; and maximal extractable value
    as market microstructure.
 4. **Proof-of-stake and on-chain data.** Stake-based
@@ -240,7 +240,7 @@ these are covered well elsewhere, and pointers appear in
 the relevant Further reading sections. Nor is the book
 investment advice. Where we treat markets and tokenomics
 we do so analytically and, the reader will find,
-sceptically.
+skeptically.
 
 ## Prerequisites and companion material
 
@@ -264,5 +264,5 @@ callouts, a worked example, a section on collaborating
 with an LLM, exercises, and further reading. The pattern
 repeats deliberately; by the third chapter the reader will
 know where to find each component. The template puts human
-judgement and verification at the centre of every chapter,
+judgment and verification at the center of every chapter,
 which is where, in our view, they belong.

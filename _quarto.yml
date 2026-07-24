@@ -4,7 +4,7 @@ project:
 
 book:
   title: 'The Statistics of Blockchain for Public Health'
-  subtitle: 'Trust-minimised data integrity for health-sciences research'
+  subtitle: 'Trust-minimized data integrity for health-sciences research'
   author: "Ronald 'Ryy' G. Thomas"
   date: today
   date-format: 'YYYY-MM-DD'

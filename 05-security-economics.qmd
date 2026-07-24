@@ -42,7 +42,7 @@ We begin with a data-integrity problem to which
 the book will return throughout. Several hospitals
 participating in a multi-institution clinical trial
 share a single append-only record of who was
-enrolled, how each participant was randomised, and
+enrolled, how each participant was randomized, and
 which outcome and adverse events occurred, with no
 single institution trusted to hold the master copy
 and a regulator who audits the record only after
@@ -50,7 +50,7 @@ the fact. We shall call this the trial ledger.
 Suppose now that a sponsor, a participating site,
 or an outside party wished to alter the shared
 record: to suppress an adverse event, say, or to
-move an enrolment date so that a protocol deviation
+move an enrollment date so that a protocol deviation
 disappears from view. Two questions decide whether
 such a ledger deserves anyone's trust. What would
 that alteration cost the party who attempted it,
@@ -70,7 +70,7 @@ incentives, audit, and consequences. The habit the
 statistician already possesses, of asking who
 benefits from a given data pattern and whether they
 could plausibly have produced it, is precisely the
-habit this chapter formalises for a shared ledger.
+habit this chapter formalizes for a shared ledger.
 
 The mechanics for such a ledger were built in the
 previous two chapters, which constructed
@@ -87,7 +87,7 @@ extends, to publish a block promptly, or to refrain
 from rewriting recent history. The protocol is a
 proposal, and the network's integrity is the claim
 that following the proposal is the
-profit-maximising strategy.
+profit-maximizing strategy.
 
 That reframing is the chapter's thesis. Bitcoin's
 security, and by extension the trial ledger's, is
@@ -98,13 +98,13 @@ unforgeable and the ledger tamper-evident, so no
 participant can spend another's coins or silently
 rewrite a committed block. Cryptography says nothing
 about whether a majority coalition of miners will
-choose to reorganise the chain, or whether a large
+choose to reorganize the chain, or whether a large
 miner will withhold blocks so as to orphan its
 rivals' work, that is, to cause validly mined
 blocks to be discarded because a competing chain
 has outpaced them. Those are not cryptographic
 questions. The
-reader trained on clinical data will recognise the
+reader trained on clinical data will recognize the
 shape of the argument at once, for research
 integrity too is maintained not by cryptography but
 by the prospect that a fabricated pattern will be
@@ -174,7 +174,7 @@ argument that follows.
   attack pays only when it earns more.
 - **Incentive compatibility.** The property that
   following the protocol honestly is the strategy
-  that maximises a participant's own payoff, so that
+  that maximizes a participant's own payoff, so that
   no participant gains by deviating from it.
 - **Eclipse attack.** An attack that surrounds a
   node's network connections with the attacker's own
@@ -192,7 +192,7 @@ questions of payoffs and network structure.
 | Attack | Prevented by | Cost driver | Trial-ledger reading |
 |--------|--------------|-------------|----------------------|
 | **Signature forgery** | Cryptography | Breaking ECDSA, computationally infeasible | An outsider cannot author an entry in a site's name |
-| **51 percent reorg** | Economics | Rental of a hash-power majority for the window | A funded party rewrites recent enrolments and outcomes |
+| **51 percent reorg** | Economics | Rental of a hash-power majority for the window | A funded party rewrites recent enrollments and outcomes |
 | **Selfish mining** | Economics | Hash share above $(1-\gamma)/(3-2\gamma)$ | A large site farms orphans, biasing whose entries survive |
 | **Eclipse and censorship** | Network design | Surrounding a node's peer connections | A site is fed a false ledger view or has its entries suppressed |
 
@@ -200,7 +200,7 @@ questions of payoffs and network structure.
 
 ## The statistician's contribution
 
-Three judgements structure the chapter, and none
+Three judgments structure the chapter, and none
 is automated by any tool.
 
 **1. Separate the cryptographic guarantee from
@@ -210,7 +210,7 @@ security is a statement about computational
 hardness that holds against any adversary below a
 work bound. An incentive-compatibility claim is a
 statement about a rational adversary's payoffs
-that holds only under a stated behavioural and
+that holds only under a stated behavioral and
 distributional model. The first is close to a
 protocol fact; the second is an economic claim in
 the sense of @sec-intro, conditional on
@@ -237,7 +237,7 @@ column is where every failure in this chapter lives.
 incentive-compatibility claim before believing the
 conclusion.** Every equilibrium result in this
 chapter rests on premises: that miners are
-myopically revenue-maximising, that hash power is
+myopically revenue-maximizing, that hash power is
 divisible and rentable, that block propagation is
 described by a single communication-advantage
 parameter, that no miner values disruption for its
@@ -247,7 +247,7 @@ premises and asking whether they hold for a
 specific chain is analytic work, not a literature
 citation.
 
-**3. Recognise when a threshold model's
+**3. Recognize when a threshold model's
 assumptions fail so its threshold stops meaning
 what it says.** '51 percent' is exact under a
 model in which the only attack is a longest-chain
@@ -409,7 +409,7 @@ percent, earns more by deviating than by mining
 honestly. The striking consequence is that the
 honest-majority assumption is not enough. A
 rational miner with, say, a third of the hash power
-may be incentivised to attack, so the coalition
+may be incentivized to attack, so the coalition
 that threatens the chain can be far smaller than a
 majority.
 
@@ -428,7 +428,7 @@ effort, raising its share of the blocks that
 ultimately survive above its share of the hash
 power.
 
-We can picture the manoeuvre as a Markov chain on
+We can picture the maneuver as a Markov chain on
 the lead the selfish miner holds, with its withheld
 branch riding above the public chain
 (@fig-selfish-states). The state is that lead: zero
@@ -438,7 +438,7 @@ has pulled ahead.
 
 ```{r}
 #| label: fig-selfish-states
-#| fig-cap: 'The selfish miner modelled as a Markov chain on the lead it holds over the public chain. Finding a block extends a withheld private branch, drawn in red above the public chain, while an honest block prompts the miner to publish and race to have its branch adopted. The state records how many blocks the private branch leads by.'
+#| fig-cap: 'The selfish miner modeled as a Markov chain on the lead it holds over the public chain. Finding a block extends a withheld private branch, drawn in red above the public chain, while an honest block prompts the miner to publish and race to have its branch adopted. The state records how many blocks the private branch leads by.'
 library(ggplot2)
 
 PAL <- c('#2a78d6', '#1baf7a', '#eda100', '#008300',
@@ -535,7 +535,7 @@ suppresses its disclosure has broken no rule of
 arithmetic; the reported estimates are each
 internally valid, yet the aggregate record is
 distorted by what was withheld and when. Selfish
-mining is that manoeuvre made mechanical, with a
+mining is that maneuver made mechanical, with a
 propagation race in place of a file drawer. We
 should note carefully where the analogy ends, for
 it ends at an important place. Mining rewards are
@@ -670,8 +670,8 @@ $\gamma = 1$ curve is above the diagonal for every
 positive $\alpha$, so with a decisive propagation
 advantage there is no safe minority share at all.
 The takeaway is the one @eyal2014majority
-emphasised: the security threshold is not 50
-percent, and under favourable propagation it can
+emphasized: the security threshold is not 50
+percent, and under favorable propagation it can
 be pushed arbitrarily close to zero.
 
 The revenue curves fix a value of $\gamma$ and vary
@@ -726,19 +726,19 @@ statistician's contribution is to inventory the
 premises. The Markov-chain derivation assumes a
 single selfish coalition (not several competing
 ones), a fixed and known $\gamma$, myopic
-revenue-maximisation over block rewards with no
+revenue-maximization over block rewards with no
 regard for exchange-rate consequences, and no
 difficulty-adjustment feedback within the analysis
 window. Sapirshtein and colleagues tightened the
 picture by solving for the optimal withholding
 policy as a Markov decision process (a Markov chain
 in which a decision-maker chooses actions so as to
-maximise long-run reward), showing that Eyal and
+maximize long-run reward), showing that Eyal and
 Sirer's strategy is not always optimal and
 that the true profitability threshold can be lower
 still [@sapirshtein2016optimal]. That is a
 strengthening of the result, not a refutation:
-optimising the attacker only lowers the threshold
+optimizing the attacker only lowers the threshold
 further. The honest reading is that
 $1/3$ at $\gamma = 0$ is an upper bound on the
 safe share under this family of attacks, and the
@@ -746,7 +746,7 @@ safe share is smaller once the attacker plays
 optimally or enjoys any propagation edge.
 
 ::: {.callout-important}
-## The sceptic's reflex
+## The skeptic's reflex
 
 'Proof-of-work is 51-percent-attack-proof below a
 majority' is a narrative wearing the cadence of a
@@ -797,7 +797,7 @@ selfish mining exploits and inverts, by
 manufacturing orphans for honest miners rather than
 suffering them.
 
-### Mining pools and centralisation pressure
+### Mining pools and centralization pressure
 
 The variance of solo mining is punishing. A small
 miner finds blocks as a Poisson process (events
@@ -812,8 +812,8 @@ variance without changing expected reward. That is
 a rational risk-management response, and it is why
 pools dominate. It also concentrates the decision
 of what to mine into a few pool operators, which is
-a centralisation pressure the base protocol does
-nothing to resist. A statistician recognises this
+a centralization pressure the base protocol does
+nothing to resist. A statistician recognizes this
 as a variance-reduction incentive with a
 governance externality: individually rational
 pooling aggregates into a small number of entities
@@ -845,7 +845,7 @@ attacker's manufactured forks are cheaper to win.
 The frontier makes explicit that 'faster' and
 'more secure' are competing objectives on a
 measurable curve, not free improvements. Bonneau
-and colleagues, in their systematisation-of-
+and colleagues, in their systematization-of-
 knowledge survey, place these results in a common
 framework, cataloguing Bitcoin's stability and
 incentive assumptions and the attacks that probe
@@ -858,7 +858,7 @@ Assembling the pieces, the security argument for
 proof-of-work is a claim in mechanism design. The
 protocol designer chooses rules (the reward
 schedule, the longest-chain rule, the difficulty
-adjustment) so that the behaviour the system needs,
+adjustment) so that the behavior the system needs,
 honest extension of the canonical chain, is an
 equilibrium of the game the miners play. The
 system is secure to the extent that honest mining
@@ -871,7 +871,7 @@ result matters beyond its arithmetic: it is a proof
 that the mechanism is not incentive-compatible over
 the whole parameter range its designers implicitly
 assumed. Reading Bitcoin as a mechanism, and asking
-whether honest behaviour is an equilibrium under
+whether honest behavior is an equilibrium under
 stated assumptions, is the frame that turns a pile
 of attacks into a single question.
 
@@ -898,7 +898,7 @@ raw share, is what moves the threshold, which is
 why $\gamma$ must be part of any serious assessment.
 :::
 
-## A public-health reading: threat-modelling the trial ledger
+## A public-health reading: threat-modeling the trial ledger
 
 We now return to the trial ledger with which the
 chapter opened, and to the two questions we posed
@@ -946,7 +946,7 @@ signing keys. A single commercial intermediary held
 them [@lin2022iata]. Whatever the ledger's consensus
 guarantees may have been, an adversary who compromised
 that one firm could mint whatever credentials it
-pleased, and the decentralisation the architecture
+pleased, and the decentralization the architecture
 advertised was, in the auditors' assessment,
 nullified in practice. The ledger appeared in the
 architecture diagram and was absent from the threat
@@ -966,7 +966,7 @@ hospitals that proposes to host the trial ledger on
 a small proof-of-work chain, chosen for its low
 transaction fees, whose total hash rate is a
 thousandth of a large network's. Suppose a site
-under enrolment pressure wishes to erase a single
+under enrollment pressure wishes to erase a single
 serious adverse event, and that doing so would
 protect a product whose off-chain value, in avoided
 liability and preserved approval prospects, runs to
@@ -1211,7 +1211,7 @@ apply the permissioned-alternative analysis above.
    selfish-mining Markov chain on the miner's lead
    over the public chain, simulate it for a few
    thousand blocks at $\alpha = 0.35$ and several
-   $\gamma$, and estimate the miner's realised
+   $\gamma$, and estimate the miner's realized
    relative revenue. Compare the estimates to
    `selfish_revenue` and report the agreement to
    simulation noise.
@@ -1222,7 +1222,7 @@ apply the permissioned-alternative analysis above.
    the coefficient of variation of reward when a
    miner joins a pool holding $k$ times its hash
    power. Discuss how this variance incentive
-   drives the centralisation pressure of the
+   drives the centralization pressure of the
    chapter.
 
 6. **Health-ledger threat model.** For a
@@ -1242,7 +1242,7 @@ apply the permissioned-alternative analysis above.
 selfish mining and should be read first; the
 Markov-chain derivation of the relative-revenue
 formula reproduced here is worth working through in
-full, because the modelling choices are where the
+full, because the modeling choices are where the
 result's assumptions live.
 @sapirshtein2016optimal recasts the problem as a
 Markov decision process and solves for the optimal
@@ -1254,14 +1254,14 @@ much the honest-majority assumption actually buys.
 security-performance framework, and the source to
 consult before claiming any parameter change is a
 free improvement. @bonneau2015sok is the
-systematisation-of-knowledge survey that organises
+systematization-of-knowledge survey that organizes
 Bitcoin's stability and incentive results into a
 common framework, and is the best single map of the
 territory. The reference textbook throughout,
 @narayanan2016bitcoin, treats mining incentives and
 the 51 percent attack with the rigor this chapter
 aims to extend, and its treatment of pool economics
-and centralisation pressure complements the game-
+and centralization pressure complements the game-
 theoretic framing developed here.
 
 ## In conclusion
@@ -1269,7 +1269,7 @@ theoretic framing developed here.
 In conclusion, three points are to be emphasized.
 First, the security of a shared ledger, whether
 Bitcoin's or the trial ledger's, is an economic
-guarantee resting on a stated behavioural and
+guarantee resting on a stated behavioral and
 distributional model, and it must never be allowed
 to borrow the near-certainty of the cryptographic
 guarantee that sits beside it; the two answer

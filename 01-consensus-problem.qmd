@@ -41,8 +41,8 @@ to:
 We begin with a problem in the daily conduct of
 multi-site clinical research. Consider a phase III
 trial run jointly across several hospitals. Each site
-enrols participants, assigns them to treatment arms by
-randomisation, and records outcome events as they
+enrolls participants, assigns them to treatment arms by
+randomization, and records outcome events as they
 occur. Each site keeps its own copy of a shared log of
 these events, and no single site is trusted to serve as
 the sole custodian of the record. Some time later a
@@ -62,20 +62,20 @@ where the difficulty is sharpest, consider three ways in
 which the arrangement can fail.
 
 The first failure is a conflict of order. The same
-participant, or equivalently the same randomisation
+participant, or equivalently the same randomization
 slot, may be claimed at two sites at once: site 1
-records that subject 0041 was enrolled and randomised
+records that subject 0041 was enrolled and randomized
 to the active arm at 09:14, while site 2 records the
 same subject, or the same slot, enrolled one minute
 later. Which entry is the true one? A digital signature
 on each entry authenticates who wrote it, and proves the
 entry was not altered after signing, but a signature
 cannot order two conflicting entries in time, nor decide
-which of the two the trial ought to honour. In the
+which of the two the trial ought to honor. In the
 vocabulary of digital cash, where the problem was first
 studied and where we shall meet it below, this is the
 double-spend problem. In the trial ledger it is the
-problem of double enrolment.
+problem of double enrollment.
 
 The second failure is adversarial. Suppose one
 hospital's data server is compromised, or merely
@@ -112,7 +112,7 @@ place in the book where each is treated in full.
 
 | Failure | Trial-ledger instance | Abstract problem | Where treated |
 |---|---|---|---|
-| **Conflict of order** | Double enrolment on one randomisation slot | Double-spend | This chapter; @sec-pow |
+| **Conflict of order** | Double enrollment on one randomization slot | Double-spend | This chapter; @sec-pow |
 | **Compromised site** | A site sends conflicting logs to different parties | Byzantine agreement | This chapter, the 3f+1 bound; @castro1999practical |
 | **Fake identities** | Ballot stuffing in an open registry | Sybil attack | This chapter; @sec-pow |
 
@@ -176,7 +176,7 @@ section that develops it.
 - **Permissioned versus permissionless.** A permissioned
   system admits only a fixed, credentialed set of
   participants; a permissionless system allows any party
-  to join without authorisation. The distinction organises
+  to join without authorization. The distinction organizes
   much of what follows.
 :::
 
@@ -213,7 +213,7 @@ to accept or reject on faith.
 The chapter proceeds in three moves. We show first that
 digital cash, and equally the trial ledger, has a
 problem that signatures do not solve, namely agreement
-on order. We then formalise the general problem of
+on order. We then formalize the general problem of
 agreement among possibly-lying parties and derive the
 classical bound on how many liars a system can tolerate.
 We show last why that classical solution collapses the
@@ -236,7 +236,7 @@ substituted in its place.
    one as data accumulates. Recognizing which regime a
    system occupies, and demanding the relevant
    confidence statement rather than an absolute one, is
-   a judgement no protocol makes on our behalf.
+   a judgment no protocol makes on our behalf.
 3. **Matching the trust model to the problem.** A fixed
    consortium of named, accountable institutions and an
    anonymous open population are different trust
@@ -259,9 +259,9 @@ bits, and a string of bits may be copied and sent to $B$
 and $C$ at once. This is the double-spend problem: absent
 physical scarcity, preventing a party from spending the
 same balance twice is a coordination problem, not a
-copying problem. The reader will recognise the double
-enrolment of the Orientation as the same difficulty, with
-the coin replaced by a randomisation slot and the two
+copying problem. The reader will recognize the double
+enrollment of the Orientation as the same difficulty, with
+the coin replaced by a randomization slot and the two
 payees replaced by two trial sites.
 
 A natural first instinct is that a digital signature
@@ -294,9 +294,9 @@ messages sent to two different recipients, possibly at
 the same instant. Detecting it requires every party in
 the system to observe the *same total order* over all
 messages naming coin $c$, so that whichever of $m_1, m_2$
-comes first is the one that is honoured and the other
+comes first is the one that is honored and the other
 rejected. That shared total order is consensus. In the
-trial ledger the two messages are two enrolment claims on
+trial ledger the two messages are two enrollment claims on
 the same slot, and the shared order is precisely what
 allows the regulator to say which claim stands.
 Signatures solve authentication; consensus solves order.
@@ -355,7 +355,7 @@ than a bug.
 
 @fig-topology draws the failure concretely: one site
 among five sends two conflicting versions of the shared
-log to two honest neighbours, so that no honest party
+log to two honest neighbors, so that no honest party
 can tell, from its own copy alone, which history is the
 true one.
 
@@ -552,8 +552,8 @@ set of account balances or unspent outputs, and the
 'transition function' is 'apply the transaction if it is
 valid, else reject it.' The trial ledger is an instance
 of the same abstraction, in which the inputs are
-enrolment, randomisation and outcome events, the state is
-the current enrolment and endpoint tally, and the
+enrollment, randomization and outcome events, the state is
+the current enrollment and endpoint tally, and the
 transition function admits an event if it is well formed
 and consistent with the log so far. Every consensus
 protocol in this book, from PBFT (a classical agreement
@@ -674,7 +674,7 @@ exactly the question @sec-pow answers for computation and
 @sec-pos answers for stake.
 
 ::: {.callout-important}
-## The sceptic's reflex
+## The skeptic's reflex
 
 'Blockchain solves the Byzantine Generals problem' is a
 narrative-tier claim as usually stated. Classical BFT,
@@ -720,7 +720,7 @@ This is not the first use of costly computation to deter
 an adversary. Dwork and Naor [@dwork1993pricing] proposed
 spending computation as a toll to deter denial-of-service
 attacks and junk email, and Back [@back2002hashcash]
-operationalised the idea as a practical proof-of-work
+operationalized the idea as a practical proof-of-work
 stamp. Nakamoto's innovation was to repurpose that toll,
 not as an anti-spam fee but as the scarce resource that
 determines *whose vote on transaction order counts*,
@@ -857,7 +857,7 @@ This is the trial ledger of the Orientation, now regarded
 as an engineering choice. We have a phase III trial run
 across a consortium of, say, twelve hospitals and a
 regulator, none of whom fully trusts the others to
-control the shared enrolment and endpoint log
+control the shared enrollment and endpoint log
 unilaterally, but all of whom are named, contracted, and
 accountable institutions. This is a textbook
 fixed-membership setting: $n = 13$ is known, $f$ may be
@@ -911,7 +911,7 @@ endorsements are then ordered by a separate ordering
 service; and each peer finally validates the ordered
 transactions against an endorsement policy before
 committing them. The rearrangement is not cosmetic. It
-lets mutually distrusting organisations agree on state
+lets mutually distrusting organizations agree on state
 without requiring every node to run every computation in
 lockstep, and it isolates the ordering service as the one
 component that must be agreed upon.
@@ -920,7 +920,7 @@ The deeper point, for our purposes, is what a known
 membership buys. When the writers are a fixed roster of
 named institutions, the Sybil attack of the previous
 section simply cannot arise, since no party can mint new
-identities that the others will honour. The problem
+identities that the others will honor. The problem
 reduces to classical Byzantine agreement among a known
 set, which Castro and Liskov's practical protocol
 [@castro1999practical] solves at the 3f+1 threshold we
@@ -1010,14 +1010,14 @@ available, and the writers' interests may conflict. Many
 health proposals satisfy the first and third conditions
 but not the second, because a trusted custodian, a
 hospital's information-technology department or a trial's
-data-coordinating centre, is in fact available and
+data-coordinating center, is in fact available and
 acceptable. When such a custodian exists, a well-governed
 database with cryptographic audit logging delivers
 tamper-evidence at a fraction of the cost, and the ledger
 is machinery in search of a problem.
 
 ::: {.callout-important}
-## The sceptic's reflex
+## The skeptic's reflex
 
 'Blockchain for health records' is, in the majority of
 the proposals that carry the phrase, a tier-four
@@ -1058,8 +1058,8 @@ The first question is whether a trusted custodian is
 genuinely unavailable, because if the sites will accept
 any single operator, no blockchain of any kind is
 warranted. A public chain is doubly wrong here: it exposes
-enrolment and outcome data to the world, which the
-hashing of @sec-intro shows is not anonymised by hashing
+enrollment and outcome data to the world, which the
+hashing of @sec-intro shows is not anonymized by hashing
 alone, and it pays proof-of-work costs to solve a Sybil
 problem that a closed consortium does not have. The
 correct comparator is a signed, replicated, append-only
@@ -1224,7 +1224,7 @@ primary sources are read. @dwork1993pricing and
 'computation as a costly toll'; reading them clarifies
 exactly what Nakamoto added and what was already known.
 
-In conclusion, three points are to be emphasised. First,
+In conclusion, three points are to be emphasized. First,
 the object every protocol in this book pursues is
 agreement on one ordered history among mutually
 distrusting parties, and for the trial ledger it is this

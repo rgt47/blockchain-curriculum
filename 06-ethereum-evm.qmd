@@ -60,7 +60,7 @@ enforcing that consent correctly is a substantial
 administrative burden, and the characteristic
 failure is familiar: a permission is revoked in one
 system and never propagated to the others, or a
-data-use condition is honoured by a conscientious
+data-use condition is honored by a conscientious
 analyst and quietly overlooked by a hurried one. We
 should prefer, if we could arrange it, that the
 permission rules execute themselves, so that access
@@ -85,7 +85,7 @@ what is the state after applying an arbitrary
 sequence of transactions? A consent policy that
 enforces itself is one instance of such a program,
 and answering the general question in a
-decentralised, adversarial setting is what the
+decentralized, adversarial setting is what the
 remainder of this chapter develops.
 
 The reader already holds the right frame. A
@@ -120,7 +120,7 @@ to miss the next time it appears.
 
 We proceed as follows. We begin by contrasting the
 UTXO and account representations of a ledger, a
-choice we shall recognise as the event-log versus
+choice we shall recognize as the event-log versus
 current-state distinction already met in
 representing a longitudinal record. We then describe
 the EVM as the shared deterministic machine on which
@@ -188,12 +188,12 @@ follows.
 1. **Reading a fee market as a control system.**
    EIP-1559 is not merely 'a fee'; it is a
    proportional feedback loop with a known gain and a
-   known set point. Recognising the update rule as a
+   known set point. Recognizing the update rule as a
    discrete-time controller lets us predict its
-   transient behaviour under a demand shock and reason
+   transient behavior under a demand shock and reason
    about stability, rather than treating the base fee
    as an opaque market outcome.
-2. **Recognising gas as a price on computational
+2. **Recognizing gas as a price on computational
    complexity.** Gas costs are a per-opcode tariff
    schedule. Auditing a contract's expected gas
    consumption is a complexity analysis in disguise,
@@ -203,7 +203,7 @@ follows.
    is deterministic by specification, but a system
    'wired to' the chain (an oracle feeding it a
    price, or a multisig, a wallet that requires
-   several keys to authorise an action, holding an
+   several keys to authorize an action, holding an
    admin key) reintroduces trust and single points
    of failure that the deterministic core does not
    have. Distinguishing
@@ -224,10 +224,10 @@ reconstructed by replay. The epidemiologist knows
 both forms intimately: a registry table holding each
 subject's present status is a current-state
 representation, whereas a sequence of timestamped
-enrolment, visit, and outcome events is an event
+enrollment, visit, and outcome events is an event
 log. The contrast between Bitcoin's UTXO model and
 Ethereum's account model is precisely this
-data-modelling choice, transposed to a ledger, and
+data-modeling choice, transposed to a ledger, and
 the trade-offs are the ones the reader would
 anticipate. We set the two representations of the
 same ledger side by side in @fig-event-vs-state
@@ -314,13 +314,13 @@ To make the choice concrete, consider the running
 case study of this book, a data-integrity ledger for
 a multi-institution clinical trial in which several
 hospitals share a single append-only record of
-enrolment, randomisation, and outcome events, with
+enrollment, randomization, and outcome events, with
 no single trusted custodian and a regulator auditing
 after the fact. We shall refer to it as the trial
 ledger. The trial ledger is, by its nature, an event
 log: no hospital overwrites a prior entry, and the
 state of the trial at any moment (how many subjects
-are enrolled, to which arm each was randomised) is
+are enrolled, to which arm each was randomized) is
 reconstructed by replaying the recorded events.
 Whether one then chooses to maintain a current-state
 summary alongside the log, and who is trusted to
@@ -415,7 +415,7 @@ transactions from different accounts can still touch
 the same piece of shared state (both call the same
 contract, both trade against the same liquidity
 pool), validating and executing transactions in the
-account model cannot in general be parallelised
+account model cannot in general be parallelized
 without first inspecting which storage slots each
 transaction reads and writes. This is a genuine cost
 of the account model relative to UTXO's disjoint-set
@@ -502,7 +502,7 @@ contract account.
 | **Controlled by** | A private key | Its own deployed code |
 | **Can initiate a transaction** | Yes | No; only reacts to a call |
 | **Holds code** | No | Yes, executed deterministically |
-| **Trial-ledger reading** | A hospital or auditor holding keys | The shared enrolment-logic and permission rules |
+| **Trial-ledger reading** | A hospital or auditor holding keys | The shared enrollment-logic and permission rules |
 
 : Externally owned accounts and contract accounts contrasted {#tbl-eoa-contract}
 
@@ -527,7 +527,7 @@ submitted code therefore faces a genuine hazard: a
 contract could contain a loop that never terminates,
 and every validating node would be obligated to run
 it forever, or forever fail to reach the state that
-depends on it. But how is a decentralised network to
+depends on it. But how is a decentralized network to
 bound the cost of running code it did not write,
 without first solving a problem known to be
 undecidable?
@@ -603,7 +603,7 @@ executor's hardware. This is essential in a system
 where thousands of heterogeneous machines must all
 agree on exactly how much 'work' a given piece of
 code represents: the accounting has to be part of
-the protocol, not an artefact of whichever machine
+the protocol, not an artifact of whichever machine
 happens to run it, or nodes with faster hardware
 could disagree with slower ones about whether a
 transaction should have been killed.
@@ -618,7 +618,7 @@ cleared with high variance and a poor user
 experience, in that bidders routinely over- or
 under-paid relative to the true clearing price. EIP-1559 [@eip1559] replaced this
 with a protocol-computed **base fee** that adjusts
-block by block toward a target utilisation, plus an
+block by block toward a target utilization, plus an
 optional **priority fee** (tip) that senders set to
 compete for ordering within a block. The base fee
 itself is burned, not paid to the block proposer,
@@ -639,7 +639,7 @@ $$
 
 Read as a control system: $g_n - \bar g$ is the
 error signal (how far the block's gas usage deviated
-from the target), $\bar g$ normalises it to a
+from the target), $\bar g$ normalizes it to a
 fraction, $1/8$ is the proportional gain, and the
 update multiplies the previous base fee by
 $(1 + \text{gain} \times \text{error fraction})$.
@@ -660,7 +660,7 @@ price, versus a proof-of-work difficulty) and in
 their update cadence (every block, versus every 2016
 blocks), but the underlying idea, a set point, an
 observed deviation, and a bounded multiplicative
-correction, is identical, and recognising the pattern
+correction, is identical, and recognizing the pattern
 here is the payoff of having derived it once already.
 
 For the reader whose intuition is clinical rather
@@ -671,7 +671,7 @@ when the measured response falls short of the target
 and lowers it when the response overshoots, adjusting
 in bounded increments at each visit rather than
 leaping to a putative optimum. The base-fee rule has
-the same shape: the target utilisation plays the role
+the same shape: the target utilization plays the role
 of the target response, block fullness plays the role
 of the measured response, and the fixed 1/8 gain
 plays the role of the bounded per-visit dose step. We
@@ -681,8 +681,8 @@ protocol governs a single patient whose response
 follows a pharmacological process that is, at least
 in principle, stable and non-strategic; the base fee
 governs an aggregate of anonymous and frankly
-adversarial bidders who will reorganise their
-behaviour in anticipation of the rule itself. A
+adversarial bidders who will reorganize their
+behavior in anticipation of the rule itself. A
 clinician, moreover, may exercise judgment, impose
 safety bounds, and abandon a titration that is going
 wrong, whereas the base-fee controller is a fixed
@@ -690,7 +690,7 @@ formula with no such discretion. The analogy is
 therefore useful for locating the base fee in a
 family of mechanisms the reader already understands,
 and misleading if pressed into a claim that a fee
-market will behave like a well-characterised
+market will behave like a well-characterized
 dose-response curve.
 
 The following simulation is entirely synthetic: gas
@@ -709,7 +709,7 @@ permanently elevated with no force pulling it back
 down, because the controller only reacts to the
 *current* deviation from target; the cooldown phase
 is what actually drives the fee back down, and is a
-realistic feature of fee markets, not an artefact
+realistic feature of fee markets, not an artifact
 introduced for cosmetic effect.
 
 ```{r ch06-eip1559-sim}
@@ -829,7 +829,7 @@ demand shock only gradually, block by block, rather
 than instantaneously.
 
 ::: {.callout-important}
-## The sceptic's reflex
+## The skeptic's reflex
 
 'EIP-1559 makes fees predictable' is often stated as
 if it means fees became low or stable in level. It
@@ -844,7 +844,7 @@ transaction still faces uncertainty about the tip
 required to be included promptly. What EIP-1559
 actually delivers is a *known functional form* for
 the base fee's evolution, which is valuable for
-wallets and for the statistician modelling the
+wallets and for the statistician modeling the
 series, not a promise about its level.
 :::
 
@@ -878,7 +878,7 @@ separates them into two independently clearing
 markets, each obeying the same controller family
 introduced above. This is best understood as the
 first concrete step of a broader scaling roadmap in
-which the base chain increasingly specialises in
+which the base chain increasingly specializes in
 ordering and data availability, and execution moves
 to rollups; the details of that architecture are
 beyond this chapter's scope, but the pricing logic
@@ -898,7 +898,7 @@ does the data-availability pricing of the previous
 section acquire its motivation.
 
 The difficulty is usually stated as a trilemma. A
-blockchain is asked to be decentralised (runnable by
+blockchain is asked to be decentralized (runnable by
 many independent, modestly resourced nodes), secure
 (costly to attack), and scalable (able to process
 many transactions per second), and the informal
@@ -916,7 +916,7 @@ transactions per second? Raising the throughput of a
 chain that every node must fully re-execute raises
 the hardware demand on every node in lockstep, and a
 chain that only a few well-resourced machines can
-keep up with has surrendered the decentralisation
+keep up with has surrendered the decentralization
 that motivated it in the first place. The
 re-execution that buys trustlessness is exactly what
 caps throughput.
@@ -1034,7 +1034,7 @@ invalid batch cannot produce a valid proof. The proof
 machinery this relies upon is the zero-knowledge
 material we shall take up in @sec-crypto, and we defer
 its mechanics to that discussion. Gudgeon et al.
-[@gudgeon2020layertwo] offer a systematisation of
+[@gudgeon2020layertwo] offer a systematization of
 knowledge across the whole layer-two design space, and
 the reader who wishes to place these two families in
 their full taxonomy is referred to it. We set the two
@@ -1059,7 +1059,7 @@ updates, and settle back on-chain only when they
 close the channel; the intervening transactions,
 possibly very many of them, never touch the base
 layer at all. The Lightning Network
-[@poon2016lightning] is the best-known realisation of
+[@poon2016lightning] is the best-known realization of
 this idea, layered on Bitcoin, and it routes payments
 across a mesh of such channels so that two parties
 without a direct channel may still transact through
@@ -1076,16 +1076,16 @@ the throughput and the lower per-transaction fee are
 not obtained for nothing. Croman et al.
 [@croman2016scaling], in an early and careful analysis
 of Bitcoin's scaling limits, make the general point
-that scaling a decentralised ledger forces trade-offs
+that scaling a decentralized ledger forces trade-offs
 rather than dissolving them, and the point transfers
 directly to layer two. On the one hand, a rollup
 genuinely raises throughput and lowers cost, by
-amortising execution over a batch and by paying only
+amortizing execution over a batch and by paying only
 for data availability rather than for base-layer
 execution. On the other hand, it introduces trust
 assumptions the base layer did not carry: most rollups
 today run a single sequencer that orders transactions,
-and a centralised sequencer can censor or reorder,
+and a centralized sequencer can censor or reorder,
 which is a weaker guarantee than the base chain's; an
 optimistic rollup imposes a challenge-window latency,
 of the order of a week for withdrawals, during which a
@@ -1169,7 +1169,7 @@ contract is that with it, code is law: the agreement
 executes
 itself exactly as written, and no clerk, no court, and
 no counterparty may intervene to alter the outcome.
-The determinism this chapter has emphasised is exactly
+The determinism this chapter has emphasized is exactly
 what makes the promise credible. A contract does what
 its bytecode says and nothing else, every node agrees
 on the result, and no privileged party can quietly
@@ -1225,7 +1225,7 @@ Reentrancy is only one of a family of vulnerability
 classes whose incidence is measurable rather than
 anecdotal. Atzei et al. [@atzei2017survey] provide a
 systematic survey of attacks on Ethereum contracts,
-organising them into recurring categories, and Luu et
+organizing them into recurring categories, and Luu et
 al. [@luu2016oyente], with the Oyente analysis tool,
 showed that a large fraction of then-deployed
 contracts were flagged for at least one such class by
@@ -1242,7 +1242,7 @@ the standard mitigation.
 |---|---|---|
 | **Reentrancy** | An external call hands control to an untrusted contract before state is updated, letting the callee re-enter and repeat the operation | Update state before the external call (checks-effects-interactions), or use a reentrancy guard |
 | **Integer overflow/underflow** | Arithmetic wraps past the fixed integer width, so a balance or counter silently jumps to a spurious value | Checked arithmetic (default in modern compilers) or a safe-math library |
-| **Access control** | A privileged function omits or mis-scopes its authorisation check, letting any caller invoke it | Explicit caller checks on every privileged entry point, and least-privilege role design |
+| **Access control** | A privileged function omits or mis-scopes its authorization check, letting any caller invoke it | Explicit caller checks on every privileged entry point, and least-privilege role design |
 | **Oracle manipulation** | Logic depends on an external price or data feed an attacker can distort, for example via a flash-loan-driven price move | Time-weighted or multi-source feeds, sanity bounds, and treating any single oracle as untrusted |
 
 : Four common smart-contract vulnerability classes {#tbl-vuln-classes}
@@ -1270,12 +1270,12 @@ on-chain surface, the smaller the immutable attack
 surface.
 
 ::: {.callout-important}
-## The sceptic's reflex
+## The skeptic's reflex
 
 'The contract has been audited, so it is safe' is
 the reassurance to distrust most. An audit is a finite
 inspection, by fallible reviewers, of a program whose
-behaviour is in general undecidable; it can establish
+behavior is in general undecidable; it can establish
 the presence of the bugs it finds and never the
 absence of the bugs it does not. The DAO's code had
 been read by many capable people before it was
@@ -1303,22 +1303,22 @@ depends on institutional follow-through. But how much
 of a consent arrangement can a contract safely be
 made to carry? The computational content of the
 proposal is genuine and useful. A contract can hold
-a permission state (who is authorised, under what
+a permission state (who is authorized, under what
 condition, until when) and can enforce access rules
 against *anything routed through it* with the same
-determinism this chapter has emphasised throughout,
+determinism this chapter has emphasized throughout,
 thereby removing a class of administrative failure in
 which a revoked permission is not actually propagated
-to every system that ought to honour it. This is the
+to every system that ought to honor it. This is the
 self-executing rule the opening asked for, and to
 that extent the intuitive appeal of the proposal is
 warranted.
 
 It has also, unusually for this literature, been
 tried on human beings. A dynamic-consent ledger was
-deployed across two centres in a sixty-subject
-decentralised trial, with protocol amendments
-deliberately introduced so that re-consent behaviour
+deployed across two centers in a sixty-subject
+decentralized trial, with protocol amendments
+deliberately introduced so that re-consent behavior
 could be measured rather than assumed
 [@huh2022metory]. The consent mechanism itself
 performed well: participants agreed to amendments in
@@ -1355,7 +1355,7 @@ later) makes that state confidential; encryption of
 a field does not fix this, because the ciphertext
 persists forever and any weakness discovered in the
 encryption scheme, or any future key compromise,
-retroactively de-anonymises every record ever posted.
+retroactively de-anonymizes every record ever posted.
 A blockchain is therefore a defensible place to store
 a **commitment** to a permission (a hash of a consent
 document, an access-control state machine, a
@@ -1583,7 +1583,7 @@ tibble(
   ))
 ```
 
-Two features generalise beyond this particular
+Two features generalize beyond this particular
 synthetic run. First, doubling time is itself
 computable directly from the gain: a base fee that
 compounds by a constant fraction $\epsilon$ per
@@ -1593,7 +1593,7 @@ usage at a constant fraction above target the
 doubling time is $\log 2 / \log(1+\epsilon)$ blocks,
 which is a direct application of the compound-growth
 reasoning the reader already owns from continuous-
-time interest and population models, just discretised
+time interest and population models, just discretized
 to one block per period. Second, the post-shock
 undershoot exists because the controller has no
 memory of the pre-shock level, only of the current
@@ -1655,7 +1655,7 @@ explicit.
 
 ## In conclusion
 
-In conclusion, three points are to be emphasised.
+In conclusion, three points are to be emphasized.
 First, the account model is a current-state
 representation of a ledger, and the account nonce is
 the price of that choice: replay protection and a
@@ -1666,9 +1666,9 @@ event-log versus current-state distinction in view
 will not be surprised by where each cost falls.
 Second, gas and the EIP-1559 base fee are,
 respectively, a price on computation and a feedback
-controller on block utilisation; the base fee shares
+controller on block utilization; the base fee shares
 its structural family with the difficulty adjustment
-of @sec-mining, and it appears to us that recognising
+of @sec-mining, and it appears to us that recognizing
 the controller pattern, a set point, an error signal,
 and a bounded multiplicative correction, is a more
 durable acquisition than any particular fee level.
@@ -1721,7 +1721,7 @@ precisely why.
 6. A contract's admin key can pause the contract or
    redirect funds. Write two or three sentences
    evaluating the claim 'this smart contract is
-   trustless' against that fact, using the sceptic's
+   trustless' against that fact, using the skeptic's
    reflex framework.
 
 ## Further reading
@@ -1745,7 +1745,7 @@ second market reuses the first's control law.
 @antonopoulos2018ethereum is the standard practitioner
 reference for account types, gas mechanics, and
 contract deployment, useful for the operational detail
-this chapter deliberately omits in favour of the
+this chapter deliberately omits in favor of the
 underlying control-theoretic and economic structure.
 @narayanan2016bitcoin remains the standard comparison
 point for the UTXO model this chapter contrasts

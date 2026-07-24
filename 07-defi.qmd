@@ -1,4 +1,4 @@
-# Decentralised Finance as Mathematics {#sec-defi}
+# Decentralized Finance as Mathematics {#sec-defi}
 
 ::: {.bookepigraph}
 ```{=latex}
@@ -28,13 +28,13 @@ able to:
   curve.
 - Prove that impermanent loss equals
   $2\sqrt{r}/(1+r) - 1$ in the price ratio $r$
-  and recognise it as the arithmetic-geometric
+  and recognize it as the arithmetic-geometric
   mean (Jensen) inequality made financial.
-- Analyse an over-collateralised lending
+- Analyze an over-collateralized lending
   position, compute its liquidation price, and
   explain how forced selling cascades.
 - Explain why oracles are the trust boundary of
-  decentralised finance and how a flash loan
+  decentralized finance and how a flash loan
   exploits a single-block spot price.
 - Classify stablecoin designs and diagnose a
   deleveraging spiral of the kind that destroyed
@@ -94,14 +94,14 @@ written. What was problematic was the trigger
 itself: the choice of index, the thresholds, the
 data feed that measured them, and the lag those
 choices imposed. We shall take this as the
-organising moral of the chapter. The hard part of a
+organizing moral of the chapter. The hard part of a
 parametric instrument is the trigger design and the
 oracle that reports the index, not the payment
 mechanism.
 
 That is the frame in which the machinery of this
 chapter merits a public-health student's attention.
-Decentralised finance (DeFi) is the collection of
+Decentralized finance (DeFi) is the collection of
 financial primitives, exchange, lending,
 derivatives, and stable value, rebuilt as smart
 contracts running on a programmable chain such as
@@ -119,7 +119,7 @@ anyone propose to invest the float in the interim,
 an exchange and a lending market in which to do so.
 The failure modes of that plumbing, oracle
 manipulation, the depeg of a supposedly stable
-token, and the reflexive spiral in which a defence
+token, and the reflexive spiral in which a defense
 mechanism accelerates the very collapse it was
 meant to arrest, are exactly the risks that a
 parametric health instrument would inherit. To
@@ -139,12 +139,12 @@ from the start (@tbl-defi-primitives).
 | **Exchange (AMM)** | Converts or invests the idle float | Impermanent loss and slippage |
 | **Lending market** | Earns interest on the float | Liquidation cascade; dependence on a price oracle |
 
-: Each decentralised-finance primitive maps to a role a parametric health instrument would ask of it and to a distinct risk that role imports {#tbl-defi-primitives}
+: Each decentralized-finance primitive maps to a role a parametric health instrument would ask of it and to a distinct risk that role imports {#tbl-defi-primitives}
 
 ::: {.callout-note}
 ## The vocabulary of this chapter
 
-- **Decentralised finance (DeFi).** The
+- **Decentralized finance (DeFi).** The
   reconstruction of financial services, exchange,
   lending, and the issuance of stable value, as
   programs running on a public blockchain rather
@@ -173,8 +173,8 @@ from the start (@tbl-defi-primitives).
   price or a case count, to on-chain code. It is the
   point at which an external number, and the trust
   in whoever supplies it, re-enters an otherwise
-  trust-minimised system.
-- **Flash loan.** An uncollateralised loan of any
+  trust-minimized system.
+- **Flash loan.** An uncollateralized loan of any
   size that must be borrowed and repaid within a
   single transaction, so that the lender bears no
   credit risk. It grants a borrower large capital
@@ -183,8 +183,8 @@ from the start (@tbl-defi-primitives).
   token engineered to hold a constant value, almost
   always one United States dollar. Its peg is that
   target value, and a depeg is a departure from it.
-- **Collateralisation and liquidation.** A
-  decentralised loan is over-collateralised when the
+- **Collateralization and liquidation.** A
+  decentralized loan is over-collateralized when the
   collateral pledged is worth more than the debt.
   Liquidation is the forced sale of that collateral
   once its value, measured against the debt, falls
@@ -207,7 +207,7 @@ That is the stance of this chapter. We treat each
 mechanism as an object with a closed form, derive
 the closed form, and then ask the question a
 statistician is trained to ask: under what
-assumptions is the stated behaviour true, and how
+assumptions is the stated behavior true, and how
 would we measure a departure from it? The automated
 market maker yields a clean invariant and an exact
 expression for the trader's execution cost. The
@@ -245,7 +245,7 @@ return to them here. The first, which we shall call
 the trial ledger, is a multi-institution
 clinical-trial data-integrity ledger: several
 hospitals maintaining an append-only shared record
-of enrolment, randomisation, and outcome events,
+of enrollment, randomization, and outcome events,
 with no single trusted custodian, which a regulator
 audits after the fact. The second, our secondary
 example, is a vaccine cold-chain provenance system,
@@ -262,7 +262,7 @@ questions we shall raise about price oracles.
 
 ## The statistician's contribution
 
-Three judgements recur in what follows, and each is
+Three judgments recur in what follows, and each is
 one that no contract and no dashboard will make on
 our behalf.
 
@@ -273,7 +273,7 @@ our behalf.
    whatever fell. Against a static hold that is a
    guaranteed drag whenever prices move, and its
    magnitude is the gap between an arithmetic and
-   a geometric mean. Recognising the convexity
+   a geometric mean. Recognizing the convexity
    tells us that no amount of 'the loss is
    impermanent' reassurance alters the
    expectation: the provider is short volatility,
@@ -619,7 +619,7 @@ survivable when fee income is adequate and ruinous
 when it is not.
 
 ::: {.callout-important}
-## The sceptic's reflex: 'impermanent loss is impermanent'
+## The skeptic's reflex: 'impermanent loss is impermanent'
 
 The reassurance that the loss is 'impermanent',
 recovered if the price returns to where it started,
@@ -628,7 +628,7 @@ a tier-one fact (@sec-intro). The recovery is conditional on
 an event, mean reversion, that the provider does
 not control and cannot assume. What is guaranteed,
 unconditionally, is the expectation: for any
-non-degenerate price process the LP realises a
+non-degenerate price process the LP realizes a
 negative $\mathbb{E}[\mathrm{IL}]$ relative to
 holding, because $\mathrm{IL}(r) \le 0$ pointwise
 and equals zero only on a measure-zero set. A more
@@ -646,11 +646,11 @@ losing.
 Someone claims that impermanent loss can be
 eliminated by choosing a pool whose two assets are
 'highly correlated', for example two stablecoins.
-Using the AM-GM characterisation, explain precisely
+Using the AM-GM characterization, explain precisely
 what correlation has to do with it and what it does
 not change.
 
-Impermanent loss depends only on the realised price
+Impermanent loss depends only on the realized price
 ratio $r = p_1/p_0$ through $2\sqrt{r}/(1+r) - 1$;
 it makes no reference to correlation, volatility,
 or any distributional assumption. What a
@@ -664,16 +664,16 @@ expected loss is small because $r$ rarely strays
 from one, not because the mechanism is different.
 Correlation shapes the input distribution; the
 AM-GM inequality still governs the output for every
-realised value. This is why stablecoin pools are
+realized value. This is why stablecoin pools are
 viable LP positions and volatile pairs often are
 not.
 :::
 
 ## Lending and liquidation
 
-The second pillar of DeFi is over-collateralised
+The second pillar of DeFi is over-collateralized
 lending, exemplified by Aave and Compound, the two
-largest decentralised lending protocols. Because
+largest decentralized lending protocols. Because
 borrowers are pseudonymous and cannot be pursued
 for a deficiency, a loan must be secured by
 collateral worth more than the debt at all times.
@@ -691,7 +691,7 @@ and becomes liquidatable the instant the health
 factor drops below one, at which point liquidators
 may repay part of the debt in exchange for the
 borrower's collateral at a discount. Gudgeon and
-colleagues analyse the economics of these systems,
+colleagues analyze the economics of these systems,
 and the ways in which they fail under stress
 [@gudgeon2020loanable; @gudgeon2020crisis].
 
@@ -786,7 +786,7 @@ that price must come from somewhere, and the
 somewhere is an oracle: a contract or a signed feed
 that reports an off-chain quantity to on-chain
 code. The oracle is the trust boundary of DeFi.
-Everything upstream of it can be trust-minimised by
+Everything upstream of it can be trust-minimized by
 the consensus machinery of the preceding chapters;
 the oracle is where an external number, and with it
 an external assumption, re-enters. A protocol that
@@ -795,7 +795,7 @@ on-chain pool has, in effect, delegated its
 solvency to whoever can move that pool.
 
 Flash loans make that delegation dangerous. A flash
-loan is an uncollateralised loan of arbitrary size
+loan is an uncollateralized loan of arbitrary size
 that must be borrowed and repaid within a single
 transaction; atomicity guarantees that if the
 repayment fails the entire transaction reverts, so
@@ -859,7 +859,7 @@ price snaps back after the attacker unwinds. The
 extraction is deterministic, not probabilistic; it
 follows from the invariant.
 
-The defence is a matter of estimator design, which
+The defense is a matter of estimator design, which
 is why it is the statistician's natural territory.
 A time-weighted average price (TWAP) over $N$
 blocks replaces the single-block spot with a mean;
@@ -902,12 +902,12 @@ design, not of blockchain engineering.
 A stablecoin is a token engineered to hold a
 constant value, almost always one United States
 dollar. Moin and colleagues, in their
-systematisation of the subject [@moin2020sok],
+systematization of the subject [@moin2020sok],
 classify the designs by what backs the peg, and the
 taxonomy is worth committing to memory because the
 failure modes follow from it.
 
-- **Fiat-collateralised.** Each token is a claim
+- **Fiat-collateralized.** Each token is a claim
   on a dollar held by a custodian (Tether, USDC).
   The peg is only as good as the custodian's
   reserves and redemption policy; this is a
@@ -915,8 +915,8 @@ failure modes follow from it.
   auditable in principle, and reintroduces exactly
   the trusted intermediary the chain claimed to
   remove.
-- **Crypto-collateralised.** Each token is backed
-  by an over-collateralised position in volatile
+- **Crypto-collateralized.** Each token is backed
+  by an over-collateralized position in volatile
   crypto assets (Dai). Solvency is maintained by
   the same liquidation machinery as a lending
   market, and it inherits the same cascade risk
@@ -934,7 +934,7 @@ what backs the peg (@tbl-stablecoin-taxonomy).
 | Collateral class | Peg mechanism | Failure mode | Example |
 |---|---|---|---|
 | **Fiat-reserve** | Redeemable one-for-one against custodial dollars | Reserve shortfall or a frozen redemption window | USDC |
-| **Crypto over-collateralised** | Over-collateralised vault defended by liquidation | Collateral crash outruns the liquidators | DAI |
+| **Crypto over-collateralized** | Over-collateralized vault defended by liquidation | Collateral crash outruns the liquidators | DAI |
 | **Algorithmic** | Mint-and-burn against a companion token | Reflexive depeg spiral | TerraUSD |
 
 : Stablecoin designs classified by what backs the peg, with the peg mechanism, the characteristic failure mode, and a canonical example of each {#tbl-stablecoin-taxonomy}
@@ -946,10 +946,10 @@ confidence in the peg. Klages-Mundt and Minca
 [@klagesmundt2019instability] show how such systems
 admit multiple equilibria, a stable peg and a
 collapse, with no restoring force between them once
-confidence breaks. The canonical realisation was
+confidence breaks. The canonical realization was
 the collapse of TerraUSD (UST) and its companion
 token Luna in May 2022, which Briola and colleagues
-[@briola2023anatomy] anatomise in detail. UST
+[@briola2023anatomy] anatomize in detail. UST
 maintained its peg by a mint-and-burn arbitrage:
 one UST was always redeemable for one dollar of
 newly minted Luna. When UST slipped below the peg
@@ -1012,7 +1012,7 @@ ggplot() +
 ```
 
 
-The epidemiologist will recognise the shape of this
+The epidemiologist will recognize the shape of this
 dynamic. A reflexive collapse is a positive-feedback
 process, and it is tempting to read the UST spiral
 as the financial cousin of a panic-driven demand
@@ -1022,7 +1022,7 @@ that was feared, which deepens the fear. The
 formal resemblance is genuine: in both cases a
 quantity that measures confidence, the token price
 or the perceived availability of a commodity, feeds
-back on the behaviour that determines it, and both
+back on the behavior that determines it, and both
 admit a stable branch and a runaway branch
 separated by a threshold. We should, however, be
 candid about where the analogy ends. An epidemic
@@ -1038,14 +1038,14 @@ analogy is useful for intuition about the existence
 of tipping points; it is misleading if it suggests
 that the interventions which calm a human panic
 would have saved an algorithmic peg. Broadening the
-view, Werner and colleagues, in a systematisation
+view, Werner and colleagues, in a systematization
 of the field [@werner2022sok], place these
 mechanisms, their oracles, and their attack
 surfaces in a single framework worth reading in
 full.
 
 ::: {.callout-important}
-## The sceptic's reflex: a high APY is usually emission
+## The skeptic's reflex: a high APY is usually emission
 
 An advertised yield of, say, eighty percent
 annually is a tier-four narrative until decomposed.
@@ -1066,7 +1066,7 @@ will not provide the split are answering the
 question by refusing it.
 :::
 
-The decomposition generalises past the two-way
+The decomposition generalizes past the two-way
 fee-versus-emission split. A headline yield is a
 sum over sources, and only some of them are income
 a counterparty actually paid (@tbl-yield-source).
@@ -1102,7 +1102,7 @@ delay, and the escrow's solvency and payout logic
 would be auditable by anyone. This is, in outline,
 what the World Bank's 2017 bonds attempted.
 
-The candour we owe the pitch is this: the contract
+The candor we owe the pitch is this: the contract
 does not solve the hard problem, it relocates it.
 Everything reduces to the trigger and the oracle
 that reports it. Did the outbreak truly occur at
@@ -1123,7 +1123,7 @@ in Zambia finds that eliminating those medicines
 would avert some eight per cent of deaths in children
 under five [@jackson2020zambia]. Note what a
 parametric contract does with numbers of this kind.
-It must convert a modelled quantity, carrying an
+It must convert a modeled quantity, carrying an
 uncertainty interval the modellers are careful to
 report, into a *binary* event: paid, or not paid. The
 uncertainty does not vanish at that step. It is
@@ -1144,7 +1144,7 @@ epidemiology and the data integrity of the trigger
 are the entire problem, and they live off-chain.
 
 To see how the trigger, rather than the plumbing,
-governs the outcome, consider a stylised outbreak.
+governs the outcome, consider a stylized outbreak.
 To illustrate, suppose a preparedness bond promises
 a fixed disbursement, and its trigger requires the
 reported cumulative case count to exceed a fixed
@@ -1239,7 +1239,7 @@ Bank's experience, reproduced here in miniature.
 ::: {.callout-warning}
 ## Most 'DeFi for health financing' pitches fail the test
 
-The recurring proposal to fund health programmes
+The recurring proposal to fund health programs
 through DeFi yields conflates two things a
 statistician should keep apart. The escrow-and-
 trigger logic is sound and modest, and where a
@@ -1276,9 +1276,9 @@ $$
 \underbrace{\bigl(-\mathrm{IL}(r)\bigr)}_{\text{IL cost}},
 $$
 
-where $f$ is the annualised fee yield the position
+where $f$ is the annualized fee yield the position
 earns from trading volume, $t$ is the holding
-period in days, and $r$ is the realised price
+period in days, and $r$ is the realized price
 ratio. The following computes the decomposition
 across a grid of price moves and two fee
 environments.
@@ -1380,9 +1380,9 @@ economics should be verified independently.
    and report the relative error.
 
 3. **Break-even fee yield.** Using the LP
-   decomposition, derive the annualised fee yield
+   decomposition, derive the annualized fee yield
    $f$ that exactly offsets the impermanent loss of
-   a given realised price ratio $r$ over a 30-day
+   a given realized price ratio $r$ over a 30-day
    period. Tabulate the break-even $f$ for
    $r \in \{1.25, 1.5, 2, 4\}$ and comment on which
    pools are viable LP positions.
@@ -1445,12 +1445,12 @@ with theorems. For lending and its instabilities,
 @gudgeon2020loanable models the interest-rate
 mechanisms and @gudgeon2020crisis analyses how they
 behave under stress. The stablecoin landscape is
-mapped by the systematisation of @moin2020sok, and
+mapped by the systematization of @moin2020sok, and
 the specific instability of algorithmic designs by
 @klagesmundt2019instability, with the TerraUSD
 collapse dissected empirically by
 @briola2023anatomy. Finally, the DeFi
-systematisation of @werner2022sok is the single
+systematization of @werner2022sok is the single
 best map of the whole territory, oracles, flash
 loans, composability risk, and the attack surface
 they jointly create, and it is the reference to
@@ -1459,7 +1459,7 @@ keep at hand when reading any new protocol.
 ## In conclusion
 
 In conclusion, three points are to be emphasized.
-First, the mechanisms of decentralised finance,
+First, the mechanisms of decentralized finance,
 once stripped of their promotional language, are
 elementary and auditable: a swap is a move along a
 level set, impermanent loss is the arithmetic-

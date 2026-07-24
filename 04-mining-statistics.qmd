@@ -27,7 +27,7 @@ able to:
 - Fit the geometric model for attempts-to-success
   and confirm that mean work scales as
   $16^{\text{difficulty}}$.
-- Analyse the difficulty retarget rule as a
+- Analyze the difficulty retarget rule as a
   discrete-time feedback controller acting on a
   stochastic input, and predict its transient
   response to a hash-power shock.
@@ -66,13 +66,13 @@ case study of this book is a multi-institution
 clinical-trial data-integrity ledger, which we
 shall refer to henceforth as the trial ledger.
 Several hospitals share an append-only record of
-enrolment, randomisation, and outcome events, no
+enrollment, randomization, and outcome events, no
 single institution is trusted to hold the master
 copy, and a regulator audits the record after the
 fact. The record advances only as fast as blocks
 are appended to it, so the arrival stream that this
 chapter studies is exactly what governs how quickly
-a randomisation becomes irrevocably committed and
+a randomization becomes irrevocably committed and
 how long an auditor must wait before a record may be
 treated as settled. A vaccine cold-chain provenance
 system, in which each custody handoff of a
@@ -190,14 +190,14 @@ where the interesting science resides.
 
 ## The statistician's contribution
 
-Three judgements sit at the centre of this chapter,
+Three judgments sit at the center of this chapter,
 and it merits emphasis that none of them is
 automated by any mining tool or block explorer. Each
-is a modelling act of the sort a biostatistician
+is a modeling act of the sort a biostatistician
 performs when deciding how to treat a stream of
 adverse-event or incidence times.
 
-1. **Recognising the renewal and Poisson
+1. **Recognizing the renewal and Poisson
    structure.** A renewal process is one in which
    the waiting-time clock restarts afresh after each
    event, so the gaps are independent and
@@ -209,7 +209,7 @@ adverse-event or incidence times.
    waiting-time law, the superposition of many
    miners into one aggregate process, and the fork
    rate. Nothing about the source code announces
-   this; it is a modelling act.
+   this; it is a modeling act.
 
 2. **Treating difficulty as a controller, not a
    constant.** The retarget rule is a
@@ -220,7 +220,7 @@ adverse-event or incidence times.
    transient response, stability, and oscillation,
    answerable with the tools of control theory
    rather than intuition, following Kraft, who
-   analysed the retarget rule as a control problem
+   analyzed the retarget rule as a control problem
    [@kraft2016difficulty].
 
 3. **Knowing the exponential model's failure
@@ -230,7 +230,7 @@ adverse-event or incidence times.
    assumptions fail: propagation delay, non-constant
    hash rate across a retarget epoch, and
    deviations documented on real chains by Bowden
-   and colleagues, who modelled Bitcoin
+   and colleagues, who modeled Bitcoin
    block-arrival times and identified where the
    simple Poisson model fails [@bowden2020modeling].
    A statistician's value is
@@ -295,7 +295,7 @@ of one who just started. This is the mining folklore
 'hashing has no memory' stated as the defining
 property of the exponential law,
 $P(T > s + t \mid T > s) = P(T > t)$. The reader
-will recognise it at once as the constant-hazard
+will recognize it at once as the constant-hazard
 assumption of survival analysis: a memoryless
 waiting time is precisely one whose hazard does not
 depend on how long we have already waited, and the
@@ -545,7 +545,7 @@ so the loop has a built-in dead time (a delay before
 any correction can take effect): a change in hash
 rate is uncorrected until the next retarget.
 
-It is worth drawing the loop before analysing it.
+It is worth drawing the loop before analyzing it.
 Read as a block diagram, the retarget is an ordinary
 negative-feedback controller with five parts: a set
 point, a comparator, an update rule, a stochastic
@@ -732,13 +732,13 @@ over-correction can overshoot in the following
 epoch, and the standard rule's damping (Bitcoin
 clamps the per-epoch adjustment to the interval
 $[1/4, 4]$) exists precisely to bound this
-oscillation. A statistician recognises the classic
+oscillation. A statistician recognizes the classic
 tension between a controller aggressive enough to
 track real changes and cautious enough not to chase
 sampling noise.
 
 ::: {.callout-important}
-## The sceptic's reflex
+## The skeptic's reflex
 
 A recurring claim is that mining difficulty 'always
 rises'. Name the tier before believing it. This is
@@ -797,7 +797,7 @@ log of reported cases guarantees the integrity of the
 reports it receives. It has no view whatever of the
 cases that were never reported, and it is the
 unreported cases that determine whether the arrival
-rate we are so carefully modelling means anything at
+rate we are so carefully modeling means anything at
 all.
 
 ```{r}
@@ -840,7 +840,7 @@ mixture of two exponentials remains roughly
 exponential in its unordered distribution, so a
 quantile-quantile plot or a Kolmogorov-Smirnov test
 (a goodness-of-fit test comparing an empirical
-distribution with a hypothesised one) applied to all
+distribution with a hypothesized one) applied to all
 six hundred gaps at once may fail to reject. The change is a sequential phenomenon, not a
 marginal one, and it is visible only when the data
 are read in arrival order. This is the same lesson a
@@ -872,10 +872,10 @@ Two miners can find a block at nearly the same
 height before either has heard of the other. When
 the network converges on one, the other becomes an
 orphan (or stale) block. This is not an academic
-concern for the trial ledger: a randomisation event
+concern for the trial ledger: a randomization event
 written into a block that is later orphaned appears,
 for a short interval, to be committed and then is
-reorganised out of the accepted history, which is
+reorganized out of the accepted history, which is
 precisely why an auditor must wait a number of
 confirmations before treating a record as settled.
 How often, then, does such a competing block occur?
@@ -968,7 +968,7 @@ blocks does not contribute to the longest chain: an
 honest majority whose effective (non-orphaned) hash
 rate is reduced by forking defends the chain with
 less than its nominal hash power, which lowers the
-cost of a given-depth reorganisation for an
+cost of a given-depth reorganization for an
 attacker whose blocks, being self-referential, do
 not fork against themselves.
 :::
@@ -1175,7 +1175,7 @@ of the chapter.
 
 An AI assistant is a capable partner for the algebra
 and the plotting here, and an unreliable one for the
-modelling judgements. It should be used with the
+modeling judgments. It should be used with the
 following discipline.
 
 **Prompt.** 'Derive the orphan-rate formula for a
@@ -1246,7 +1246,7 @@ minutes after hash rate doubles.'
    adjustment factor to $[1/4, 4]$, as Bitcoin does.
    Apply a four-fold hash-rate jump and compare the
    transient and any overshoot with and without the
-   clamp. Characterise the trade-off between
+   clamp. Characterize the trade-off between
    tracking speed and oscillation.
 
 4. **Fork rate versus block time.** Using

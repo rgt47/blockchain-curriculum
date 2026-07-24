@@ -19,7 +19,7 @@ Cryptography* (1976)
 By the end of this chapter the reader should be
 able to:
 
-- State the random-oracle idealisation of a
+- State the random-oracle idealization of a
   cryptographic hash and name the five
   properties (determinism, preimage resistance,
   collision resistance, avalanche, uniformity)
@@ -57,7 +57,7 @@ across several hospitals with no single trusted
 custodian of the data, reaches its lock date. At
 that moment the sites wish to commit irrevocably
 to the dataset as it stands on that date: the
-enrolments, the randomisation assignments, and the
+enrollments, the randomization assignments, and the
 outcome events recorded to date. Analysis and
 unblinding will follow, and a regulator may, months
 or years later, wish to verify that the dataset
@@ -87,10 +87,10 @@ that history in view; but for our purposes they are
 the historical setting and not the frame.
 
 The primitives are usually taught as engineering
-artefacts, a matter of invoking a library and
+artifacts, a matter of invoking a library and
 obtaining a guarantee. For a reader with graduate
 probability and algebra they are better understood
-as mathematical objects with statistical behaviour
+as mathematical objects with statistical behavior
 that can be measured. A
 cryptographic hash is, to the precision that matters
 here, a random function. An elliptic curve over a
@@ -140,7 +140,7 @@ first-year public-health reader is unlikely to
 have met. We define them here and use them
 consistently thereafter.
 
-- **Random oracle.** An idealised hash function
+- **Random oracle.** An idealized hash function
   imagined as assigning each distinct input an
   independent, uniformly random output. It is the
   working model under which every probability in
@@ -180,7 +180,7 @@ consistently thereafter.
 
 ## The statistician's contribution
 
-Three judgements in this chapter are not
+Three judgments in this chapter are not
 automated by any cryptographic library, and are
 exactly where quantitative training is decisive.
 
@@ -214,7 +214,7 @@ layer.** A Merkle root is a genuinely excellent
 commitment to a locked dataset, and later in this
 chapter we argue for it in exactly one
 public-health setting, the trial ledger at database
-lock. The same judgement requires saying, candidly,
+lock. The same judgment requires saying, candidly,
 that it needs no blockchain and that most integrity
 problems are solved more cheaply by a signed hash in
 a database. The tool is small; the discipline is
@@ -226,7 +226,7 @@ A cryptographic hash function
 $H : \{0,1\}^{*} \to \{0,1\}^{n}$ maps an
 arbitrary-length input to a fixed $n$-bit digest
 (for SHA-256, $n = 256$). The random-oracle model
-idealises $H$ as a function drawn uniformly at
+idealizes $H$ as a function drawn uniformly at
 random from all functions with that signature:
 each distinct input is assigned an independent,
 uniformly random $n$-bit output, and identical
@@ -235,7 +235,7 @@ is a random oracle (a random oracle has no short
 description, whereas SHA-256 has a compact one),
 but the model is the working assumption under
 which the rest of the book's probability holds.
-Five properties operationalise it.
+Five properties operationalize it.
 
 - **Determinism.** $H(x)$ depends only on $x$.
   This is what makes a digest usable as an
@@ -534,7 +534,7 @@ ggplot(tibble(ham = ham), aes(ham)) +
 ```
 
 A single input change scrambles the output as if it
-were independently re-randomised. This is the
+were independently re-randomized. This is the
 avalanche property stated as a measurable fact. We
 should note the epistemic status carefully: the
 observed $\mathrm{Binomial}(256, 0.5)$ shape is
@@ -585,7 +585,7 @@ run while failing catastrophically on a structured
 input the designer chose in advance.
 
 ::: {.callout-important}
-## The sceptic's reflex
+## The skeptic's reflex
 
 Marketing copy calls encryption 'military-grade'
 and systems 'unhackable'. Both phrases are tier-four
@@ -844,7 +844,7 @@ its dataset before unblinding and analysis. The
 recurring integrity question is whether any record
 was altered after lock, for example to remove an
 inconvenient adverse event or to adjust an outcome
-in a direction favourable to the sponsor. We build a
+in a direction favorable to the sponsor. We build a
 Merkle tree over the hashes of the locked records
 and publish the root, whether in a journal, a
 registry, a timestamping service, or simply a
@@ -961,7 +961,7 @@ tamper-evident chronology is a hashing problem, and
 was solved as one.
 
 It was also, and this is the part the promotional
-literature omits, *standardised* as one. The
+literature omits, *standardized* as one. The
 Internet time-stamping protocol of 2001 accepts a
 hash, never the underlying record, and returns a
 signed token establishing that the datum existed
@@ -1055,7 +1055,7 @@ cryptographic curves are chosen to have prime order:
 it forecloses an entire family of attacks that pick
 off a small subgroup.
 
-Blockchains realise the public-key idea over a group
+Blockchains realize the public-key idea over a group
 whose elements are the points of an elliptic curve.
 The group that matters for Bitcoin and much of
 Ethereum is
@@ -1456,7 +1456,7 @@ large-scale quantum computer do to the primitives of
 this chapter? The answer divides sharply, and the
 division is the practical point. Shor's algorithm
 solves the discrete-logarithm and integer-
-factorisation problems in polynomial time, and these
+factorization problems in polynomial time, and these
 are precisely the problems on which ECDSA and RSA
 rest. A sufficiently large quantum computer would
 therefore recover a private key from its public key
@@ -1503,7 +1503,7 @@ is to keep the option open rather than to commit early.
 The Merkle root is one instance of a commitment: a
 short value that binds a party to hidden data
 (binding), while revealing nothing about it until
-opened (hiding). The same idea generalises. A
+opened (hiding). The same idea generalizes. A
 commitment scheme lets a party publish a commitment
 now and reveal the committed value later, with the
 scheme guaranteeing the value cannot be changed in
@@ -1526,7 +1526,7 @@ We begin with a claim that sounds paradoxical and is
 not. Can one party convince another that a statement
 is true while conveying nothing whatever beyond its
 truth, not even the reason it is true? The
-affirmative answer, formalised by Goldwasser, Micali
+affirmative answer, formalized by Goldwasser, Micali
 and Rackoff [@goldwasser1989knowledge], whose study
 of the knowledge complexity of interactive proof
 systems founded the subject, is among the deeper
@@ -1548,7 +1548,7 @@ conditions.
   prover, however devious, can make the verifier
   accept except with some small probability, the
   soundness error. This error is not a defect to be
-  apologised for; it is the very quantity the
+  apologized for; it is the very quantity the
   construction controls, and repetition drives it
   toward zero.
 - **Zero-knowledge.** The verifier learns nothing
@@ -1586,7 +1586,7 @@ challenge from the whole scalar field, and so attains
 a negligible soundness error in one round with no
 repetition at all; the repetition picture belongs to
 its small-challenge cousins. One chooses whichever
-route the setting favours to meet the tolerance
+route the setting favors to meet the tolerance
 demanded.
 
 ```{r ch02-zk-soundness}
@@ -1683,7 +1683,7 @@ supplies exactly such unpredictability. We replace the
 verifier's coin with $c = H(R, \text{statement})$, the
 hash of the commitment together with the statement
 being proved. The prover cannot steer the output of the
-hash, and so cannot choose $R$ to suit a favourable
+hash, and so cannot choose $R$ to suit a favorable
 $c$; the interactive protocol collapses to a single
 non-interactive proof, the pair $(R, s)$, that any
 party can verify by recomputing the challenge. This is,
@@ -1722,7 +1722,7 @@ theory into consequence was Zerocash
 [@bensasson2014zerocash], which used succinct proofs to
 build a payment system in which a transaction proves its
 own validity, that its inputs and outputs balance and
-the spender is authorised, while revealing neither
+the spender is authorized, while revealing neither
 sender, receiver, nor amount, and so turned
 zero-knowledge into private payments.
 
@@ -1747,7 +1747,7 @@ trial with an eligibility protocol under which a
 prospective participant must fall within an age band
 and carry a laboratory value in a specified range. A
 site can, in principle, prove to the coordinating
-centre that a given individual satisfies these
+center that a given individual satisfies these
 criteria, that the age lies in one interval and the
 lab value in another, without transmitting the date of
 birth or the laboratory result itself. The statement
@@ -2011,7 +2011,7 @@ make explicit that chronology and integrity are
 hashing problems, a useful corrective to
 blockchain-first accounts. For public-key
 cryptography, @diffie1976new is the conceptual origin
-and @rivest1978method the first concrete realisation;
+and @rivest1978method the first concrete realization;
 both are short and worth reading as primary sources.
 
 On signatures, @schnorr1991efficient introduces the
@@ -2025,14 +2025,14 @@ For the primitives in blockchain context,
 @narayanan2016bitcoin (chapters 1 and 4) gives the
 rigorous treatment this chapter matches to a
 statistical audience, and @antonopoulos2017mastering
-gives the concrete Bitcoin realisations of hashing,
+gives the concrete Bitcoin realizations of hashing,
 Merkle trees, and ECDSA. The proof-of-work use of the
 leading-zeros bound traces to @back2002hashcash, which
 @sec-pow develops in full.
 
 ## In conclusion
 
-In conclusion, three points are to be emphasised.
+In conclusion, three points are to be emphasized.
 First, the security of every mechanism in this
 chapter is quantitative and conditional, resolved
 into a specific cost under current cryptanalysis

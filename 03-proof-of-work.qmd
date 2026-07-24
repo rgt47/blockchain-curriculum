@@ -45,8 +45,8 @@ should be able to:
 
 We begin with a data problem. Consider a
 consortium of hospitals running a
-multi-site clinical trial. Enrolment,
-randomisation, and outcome events are
+multi-site clinical trial. Enrollment,
+randomization, and outcome events are
 appended to a shared, append-only log that
 no single institution owns, and a regulator
 will audit that log after the fact. We shall
@@ -167,7 +167,7 @@ mysteries.
 
 ## The statistician's contribution
 
-Three judgements in this chapter fall to the
+Three judgments in this chapter fall to the
 analyst, and no protocol automates them.
 
 **1. Finality is a confidence statement, not
@@ -219,7 +219,7 @@ H(\text{header}) < T .
 $$
 
 Because $H$ behaves as a random oracle, an
-idealised function whose every output is, in
+idealized function whose every output is, in
 effect, an independent uniform draw
 (@sec-crypto), each distinct nonce yields an
 output that is, for all practical purposes,
@@ -280,7 +280,7 @@ $$
 $$
 
 Memorylessness has a consequence the reader
-will recognise. When many independent miners
+will recognize. When many independent miners
 each
 run their own tiny-$p$ Bernoulli search in
 parallel, the time until some miner succeeds
@@ -342,7 +342,7 @@ difficulty is constant, most-work reduces to
 longest, so the mechanism is usually called
 the longest-chain rule.
 
-The rule is a decentralised tie-break. When
+The rule is a decentralized tie-break. When
 two miners find a block at nearly the same
 time, the network temporarily holds two
 competing chains of equal length. The tie
@@ -481,7 +481,7 @@ group-sequential monitoring the uncertainty
 is sampling error, and the data, once
 recorded, do not conspire against us. In the
 ledger the uncertainty is adversarial: a
-reorganisation is not the luck of the draw
+reorganization is not the luck of the draw
 but the product of an attacker spending
 hash-power to rewrite history. The tail we
 compute is therefore a bound against a
@@ -507,7 +507,7 @@ in different currencies, and knowing which one
 is buying is the point.
 
 ::: {.callout-important}
-## The sceptic's reflex
+## The skeptic's reflex
 
 The reader will encounter the claim that a
 blockchain is 'immutable' and that confirmed
@@ -562,7 +562,7 @@ window of an honest party's chain, the fraction
 of blocks contributed by honest parties is
 bounded below (roughly by the honest hash
 share, degraded by an adversarial factor). In
-words: the adversary cannot monopolise the
+words: the adversary cannot monopolize the
 ledger's content. Chain quality guarantees that
 honest transactions actually get included, not
 merely that parties agree on some ordering.
@@ -598,8 +598,8 @@ we read it for the trial ledger.
 
 | Property | Informal statement | What it guarantees | Trial-ledger reading |
 |----------|--------------------|--------------------|----------------------|
-| **Common prefix** | Honest parties agree on all but the last few blocks | Safety: no reorganisation below depth $k$ | The $z$ in 'wait $z$ confirmations' is this $k$ |
-| **Chain quality** | The adversary cannot monopolise the block content | Censorship resistance: honest events get in | A settled outcome event cannot be quietly excluded |
+| **Common prefix** | Honest parties agree on all but the last few blocks | Safety: no reorganization below depth $k$ | The $z$ in 'wait $z$ confirmations' is this $k$ |
+| **Chain quality** | The adversary cannot monopolize the block content | Censorship resistance: honest events get in | A settled outcome event cannot be quietly excluded |
 | **Chain growth** | The chain gains blocks at a guaranteed rate | Liveness: the ledger does not stall | Confirmations accrue in predictable real time |
 
 : The three Bitcoin Backbone properties, what each guarantees, and how the trial ledger reads it {#tbl-pow-backbone}
@@ -824,7 +824,7 @@ transaction, because the random walk's drift
 away from zero is weak. The confirmation depth
 that buys a target security level is a function
 of the attacker share we are willing to assume,
-and assuming $q$ is a modelling decision, not a
+and assuming $q$ is a modeling decision, not a
 protocol output.
 
 ### Cross-checking the closed form
@@ -925,7 +925,7 @@ first crosses $10^{-6}$ between $z = 10$ and
 $z = 11$, which is under two hours. The extra
 security is bought with roughly fifty additional
 minutes of latency, and whether that trade is
-worth making is a judgement about the trial, not
+worth making is a judgment about the trial, not
 about the chain.
 
 The tradeoff is exactly the latency-versus-risk
@@ -949,7 +949,7 @@ reversal probability, and it should be set by the
 consequence of a reversal, not by a default.
 
 We pause to note what has just been done, because
-the habit is one this book means to instil. We
+the habit is one this book means to instill. We
 named a tolerance, derived the depth that meets it,
 and reported the latency it costs. The estimate was
 accompanied by the assumption it rests on, namely
@@ -961,14 +961,14 @@ earnest. The English exposure-notification
 application of the early 2020s was assessed by two
 independent estimators, one built from an
 epidemiological model and one from a matched
-statistical comparison of neighbouring districts.
+statistical comparison of neighboring districts.
 They disagreed. The model-based estimate put the
 cases averted in the first months at roughly
 284,000; the design-based comparison put them at
 roughly 594,000, better than twice as many
 [@wymant2021nhsapp]. The authors published both,
 with intervals, and declined to choose. Over the
-first year the same programme was credited with
+first year the same program was credited with
 averting on the order of a million cases and nine
 thousand deaths [@kendall2023nhsapp]. Two features
 of that work should be held in mind for the whole of
@@ -983,7 +983,7 @@ ledger of any kind. It is, so far, the only digital
 public-health intervention of the decade with a
 credible estimate of the deaths it prevented.
 
-Here candour is owed, and we state the limit
+Here candor is owed, and we state the limit
 plainly. For most health-data integrity problems
 the parties share a regulator or a sponsor who can
 serve as a custodian, and a well-governed database
@@ -992,7 +992,7 @@ tamper-evidence without any of this
 probabilistic-finality machinery, as @sec-intro
 argued. On the one hand the confirmation-depth
 calculation is the right tool when the log must be
-trust-minimised across parties with no common
+trust-minimized across parties with no common
 authority; on the other, when a common authority
 does exist, the calculation is machinery in search
 of a problem. The analyst's first contribution is
@@ -1006,8 +1006,8 @@ To make the linkage concrete we build a small
 proof-of-work chain from scratch, then
 demonstrate that altering a buried block is
 detectable. To fix ideas, let each block hold a
-batch of trial events, a day's enrolments,
-randomisations, and outcome records from one
+batch of trial events, a day's enrollments,
+randomizations, and outcome records from one
 site, so that the `data` field stands for that
 batch. The function `validate_chain` is then the
 regulator's audit: months after the fact, the
@@ -1223,7 +1223,7 @@ number, and we have verified the folk 'six
 confirmations' claim against both the closed form
 and a simulation rather than repeating it on
 faith. Third, the machinery earns its place only
-where the log must be trust-minimised across
+where the log must be trust-minimized across
 parties with no common authority; where a
 regulator or sponsor can serve as a custodian, a
 well-governed database with a cryptographic audit
@@ -1255,7 +1255,7 @@ itself part of the analyst's contribution.
    confirmation depth $z$ that drives the reversal
    probability below $10^{-3}$ for $q \in \{0.05,
    0.10, 0.20, 0.30, 0.40\}$. Plot required depth
-   against $q$ and comment on the behaviour as $q$
+   against $q$ and comment on the behavior as $q$
    approaches one half. Cite where your reasoning
    depends on the model assumptions.
 
@@ -1289,7 +1289,7 @@ itself part of the analyst's contribution.
    lower tail to the honest share $p$. Discuss how
    your empirical bound relates to the chain-quality
    guarantee of @garay2015backbone and why the
-   adversary's realised share can exceed $q$ in
+   adversary's realized share can exceed $q$ in
    short windows.
 
 ## Further reading

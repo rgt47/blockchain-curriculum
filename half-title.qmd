@@ -1,5 +1,5 @@
 # The Statistics of Blockchain for Public Health {.unnumbered .unlisted}
 
-*Trust-minimised data integrity for health-sciences
+*Trust-minimized data integrity for health-sciences
 research. A graduate course in consensus, cryptography,
 and on-chain data.*

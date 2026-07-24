@@ -6,7 +6,7 @@ blockchain courses, including Princeton's *Bitcoin and
 Cryptocurrency Technologies*, Stanford's CS251
 *Blockchain Technologies*, and MIT's 15.S12 *Blockchain
 and Money*, and adopting a topic sequence suited to a
-quantitative, statistics-flavoured graduate audience.
+quantitative, statistics-flavored graduate audience.
 
 The tested R code in several chapters is drawn from the
 runnable companion in the `source-rmd/` directory, itself
