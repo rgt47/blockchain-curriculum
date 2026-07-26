@@ -1,0 +1,6 @@
+# Exclude non-published drafts and build artifacts from renv dependency
+# discovery. Only the chapter .qmd files should drive the lockfile.
+source-rmd/
+_freeze/
+_book/
+.quarto/

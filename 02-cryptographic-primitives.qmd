@@ -746,7 +746,7 @@ for the third leaf.
 
 ```{r ch02-merkle-diagram}
 #| label: fig-merkle-proof
-#| fig-cap: 'Inclusion proof for the third of eight leaves. The verifier holds only the target leaf in dark blue and the three sibling hashes in amber, and rehashes up the blue path to reconstruct the root; the six uninvolved records in grey are never revealed.'
+#| fig-cap: 'Inclusion proof for the third of eight leaves. The verifier holds only the target leaf in dark blue and the three sibling hashes in amber, and rehashes up the blue path to reconstruct the root; the six uninvolved records in gray are never revealed.'
 library(ggplot2)
 library(tibble)
 

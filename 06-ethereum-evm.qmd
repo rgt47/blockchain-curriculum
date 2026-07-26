@@ -410,7 +410,7 @@ casual writing is common enough to be worth naming
 explicitly.
 :::
 
-**Parallelisability is no longer free.** Because two
+**Parallelizability is no longer free.** Because two
 transactions from different accounts can still touch
 the same piece of shared state (both call the same
 contract, both trade against the same liquidity

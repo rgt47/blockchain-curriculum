@@ -1,0 +1,12 @@
+# The build context only needs renv.lock (everything else is
+# bind-mounted at runtime). Keep the context tiny.
+_book/
+_freeze/
+.quarto/
+.git/
+renv/library/
+renv/staging/
+images/
+source-rmd/
+*.pdf
+*.html

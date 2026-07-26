@@ -3,6 +3,12 @@ _book/
 /.quarto/
 *.html
 *.pdf
+
+# LaTeX / Quarto PDF build artifacts
+*.log
+index.tex
+index.aux
+tmp-pdfcrop-*.tex
 .Rproj.user/
 .Rhistory
 .RData
