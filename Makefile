@@ -52,14 +52,14 @@ docker-rebuild:
 	    --build-arg R_VERSION=$(R_VERSION) -t $(IMAGE) .
 
 render:
-	$(DOCKER_RUN) $(IMAGE) quarto render
+	$(DOCKER_RUN) $(IMAGE) quarto render analysis/book
 
 freeze: render
 
 # quarto preview needs a published port and a bound host address.
 preview:
 	$(DOCKER_RUN) -p 4321:4321 $(IMAGE) \
-	    quarto preview --port 4321 --host 0.0.0.0 --no-browser
+	    quarto preview analysis/book --port 4321 --host 0.0.0.0 --no-browser
 
 r:
 	$(DOCKER_RUN) -it $(IMAGE) R

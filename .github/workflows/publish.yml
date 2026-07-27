@@ -37,12 +37,12 @@ jobs:
             any::purrr
 
       - name: Render book
-        run: quarto render
+        run: quarto render analysis/book
 
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v3
         with:
-          publish-dir: ./_book
+          publish-dir: ./analysis/book/_book
           production-branch: main
           production-deploy: true
           deploy-message: 'GHA: ${{ github.event.head_commit.message }}'
