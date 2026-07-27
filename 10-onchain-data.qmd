@@ -1553,6 +1553,20 @@ misfit in exactly the stress episodes that matter.
    Ponzi-like, and name one way the schema could be
    gamed.
 
+::: {.callout-note}
+## Recommended reading
+
+- **Bitcoin and Cryptocurrency Technologies** [@narayanan2016bitcoin],
+  chapter 6 ('Bitcoin and Anonymity'), for the clustering and
+  deanonymization heuristics this chapter formalizes.
+- **Mastering Bitcoin** [@antonopoulos2017mastering], chapter 12
+  ('Blockchain Applications').
+- **The Bitcoin Standard** [@ammous2018standard], chapter 9 ('What Is
+  Bitcoin Good For?'), for the value narrative against which the
+  wealth-concentration measures of this chapter should be weighed; read
+  critically.
+:::
+
 ## Further reading
 
 @meiklejohn2013fistful is the foundational

@@ -1198,6 +1198,23 @@ concrete operational grounds rather than by assertion.
    qualifiers that would be needed to promote it to a
    tier-one or tier-two claim.
 
+::: {.callout-note}
+## Recommended reading
+
+For a gentler, less mathematical account of how Bitcoin reaches
+agreement without a central authority:
+
+- **Bitcoin and Cryptocurrency Technologies** [@narayanan2016bitcoin],
+  chapter 2 ('How Bitcoin Achieves Decentralization'), for consensus
+  without identity and the role of incentives.
+- **Mastering Bitcoin** [@antonopoulos2017mastering], chapter 8 ('The
+  Bitcoin Network'), for the peer-to-peer layer this chapter abstracts
+  away.
+- **Grokking Bitcoin** [@rosenberg2019grokking], chapter 8
+  ('Peer-to-peer network'), an illustrated treatment of the same
+  material.
+:::
+
 ## Further reading
 
 @lamport1982byzantine is the founding paper of this entire

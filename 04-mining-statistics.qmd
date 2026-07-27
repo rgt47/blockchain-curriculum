@@ -1273,6 +1273,17 @@ minutes after hash rate doubles.'
    Discuss how this maps onto a survival analysis
    with an unmodelled change-point in the hazard.
 
+::: {.callout-note}
+## Recommended reading
+
+- **Mastering Bitcoin** [@antonopoulos2017mastering], chapter 10
+  ('Mining and Consensus'), especially the difficulty-retargeting
+  section that this chapter models as a feedback controller.
+- **Bitcoin and Cryptocurrency Technologies** [@narayanan2016bitcoin],
+  chapter 5 ('Bitcoin Mining') and chapter 8 ('Alternative Mining
+  Puzzles').
+:::
+
 ## Further reading
 
 - @nakamoto2008bitcoin introduces proof-of-work and

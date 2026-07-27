@@ -1252,6 +1252,17 @@ governance rather than computed to the dollar.
    $M/\rho$ erodes the effective cost of rewriting
    history.
 
+::: {.callout-note}
+## Recommended reading
+
+Maximal extractable value is a recent topic absent from the
+introductory books, so the academic sources in Further reading are
+primary. For the mempool-and-ordering background it builds on:
+
+- **Mastering Ethereum** [@antonopoulos2018ethereum], chapter 6
+  ('Transactions') and chapter 13 ('The Ethereum Virtual Machine').
+:::
+
 ## Further reading
 
 @daian2020flash is the primary source for this

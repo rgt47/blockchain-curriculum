@@ -357,3 +357,19 @@ demanded of others.
 The reference textbook throughout is
 @narayanan2016bitcoin, whose rigour set the standard this
 book has tried to meet for a public-health audience.
+
+## Recommended reading
+
+Read alongside this book, at whatever depth suits you:
+
+- **Bitcoin and Cryptocurrency Technologies** [@narayanan2016bitcoin],
+  the rigorous Princeton textbook, as the closest technical companion.
+- **Mastering Bitcoin** [@antonopoulos2017mastering] and **Mastering
+  Ethereum** [@antonopoulos2018ethereum], for engineering detail.
+- **Grokking Bitcoin** [@rosenberg2019grokking], for an illustrated,
+  gentle introduction.
+- **The Bitcoin Standard** [@ammous2018standard], the best-known
+  statement of the 'sound money' case for Bitcoin. We recommend it not
+  as an authority but as a primary source on how the technology's
+  proponents argue; read it critically, alongside this book's more
+  skeptical stance.

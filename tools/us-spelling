@@ -152,7 +152,8 @@ FENCE_LINE = re.compile(r'^\s*(```+|~~~+)')
 CAPTION = re.compile(r'^#\|\s*(fig-cap|tbl-cap|fig-subcap|fig-alt|'
                      r'title|subtitle|label)\s*:')
 SKIP_DIR = ('_book/', '_freeze/', '.quarto/', 'site_libs/', '/libs/',
-            '_extensions/', 'renv/', '_site/')
+            '_extensions/', 'renv/', '_site/', 'source-rmd/', '/archive/',
+            '/drafts/', '/scratch/')
 
 
 def _is_initial(pre):
@@ -162,7 +163,48 @@ def _is_initial(pre):
     return stripped == '' or (ps and ps[-1] in '.!?:;')
 
 
+EM = '—'                                  # em dash
+DASH = re.compile(r'[^\S\n]*' + EM + r'[^\S\n]*')
+PRON = {'it', 'they', 'you', 'we', 'this', 'these', 'that', 'there',
+        'he', 'she', 'i', 'one', 'anyone', 'everything', 'nothing'}
+
+
+def _emdash_seg(seg, changes):
+    """Replace em dashes with context-appropriate punctuation, logging
+    each as ('EM', repl) so `check` can flag it and `fix` can apply it.
+    Best-effort: cross-line pairs and noun-subject splices may want a
+    manual review (parentheses / semicolon), which `check` still flags."""
+    if EM not in seg:
+        return seg
+    ms = list(DASH.finditer(seg))
+    if len(ms) == 2:                           # parenthetical pair
+        a, b = ms
+        interior = seg[a.end():b.start()]
+        if ',' in interior:                    # interior has commas -> parens
+            changes.append(('EM', '(')); changes.append(('EM', ')'))
+            return (seg[:a.start()] + ' (' + interior + ') '
+                    + seg[b.end():]).replace('  (', ' (').replace(')  ', ') ')
+
+    def one(m):
+        i = m.start()
+        before = seg[:i].rstrip()
+        after_l = seg[i + len(m.group(0)):].lstrip()
+        first = re.match(r"[A-Za-z']+", after_l)
+        if before.endswith('`'):               # definition dash -> colon
+            r = ': '
+        elif first and first.group(0).lower() in PRON:   # indep. clause
+            r = '; '
+        elif after_l[:1].isupper():            # new clause -> period
+            r = '. '
+        else:                                   # appositive -> comma
+            r = ', '
+        changes.append(('EM', r.strip() or ','))
+        return r
+    return DASH.sub(one, seg)
+
+
 def transform_prose(seg, changes, flags, force):
+    seg = _emdash_seg(seg, changes)
     def sub(m):
         w = m.group(0)
         r = usize_word(w)
@@ -225,12 +267,17 @@ def check(paths):
                 ch = []
                 transform_prose(seg, ch, [], force=True)
                 for a, b in ch:
-                    print(f"{f}:{n}: British '{a}' -> US '{b}'")
+                    if a == 'EM':
+                        print(f"{f}:{n}: em dash (use a comma, semicolon, "
+                              f"colon, or a sentence break)")
+                    else:
+                        print(f"{f}:{n}: British '{a}' -> US '{b}'")
                     findings += 1
     if findings:
-        print(f"\n{findings} British spelling(s) found. Use US English "
-              f"(see ~/.claude/CLAUDE.md). Fix with: us-spelling fix <path>",
-              file=sys.stderr)
+        print(f"\n{findings} style issue(s) found (British spelling and/or "
+              f"em dashes). See ~/.claude/CLAUDE.md. Fix spelling with: "
+              f"us-spelling fix <path>. Em-dash fixes are best-effort and "
+              f"should be reviewed.", file=sys.stderr)
         print("To bypass this render gate once: SKIP_US_CHECK=1 quarto render",
               file=sys.stderr)
     return 1 if findings else 0
@@ -267,7 +314,20 @@ def main():
     force = '--force' in rest or 'force' in rest
     rest = [a for a in rest if a not in ('--force', 'force')]
     if not rest:
-        rest = [os.environ.get('QUARTO_PROJECT_DIR', '.')]
+        # Pre-render context: check exactly the files Quarto will render,
+        # so legacy/non-rendered material (source-rmd/, archive/) is
+        # naturally excluded.
+        pd = os.environ.get('QUARTO_PROJECT_DIR', '.')
+        inp = os.environ.get('QUARTO_PROJECT_INPUT_FILES', '').strip()
+        files = []
+        for c in re.split(r'[\n]+|\s{2,}', inp):
+            c = c.strip()
+            if not c:
+                continue
+            p = c if os.path.isabs(c) else os.path.join(pd, c)
+            if os.path.exists(p):
+                files.append(p)
+        rest = files or [pd]
     if cmd == 'fix':
         return fix(rest, force)
     return check(rest)

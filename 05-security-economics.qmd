@@ -1236,6 +1236,19 @@ apply the permissioned-alternative analysis above.
    which assumptions your recommendation is most
    sensitive to.
 
+::: {.callout-note}
+## Recommended reading
+
+- **Bitcoin and Cryptocurrency Technologies** [@narayanan2016bitcoin],
+  chapter 5, for mining incentives and the economics of attack.
+- **Mastering Bitcoin** [@antonopoulos2017mastering], chapter 10, on
+  consensus attacks.
+- **The Bitcoin Standard** [@ammous2018standard], chapters 5 and 7
+  ('Money and Time Preference', 'Sound Money and Individual Freedom'),
+  for the monetary-policy argument that motivates a security budget.
+  This is the book's ideological core; read it critically, as advocacy.
+:::
+
 ## Further reading
 
 @eyal2014majority is the primary source for

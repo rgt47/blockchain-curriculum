@@ -1427,6 +1427,17 @@ economics should be verified independently.
    the binding constraint on a parametric health
    bond.
 
+::: {.callout-note}
+## Recommended reading
+
+Decentralized finance postdates most introductory books, so the
+academic sources in Further reading remain primary. For foundations:
+
+- **Mastering Ethereum** [@antonopoulos2018ethereum], chapter 10
+  ('Tokens') and chapter 11 ('Oracles'), which underpin every DeFi
+  primitive in this chapter.
+:::
+
 ## Further reading
 
 The Uniswap v2 [@adams2020uniswapv2] and v3

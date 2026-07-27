@@ -1292,6 +1292,22 @@ itself part of the analyst's contribution.
    adversary's realized share can exceed $q$ in
    short windows.
 
+::: {.callout-note}
+## Recommended reading
+
+- **Bitcoin and Cryptocurrency Technologies** [@narayanan2016bitcoin],
+  chapters 2 and 3, for the longest-chain rule and the mechanics of
+  blocks and confirmations.
+- **Mastering Bitcoin** [@antonopoulos2017mastering], chapters 9 and 10
+  ('The Blockchain', 'Mining and Consensus').
+- **Grokking Bitcoin** [@rosenberg2019grokking], chapters 6 and 7 ('The
+  blockchain', 'Proof of work').
+- **The Bitcoin Standard** [@ammous2018standard], chapter 8 ('Digital
+  Money'), for the proponents' framing of proof-of-work as 'unforgeable
+  costliness'. We recommend it as a primary source on how Bitcoin's
+  advocates argue, to be read critically rather than as analysis.
+:::
+
 ## Further reading
 
 - @nakamoto2008bitcoin is the primary source and

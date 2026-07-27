@@ -1999,6 +1999,23 @@ primary source.
    deterministic construction the ecosystem adopted in
    response.
 
+::: {.callout-note}
+## Recommended reading
+
+To build the cryptography of this chapter by hand:
+
+- **Programming Bitcoin** [@song2019programming], chapters 1 to 3
+  ('Finite Fields', 'Elliptic Curves', 'Elliptic Curve Cryptography'),
+  which construct in code exactly the group law and signature scheme
+  derived in @sec-crypto.
+- **Bitcoin and Cryptocurrency Technologies** [@narayanan2016bitcoin],
+  chapter 1, for hash pointers, Merkle trees, and digital signatures.
+- **Grokking Bitcoin** [@rosenberg2019grokking], chapter 2
+  ('Cryptographic hash functions and digital signatures').
+- **Mastering Ethereum** [@antonopoulos2018ethereum], chapter 4
+  ('Cryptography'), for the same primitives in the Ethereum setting.
+:::
+
 ## Further reading
 
 The Merkle tree originates with @merkle1988digital,

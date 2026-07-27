@@ -1724,6 +1724,18 @@ precisely why.
    trustless' against that fact, using the skeptic's
    reflex framework.
 
+::: {.callout-note}
+## Recommended reading
+
+- **Mastering Ethereum** [@antonopoulos2018ethereum], chapters 1 and 2
+  ('What Is Ethereum', 'Ethereum Basics'), chapter 6 ('Transactions',
+  and gas), chapter 7 ('Smart Contracts and Solidity'), and chapter 13
+  ('The Ethereum Virtual Machine').
+- **Bitcoin and Cryptocurrency Technologies** [@narayanan2016bitcoin],
+  chapter 3, on Bitcoin scripting, for the contrast with Ethereum's
+  general computation.
+:::
+
 ## Further reading
 
 @wood2014yellow is the Ethereum Yellow Paper, the

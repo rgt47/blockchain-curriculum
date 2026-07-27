@@ -1375,6 +1375,19 @@ that judgment is made.
    relative to a governed database with an audit log.
    Make the argument quantitative where you can.
 
+::: {.callout-note}
+## Recommended reading
+
+Proof-of-stake finality and restaking postdate these books, so the
+academic sources in Further reading are primary. For background:
+
+- **Mastering Ethereum** [@antonopoulos2018ethereum], chapter 14
+  ('Consensus'), noting that it describes the pre-Merge design.
+- **Bitcoin and Cryptocurrency Technologies** [@narayanan2016bitcoin],
+  chapter 8 ('Alternative Mining Puzzles'), for early alternatives to
+  proof-of-work.
+:::
+
 ## Further reading
 
 - @buterin2017casper is the primary source for Casper
