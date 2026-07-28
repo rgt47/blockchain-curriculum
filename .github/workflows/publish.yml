@@ -37,7 +37,7 @@ jobs:
             any::purrr
 
       - name: Render book
-        run: quarto render analysis/book
+        run: quarto render analysis/book --to html
 
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v3
