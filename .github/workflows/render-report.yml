@@ -1,4 +1,4 @@
-# zzcollab render-report.yml v0.2.0
+# zzcollab render-report.yml v0.3.0
 #
 # Tier 3 (render) for all zzcollab research compendia. Self-adapting: the
 # environment backend is detected at run time from artifact presence, so the
@@ -196,6 +196,17 @@ jobs:
             -v ${{ github.workspace }}:/project \
             -w /project compendium-env \
             quarto render analysis/book
+
+      # Blog archetype (and any Quarto index.qmd report): render the single-post
+      # Quarto document. Runs only when analysis/report/index.qmd exists, so
+      # manuscript/analysis projects that carry report.Rmd are unaffected.
+      - name: Render Quarto report index.qmd (container)
+        if: steps.mode.outputs.backend == 'docker' && hashFiles('analysis/report/index.qmd') != ''
+        run: |
+          docker run --rm --user root -e CI=true \
+            -v ${{ github.workspace }}:/project \
+            -w /project compendium-env \
+            quarto render analysis/report/index.qmd
 
       # --- Host render: no Dockerfile; renv pins packages when present ---
       - name: Set up pandoc

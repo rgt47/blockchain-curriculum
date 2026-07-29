@@ -1,9 +1,9 @@
 schema=1
-template_version=0.2.0
+template_version=0.3.0
 r_version=4.6.0
-base_image=
-base_digest=
-ppm_snapshot=
-install_mode=
+base_image=rocker/verse:4.6.0
+base_digest=sha256:0b50fdee9288723b5a6802502341f0429ab05edb9db04d57958f49e18d3ea883
+ppm_snapshot=2026-07-27
+install_mode=renv
 archetype=book
-generated=2026-07-27T03:02:19Z
+generated=2026-07-28T19:57:44Z

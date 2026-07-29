@@ -22,3 +22,6 @@ source-rmd/
 
 # Local Netlify folder
 .netlify
+renv/library/
+renv/staging/
+.make/

@@ -1,77 +1,172 @@
 # syntax=docker/dockerfile:1.4
-#======================================================================
-# Reproducible build environment for the blockchain curriculum book.
-#
-# Adapted from the zzcollab (zzc) compendium template used for rgtlab
-# blog posts, but scoped to the WHOLE book as a single compendium
-# rather than one compendium per chapter. Its sole job is to regenerate
-# the Quarto freeze (_freeze/) deterministically: R executes chunks
-# here, results are written to _freeze/, and Netlify/CI render the
-# committed freeze without needing R.
-#
-# Package versions are pinned by renv.lock (Pillar 1). The base image
-# pins the R version and the OS snapshot; renv::restore then reconciles
-# every package to the exact version recorded in the lockfile.
-#
-#   R version here MUST match the R version in renv.lock (4.6.1). If the
-#   rocker tag below is not yet published, bump/lower R_VERSION to the
-#   closest available tag; renv still restores the locked package
-#   versions (with a benign R-version-mismatch warning).
-#======================================================================
+# zzcollab Dockerfile v0.3.0
 
-ARG R_VERSION=4.6.1
+# BASE_IMAGE is parsed out of this file by the project Makefile ('make r'
+# derives the profile label from it); keep it even though the FROM below uses
+# a fully-substituted literal and does not reference the ARG.
+ARG BASE_IMAGE=rocker/verse
 
-# rocker/verse = R + tidyverse + Quarto + TinyTeX (HTML and PDF output)
-FROM rocker/verse:${R_VERSION}
+FROM rocker/verse:4.6.0@sha256:0b50fdee9288723b5a6802502341f0429ab05edb9db04d57958f49e18d3ea883
 
+# OCI image labels for reproducibility provenance and tooling integration.
+# base_digest records the resolved sha256 of the rocker base at build time;
+# ppm_snapshot records the dated PPM URL used to pin package binaries.
+LABEL org.opencontainers.image.created="2026-07-28T19:57:44Z" \
+      org.opencontainers.image.licenses="GPL-3.0-or-later" \
+      zzcollab.template.version="0.3.0" \
+      zzcollab.r.version="4.6.0" \
+      zzcollab.base.image="rocker/verse:4.6.0" \
+      zzcollab.base.digest="sha256:0b50fdee9288723b5a6802502341f0429ab05edb9db04d57958f49e18d3ea883" \
+      zzcollab.ppm.snapshot="2026-07-27" \
+      zzcollab.install.mode="renv"
+
+ARG USERNAME=analyst
 ARG DEBIAN_FRONTEND=noninteractive
 
-# Match the Quarto version pinned by netlify.toml and the GitHub Action
-# so local freeze regeneration matches the deploy pipeline exactly.
-ARG QUARTO_VERSION=1.5.57
+# RENV_PATHS_LIBRARY is outside the project bind-mount so the baked library
+# is not shadowed at runtime. ZZCOLLAB_AUTO_RESTORE=false disables the
+# startup restore so the image library is authoritative.
+ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 TZ=UTC \
+    RENV_PATHS_LIBRARY=/opt/renv/library \
+    RENV_PATHS_CACHE=/opt/renv/cache \
+    RENV_CONFIG_REPOS_OVERRIDE="https://packagemanager.posit.co/cran/__linux__/noble/2026-07-27" \
+    ZZCOLLAB_CONTAINER=true \
+    ZZCOLLAB_INSTALL_MODE=renv \
+    ZZCOLLAB_AUTO_RESTORE=false
 
-# Reproducibility-critical environment. Packages are baked into the R
-# system site-library at build time (below); RENV_CONFIG_AUTOLOADER_ENABLED
-# makes the bind-mounted .Rprofile's renv/activate.R return early, so the
-# git-ignored (therefore empty in-container) host renv/library is never
-# put on .libPaths(). R resolves packages from site-library at the exact
-# locked versions instead.
-ENV LANG=en_US.UTF-8 \
-    LC_ALL=en_US.UTF-8 \
-    TZ=UTC \
-    RENV_CONFIG_AUTOLOADER_ENABLED=FALSE \
-    RENV_CONFIG_REPOS_OVERRIDE="https://packagemanager.posit.co/cran/__linux__/noble/latest"
+# No additional system dependencies required
 
-# System libraries needed to build the pinned R packages from source
-# when a binary is unavailable.
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
-    set -ex && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
-        libcurl4-openssl-dev \
-        libssl-dev \
-        libxml2-dev \
-        libfontconfig1-dev \
-        libfreetype-dev \
-        libpng-dev \
-        libjpeg-dev \
-        libicu-dev
+# Configure R to use Posit Package Manager for pre-compiled binaries
+RUN echo 'options(repos = c(CRAN = "https://packagemanager.posit.co/cran/__linux__/noble/2026-07-27"))' \
+        >> /usr/local/lib/R/etc/Rprofile.site && \
+    echo 'options(HTTPUserAgent = sprintf("R/%s R (%s)", getRversion(), paste(getRversion(), R.version["platform"], R.version["arch"], R.version["os"])))' \
+        >> /usr/local/lib/R/etc/Rprofile.site
 
-# Pin Quarto to the pipeline version (overrides the bundled one).
-RUN set -ex && \
-    wget -q "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-amd64.deb" && \
-    dpkg -i "quarto-${QUARTO_VERSION}-linux-amd64.deb" && \
-    rm "quarto-${QUARTO_VERSION}-linux-amd64.deb"
+# Install R dev tooling only (languageserver/styler/lintr, config-gated;
+# never in renv.lock). Project packages come from renv::restore(), not here.
+RUN R -e "install.packages(c('languageserver'), Ncpus = max(1L, parallel::detectCores()))"
 
-# Restore the exact package set from the lockfile into the R system
-# site-library (always on .libPaths(), used flat). Copying only
-# renv.lock keeps this layer cached until the lockfile actually changes.
-COPY renv.lock /tmp/renv.lock
-RUN R -e "install.packages('renv')" && \
-    R -e "renv::restore(lockfile = '/tmp/renv.lock', library = .Library.site[1], prompt = FALSE)"
+# Pre-bake the LaTeX package closure at build time (as root, where tlmgr can
+# write) so PDF rendering works for the non-root user with no runtime install.
+# The closure is installed in one bulk tlmgr pass: relying on tinytex to
+# discover packages lazily during a render installs them one at a time, and
+# each missing .sty triggers a full pdflatex recompile (~14s x ~24 packages,
+# ~5 min of build). A single tlmgr call fetches them in ~20-30s; the render
+# below then finds everything present and acts as a fast smoke test that also
+# self-heals any package this list omits.
+RUN <<'WARMUP'
+set -eu
+R -e "tinytex::tlmgr_install(c('amsfonts','booktabs','setspace','multirow','wrapfig','float','colortbl','pdflscape','tabu','varwidth','threeparttable','threeparttablex','environ','trimspaces','ulem','makecell','mathtools','fancyhdr','caption','enumitem','fp','pgf','pgfplots','siunitx','lineno'))"
+d=/tmp/texwarmup
+mkdir -p "$d"
+cat > "$d/01-report.Rmd" <<'RMD'
+---
+title: warm-up report
+output:
+  bookdown::pdf_document2:
+    number_sections: true
+header-includes:
+  - \usepackage{setspace}
+---
+# Section
+Math $\alpha \in \mathbb{R}$ and $\sum_{i=1}^{n} x_i^2$.
+```{r}
+knitr::kable(head(mtcars, 3), booktabs = TRUE)
+```
+RMD
+cat > "$d/02-kitchensink.Rmd" <<'RMD'
+---
+title: warm-up kitchen sink
+output:
+  pdf_document:
+    latex_engine: xelatex
+    extra_dependencies:
+      - booktabs
+      - longtable
+      - array
+      - multirow
+      - wrapfig
+      - float
+      - colortbl
+      - pdflscape
+      - tabu
+      - threeparttable
+      - threeparttablex
+      - ulem
+      - makecell
+      - xcolor
+      - amsmath
+      - amssymb
+      - amsfonts
+      - mathtools
+      - hyperref
+      - geometry
+      - fancyhdr
+      - caption
+      - subcaption
+      - graphicx
+      - multicol
+      - setspace
+      - enumitem
+      - tikz
+      - pgfplots
+      - siunitx
+---
+# Kitchen sink
+Math $\mathcal{N}(\mu, \sigma^2)$.
+RMD
+R -e 'options(tinytex.install_packages = TRUE); for (f in list.files("/tmp/texwarmup", pattern = "[.]Rmd$", full.names = TRUE)) rmarkdown::render(f, quiet = TRUE)'
+rm -rf "$d"
+WARMUP
 
-# Project files are bind-mounted at runtime (-v \$(pwd):/project).
-WORKDIR /project
+# Dependency install (self-adapting, INSTALL_MODE=renv). The block
+# below is emitted by generation-time branch on renv.lock presence. In renv
+# mode, tools_install above runs BEFORE renv::init so IDE tools are in the
+# system library; renv::init then activates renv and routes later installs to
+# RENV_PATHS_LIBRARY.
+RUN R -e "install.packages('renv')"
+# 0777 so the non-root run user can hydrate/snapshot into the library (F-2);
+# single-user research container, so world-writable here is acceptable.
+RUN mkdir -p /opt/renv/library /opt/renv/cache && chmod 777 /opt/renv/library /opt/renv/cache
+COPY renv.lock renv.lock
+# RENV_LOCK_HASH is passed by the builder as a digest of renv.lock. Declaring
+# it here and referencing it in the RUN below makes the restore layer's cache
+# key depend on the lockfile content, so renv::restore() re-runs whenever
+# renv.lock changes. This guards against BuildKit serving a stale restore
+# layer, which would otherwise bake a library that silently diverges from the
+# lockfile (and from the image's content-addressable hash label).
+ARG RENV_LOCK_HASH=unknown
+# renv::init creates the platform-specific library directory structure that
+# renv::restore() requires to link packages from the cache.
+RUN echo "renv.lock hash: ${RENV_LOCK_HASH}" &&     R -e "renv::init(bare=TRUE, force=TRUE, restart=FALSE); renv::restore(exclude = 'renv')"
 
-CMD ["bash"]
+# Make the baked renv library discoverable to R sessions started OUTSIDE the
+# project root. 'quarto render analysis/book' (archetype: book) spawns R with
+# the working directory inside analysis/book/, which has no project .Rprofile to
+# source renv/activate.R, so renv never puts /opt/renv/library on .libPaths().
+# Rprofile.site is sourced regardless of cwd, so add the baked library here.
+# Guarded by dir.exists, so non-renv (e.g. minimal) images are unaffected. Does
+# not touch 'Rscript --vanilla' sessions (they skip the site file); the render
+# CI heredoc keeps its own .libPaths() shim for that reason.
+RUN echo 'local({ lib <- Sys.glob(file.path(Sys.getenv("RENV_PATHS_LIBRARY", "/opt/renv/library"), "*", "*", "*"))[1]; if (length(lib) == 1L && !is.na(lib) && nzchar(lib) && dir.exists(lib)) .libPaths(unique(c(lib, .libPaths()))) })' \
+        >> /usr/local/lib/R/etc/Rprofile.site
+
+# Install zzrenvcheck as a validation tool (system library, outside project renv).
+# Installed post-build via make install-zzrenvcheck to avoid GitHub/network
+# issues during docker build on cloud-mounted filesystems.
+
+
+# Create non-root user, in the 'staff' group. rocker/verse owns its TeX tree
+# (/opt/texlive, /usr/local/texlive) as root:staff and makes it group-writable,
+# so a render that installs LaTeX packages at run time (tinytex) needs the run
+# user to be in 'staff'; otherwise tlmgr/fmtutil fail with permission errors.
+# Own the renv library AND cache (populated as root by the restore above) so the
+# run user can hydrate/snapshot into them; the earlier chmod is non-recursive
+# and predates the restore, so it does not cover the package subdirectories (F-2).
+RUN useradd --create-home --shell /bin/bash --groups staff ${USERNAME} && \
+    chown -R ${USERNAME}:${USERNAME} /usr/local/lib/R/site-library /opt/renv
+
+USER ${USERNAME}
+WORKDIR /home/${USERNAME}/project
+
+CMD ["R", "--quiet"]
