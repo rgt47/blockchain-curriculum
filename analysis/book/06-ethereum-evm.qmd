@@ -1169,6 +1169,15 @@ contract is that with it, code is law: the agreement
 executes
 itself exactly as written, and no clerk, no court, and
 no counterparty may intervene to alter the outcome.
+The term is older than the machinery of this chapter
+by some seventeen years. It was coined to describe
+protocols that embed contractual clauses in hardware
+and software so as to make breach expensive, the
+canonical illustration being not a blockchain but a
+vending machine, and the original discussion is
+notably more careful than its modern usage about
+which obligations can be made self-enforcing and
+which cannot [@szabo1997formalizing].
 The determinism this chapter has emphasized is exactly
 what makes the promise credible. A contract does what
 its bytecode says and nothing else, every node agrees
@@ -1313,6 +1322,60 @@ to every system that ought to honor it. This is the
 self-executing rule the opening asked for, and to
 that extent the intuitive appeal of the proposal is
 warranted.
+
+The claim has a precondition that is easy to pass
+over, and it is worth making explicit, because it is
+where most proposals of this kind quietly fail. A
+contract can enforce a permission only if the
+permission has been written down in a form a machine
+can evaluate. 'Broad consent for future research' is
+not such a form; neither is a signature on a
+fourteen-page document. The condition that must hold
+before any of this becomes engineering is that
+consent has been rendered as structured, machine-
+readable terms, and that work is neither trivial nor
+hypothetical. It is what the idea of dynamic consent
+proposed in the first place, replacing a one-time
+signature with an interface through which a
+participant's permissions can be revisited over the
+life of a study [@kaye2015dynamic]. It is what
+standardized data-use conditions supply concretely,
+encoding restrictions such as research-purpose
+limitation, geographic scope, and prohibitions on
+commercial use as codes attached to a dataset rather
+than as prose in an agreement [@dyke2016consentcodes].
+And it is what an automatable permissions matrix
+carries further, expressing what a data custodian may
+do with a resource in terms a discovery service can
+evaluate without a human reading the underlying
+document [@woolley2018adam].
+
+Observe what this means for the architecture. The
+hard and valuable object is the ontology, and it is
+independent of any ledger; a consent code is equally
+enforceable by a well-governed access-control system
+at a coordinating center. What the contract adds is
+that the evaluation happens in a place no single
+custodian can quietly override, which matters only
+when the custodians are several and their interests
+may diverge. This is the same test we have applied
+throughout, and consent passes it more often than
+most health proposals do, since a multi-cohort
+consortium genuinely does have several writers with
+partly conflicting incentives. The point to hold onto
+is that a proposal offering a consent contract but no
+consent ontology has skipped the difficult half. In
+the trial setting the same machinery has been built
+with revocation as a first-class operation
+[@albanese2020dynamic], and the further step of
+encoding the *regulatory* rules governing human
+subjects research, rather than a single participant's
+preferences, has been attempted as well
+[@choudhury2018humansubjects]. Readers who want the
+scheme stated with the precision this book generally
+prefers, as a formal model with verified properties
+rather than an architecture diagram, will find it in
+[@peyrone2023formal].
 
 It has also, unusually for this literature, been
 tried on human beings. A dynamic-consent ledger was

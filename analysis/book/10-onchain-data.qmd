@@ -601,9 +601,52 @@ with a likelihood-ratio test whose power grows with
 the number of queries permitted; their mitigation is
 a *query budget*, which is to say the same
 accounting device that differential privacy calls a
-privacy budget [@johnson2013gwas]. Hold these
-results next to an immutable ledger and the tension
-is exact. A budget presumes the custodian can refuse
+privacy budget [@johnson2013gwas].
+
+The genomic cases are the most cited, and for that
+reason it is easy to file the problem under genomics
+and move on. The generalization is worth stating
+plainly, because the readers of this book handle the
+data it concerns. @gymrek2013surname recovered
+surnames from anonymous genomes by matching
+Y-chromosome short tandem repeats against
+recreational genealogy databases and then
+triangulating on age and state, identifying nearly
+fifty individuals and, through them, their relatives,
+none of whom had consented to anything. That attack
+still needs a genome. @na2018reidentifying needs
+only physical-activity data: applying machine
+learning to twenty-minute windows of accelerometry
+from the National Health and Nutrition Examination
+Survey, with all protected health information
+removed, the authors re-identified the great majority
+of adults in the sample. That is a public-use
+surveillance dataset of the sort a student in this
+program might download this afternoon.
+
+The most useful result for a statistician is
+@rocher2019reidentification, which replaces the
+demonstration with an estimator. Fitting a
+copula-based generative model to incomplete,
+heavily sampled datasets, the authors compute for a
+given individual the probability that a match on a
+handful of attributes is correct, and report that
+fifteen demographic attributes suffice to identify
+almost every American with high confidence. The
+practical upshot is that re-identification risk
+becomes a quantity with a confidence statement
+attached rather than a matter of assertion, and that
+the common defense, 'the sample is only a small
+fraction of the population', is quantitatively
+unsound. Note what all three results share with the
+ledger problem. Each turns on the number of quasi-
+identifiers an adversary can join on, and a public
+ledger with per-participant pseudonyms and
+timestamped events is, in this exact sense, a rich
+table of quasi-identifiers that no one can withdraw.
+
+Hold these results next to an immutable ledger and
+the tension is exact. A budget presumes the custodian can refuse
 the next query. An append-only public log has
 already answered every query anyone will ever think
 to ask, forever, and cannot take one back.
@@ -1427,6 +1470,31 @@ a signature over an access grant, a timestamp of an event.
 The chain then attests that something happened without
 recording what, to whom, or containing any datum a
 regulator could later order destroyed.
+
+Having named the pattern, we should name what it is
+competing against, since the reader's real decision is
+never 'ledger or nothing'. If the goal is to let several
+institutions compute over data none of them will
+surrender, the deployed answer is federated: a query is
+distributed to each site, runs against a local
+repository behind the local firewall, and returns
+aggregates, an architecture that has been operating in
+clinical research networks since well before this
+literature existed [@weber2009shrine]. If the goal is
+to let outsiders analyze a study's data without
+receiving anyone's record, a differentially private
+generative model can produce a synthetic dataset that
+reproduces the original analysis: this was done for a
+major hypertension trial, with the synthetic data
+supporting the same conclusions as the real
+[@beaulieujones2019synthetic]. And if the goal is
+simply a trustworthy audit trail on data one
+institution holds, the electronic data capture systems
+of @sec-consensus already provide one. Each of these
+carries a governance cost and none is trust-minimized.
+The point of listing them is that a proposal reaching
+for a ledger should be able to say which of them it
+tried, and why the answer was inadequate.
 
 ::: {.callout-warning}
 ## What may go on the ledger

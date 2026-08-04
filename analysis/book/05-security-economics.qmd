@@ -333,6 +333,44 @@ attacker must sustain, and so roughly doubles the
 cost; this is the economic reading of the
 confirmation-depth policy derived in @sec-pow.
 
+A cost of attack, however, is only half of a
+decision. It becomes decision-relevant when set
+against the cost of the alternative that would
+otherwise buy the same assurance, which for the trial
+ledger is the monitoring regime the sponsor already
+funds. Those costs have been measured. A survey of
+member firms of the Swedish pharmaceutical industry
+association costed the quality-assurance activities
+that good clinical practice requires, and found them
+a substantial fraction of trial budgets
+[@funning2009gcpcost]; a review of monitoring
+strategies compared complete source-data
+verification, in which every field on every case
+report form is checked against the clinical record,
+against risk-based approaches that sample, and
+concluded that the exhaustive approach consumes a
+large share of monitoring expenditure for a small
+marginal gain in data quality [@olsen2016monitoring].
+Remote source-document verification, tested across
+two national trial networks, is one of the responses
+[@mealer2013sdv].
+
+This is the comparison a proposal must survive, and
+the framing that makes it a single comparison rather
+than two unrelated numbers is the cost of
+verification: a ledger is an instrument for making
+verification cheap between parties who do not trust
+each other, and it is worth its overhead only where
+the verification it displaces was expensive and the
+distrust real [@catalini2016economics]. A consortium
+considering a ledger should therefore ask what
+fraction of its per-subject monitoring cost the
+ledger would actually remove. The honest answer is
+usually small, because, as we shall see below, the
+monitoring exists largely to catch what happens
+before a record is committed, which is the one thing
+the ledger does not address.
+
 ### Cost recovery and the proof-of-stake contrast
 
 A subtlety the headline cost hides is what happens
@@ -960,6 +998,59 @@ literature on data quality in these systems makes the
 complementary point that a ledger records faithfully
 whatever it is given, including what is false
 [@abuhalimeh2023quality].
+
+That last clause deserves more than the sentence we
+have given it, because it names the failure mode that
+dominates the empirical record of trial integrity and
+the one against which everything in this chapter is
+powerless. Our adversary so far has been external:
+someone who rents hash power, reorganizes the chain,
+and rewrites a committed history. The adversary the
+literature actually documents is internal, and does
+not rewrite anything. He enters a value that was
+never observed.
+
+The best-known instance is the Japanese valsartan
+affair, in which trials supporting a widely
+prescribed antihypertensive were found to rest on
+manipulated data, a university-affiliated employee of
+the manufacturer was arrested, and the principal
+papers were retracted [@mccurry2014valsartan]. The
+general taxonomy is well developed: fabrication of
+subjects who do not exist, falsification of
+measurements that were never taken, digit preference
+and impossible internal correlations in
+hand-constructed data, and enrollment of subjects who
+do not meet eligibility [@george2015fraud;
+@gupta2013misconduct]. Note what each of these has in
+common. The record enters the system through a
+legitimate channel, signed by a party genuinely
+authorized to sign it, and is faithfully committed.
+Every cryptographic property of the previous chapter
+holds. Every consensus property of this one holds.
+The ledger's guarantee, that the record has not
+changed since it was written, is delivered in full,
+and it is the wrong guarantee.
+
+This is not an argument that tamper-evidence is
+worthless; a ledger genuinely forecloses the
+retrospective edit, which is a real if rarer failure.
+It is an argument about proportion. A design that
+prices the external attack to six significant figures
+while leaving the internal one unmodeled has
+optimized the term that does not dominate. The
+defenses that do address fabrication are statistical
+and procedural rather than cryptographic: central
+statistical monitoring for digit preference and
+variance anomalies, independent verification against
+source documents [@mealer2013sdv], and risk-based
+audit sampling [@olsen2016monitoring]. A reader asked
+to evaluate a trial-ledger proposal should therefore
+put the key-custody question of the preceding
+paragraph first, and this one immediately after:
+*which of my failure modes happens before the record
+reaches the ledger, and what in this design addresses
+those?*
 
 To illustrate, consider a consortium of six
 hospitals that proposes to host the trial ledger on

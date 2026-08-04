@@ -97,7 +97,13 @@ choices imposed. We shall take this as the
 organizing moral of the chapter. The hard part of a
 parametric instrument is the trigger design and the
 oracle that reports the index, not the payment
-mechanism.
+mechanism. We shall not leave that claim as an
+assertion. Having built the instrument, we test it
+against two further escrows drawn from the trial
+ledger, participant reimbursement and site payment,
+whose triggers are of quite different character, and
+ask whether the difficulty follows the trigger where
+it goes.
 
 That is the frame in which the machinery of this
 chapter merits a public-health student's attention.
@@ -133,7 +139,7 @@ from the start (@tbl-defi-primitives).
 
 | Primitive | Role in a parametric health instrument | Inherited risk |
 |---|---|---|
-| **Escrow / conditional payout** | Holds the premium capital and releases it when the trigger fires | Smart-contract bug; a trigger that fires late or not at all |
+| **Escrow / conditional payout** | Holds the capital and releases it when the trigger fires, whether the trigger is an outbreak index or a completed study visit | Smart-contract bug; a trigger that fires late, not at all, or on the word of an interested party |
 | **Oracle** | Delivers the triggering index on-chain | Manipulation, reporting lag, single-reporter trust |
 | **Stablecoin** | Denominates the payout in a stable unit | Depeg; reserve or custodian failure |
 | **Exchange (AMM)** | Converts or invests the idle float | Impermanent loss and slippage |
@@ -1235,6 +1241,184 @@ the specificity of the trigger, is the whole design
 problem, and it is the epidemiologist's problem, not
 the programmer's. This is the lesson of the World
 Bank's experience, reproduced here in miniature.
+
+### A second escrow: paying the participant and the site
+
+The preparedness bond located the difficulty in the
+trigger. That claim is worth testing rather than
+asserting, and the way to test it is the way one
+would test any claim of attribution: hold the
+plumbing fixed, vary the trigger, and see whether
+the difficulty travels with it. We therefore turn to
+a second escrow whose trigger is of an entirely
+different character, and which the trial ledger of
+this book supplies ready-made.
+
+Money moves through a clinical trial along two
+paths. The sponsor reimburses participants for
+travel, time, and inconvenience, and the sponsor
+pays sites for the work of conducting the protocol,
+typically per completed visit or on reaching an
+enrollment milestone. Both are conditional payments
+on a verifiable event, which is precisely the shape
+an escrow contract wants. Neither depends on an
+epidemic model, a detection probability, or a
+reporting delay. A study visit either happened or it
+did not, and someone was in the room.
+
+#### Reimbursing the participant
+
+Take the participant first, because it is the clean
+case. The trigger is attendance at a scheduled
+visit, attested by the site coordinator. The party
+who attests is not the party who is paid, and the
+attestation is a matter of local fact rather than of
+inference from a model. Compared with the outbreak
+index, the epistemic problem has very nearly
+vanished.
+
+What has not vanished is the difficulty; it has
+changed disciplines. The moment a payment schedule
+becomes code, it must state what it is paying for,
+and the literature distinguishes several answers
+that are easily conflated: reimbursement of costs
+incurred, compensation for time at something like a
+wage, appreciation in the form of a bonus, and a
+market rate set by whatever recruitment requires
+[@grady2005payment]. These are not interchangeable.
+They imply different amounts, different schedules,
+and different treatment of the participant who
+withdraws at visit three of six. A contract cannot
+be silent on the choice in the way a human finance
+office can be, and this is the sense in which
+programmability is clarifying: it forces a
+specification where practice often has only a
+custom.
+
+The reflexive objection is that paying participants
+more will induce them to accept risks they would
+otherwise refuse. It is an empirical claim, and it
+has been tested directly. Two randomized trials
+embedded within parent trials assigned incentives of
+\$0, \$200, or \$500 in a smoking-cessation study
+($n = 654$) and \$0, \$100, or \$300 in a hospital
+ambulation study ($n = 642$)
+[@halpern2021incentives]. Incentives raised
+enrollment sharply in the first (21.8%, 35.9%, and
+47.1% consenting; adjusted odds ratio 1.70 per
+increment, 95% CI 1.34 to 2.17) and not at all in
+the second (45.4%, 48.1%, 43.0%; adjusted odds ratio
+0.88, 95% CI 0.64 to 1.22). The inducement question
+was then addressed as an interaction: if payment
+worked by dulling attention to risk, its effect
+should be larger among those who perceived the study
+as riskier. It was not, in either trial, and the
+authors report the upper confidence limits of the
+interaction odds ratios, 1.15 and 0.99, against a
+pre-specified non-inferiority margin of 2.0. Income
+and financial well-being were tested the same way,
+with the same result.
+
+The design deserves the reader's attention as much
+as the finding. An ethical worry was operationalized
+as an interaction term, and the absence of evidence
+was converted into evidence of absence by declaring
+a margin in advance. That is the difference between
+a study that can conclude something and one that
+merely fails to reject.
+
+Two further results bear on any scheme proposing to
+pay participants in tokens. First, the effect of
+payment need not be monotonic: offering a small sum
+can produce worse performance than offering nothing,
+because a nominal price displaces a non-monetary
+motive rather than adding to it
+[@gneezy2000payenough]. A token of token value is
+the case this result warns against. Second, a
+contract that can pay each participant a different
+amount raises at once the question of whether it may
+[@persad2019differential], which a single posted
+schedule never had to answer. Where such a scheme is
+to be built, the design checklist of
+@parkinson2019incentives is the closest thing the
+literature offers to the specification the contract
+would need to encode, and the pooled effect of
+incentives on participation is given by
+@abdelazeem2022incentives.
+
+#### Paying the site
+
+Site payment looks like the same instrument and is
+not, for a reason no escrow can repair. The trigger
+is again a completed visit, but the site that
+attests to the completion is the site that is paid
+for it. Attester and payee are the same party.
+
+This is the classical principal-agent configuration,
+and it is not a hypothetical concern in this
+setting. It is the documented mechanism of trial
+fraud, the falsification of records by those who
+produce them, of which the criminal prosecution
+following the Japanese valsartan trials is the
+best-known instance [@mccurry2014valsartan], and
+around which a taxonomy of misconduct has been
+assembled [@george2015fraud]. Automating payment on
+self-attestation does not merely fail to help. By
+shortening the interval between the assertion and
+the money, and by making the transfer irreversible,
+it removes precisely the pause during which a
+monitor might have looked.
+
+Observe that the oracle problem has returned in a
+different form. The preparedness bond's trigger was
+uncertain because the world is hard to measure. The
+site-payment trigger is uncertain because the
+reporter has an interest. The first is an epistemic
+failure and the second a strategic one, and they
+call for different remedies: sharper thresholds and
+better surveillance in the first case, and in the
+second a separation of attestation from payment,
+independent verification against source documents
+[@mealer2013sdv], and audit sampling whose intensity
+is itself a cost-benefit decision
+[@olsen2016monitoring]. None of these is
+cryptographic. @tbl-escrow-triggers sets the three
+instruments side by side.
+
+| Escrow | What the trigger asks | How the trigger fails | Where the remedy lies |
+|---|---|---|---|
+| **Preparedness bond** | Did the outbreak reach the threshold? | *Epistemic*: the quantity is genuinely uncertain, delayed, and under-ascertained | Threshold design; the sensitivity and specificity trade-off |
+| **Site payment** | Did the site complete the visit? | *Strategic*: the quantity is knowable, but the reporter is paid by the answer | Separating attestation from payment; source verification; audit sampling |
+| **Participant reimbursement** | Did the participant attend? | Largely clean: the attester is not the payee | Ethics review of the amount and schedule; the choice of payment model |
+
+: Three conditional payouts sharing one escrow mechanism. Varying the trigger while holding the plumbing fixed shows that 'verifiable trigger' names a family of conditions rather than a single property {#tbl-escrow-triggers}
+
+The sequence is worth the space it takes because it
+disciplines a phrase that is otherwise allowed to do
+too much work. A proposal promising a 'verifiable
+on-chain trigger' has said nothing until one asks
+which of these three situations it is in. The escrow
+is the same contract in all three rows; what differs
+is who knows the triggering fact and what they stand
+to gain by misreporting it. That is an audit
+question, and the chapter's organizing moral
+survives the test we set for it. The payment
+mechanism was never the hard part.
+
+One honest note in closing. For participant
+reimbursement, where the trigger really is clean,
+the binding constraints turn out to be the ethical
+review of amount and schedule, and the modest scale
+of the sums against the cost of failed accrual,
+which is itself substantial
+[@kitterman2011lowenrolling]. A trial site that
+already runs a finance office and an institutional
+review board has a trusted intermediary, and by the
+test of @sec-intro that is the condition under which
+a ledger is not indicated. The instrument earns its
+place here as the control condition in an argument
+about triggers, which is a real use, and not the
+same thing as a recommendation to deploy it.
 
 ::: {.callout-warning}
 ## Most 'DeFi for health financing' pitches fail the test

@@ -104,6 +104,37 @@ swamp the honest reports. This is the Sybil attack, and
 it is the reason that open-membership agreement is a
 genuinely harder problem than the fixed-consortium case.
 
+It is worth pausing on this third case, because it is
+the one the remainder of the book presupposes and the
+one health rarely supplies. The trial consortium of the
+opening scenario has a membership roster; so does a
+hospital network, a payer, and a national registry with
+statutory reporters. In each the participants can be
+enumerated, credentialed, and, if they misbehave,
+removed. Participatory surveillance is different in
+kind. A platform that accepts symptom reports from any
+member of the public, a citizen-science cohort that
+enrolls volunteers who contribute their own
+measurements, or a spontaneous adverse-event system
+open to patients as well as clinicians, has no roster
+to check a reporter against and no credential to
+revoke. Whoever wishes to report, reports. That is the
+design's purpose, since coverage is the point of it,
+and it is also precisely the condition under which the
+counting of reporters ceases to mean anything.
+
+The prospective cohort of @sec-intro thus enters the
+book at both ends of the spectrum. A closed cohort run
+by a coordinating center is the fixed-consortium case
+again, with the added complication of periodic freezes
+that we take up in @sec-crypto. An open participatory
+registry is the one genuinely permissionless health
+setting we shall meet, and the reader should hold it in
+mind through the chapters on proof-of-work and
+proof-of-stake, whose entire apparatus exists to answer
+the question it poses: how to weight reports when
+identities are free to create.
+
 The three failures line up one to one with three
 classical problems, and it is worth fixing that
 correspondence before we develop each in turn.
@@ -788,7 +819,7 @@ that decide between them.
 | **Sybil resistance** | Not needed, set is known | By scarce resource | Not applicable |
 | **Finality** | Deterministic, sub-second | Probabilistic, grows with confirmations | Immediate, one writer |
 | **Throughput** | High | Low to moderate | Highest |
-| **Right tool when** | Parties known, few, mutually distrusting | Membership open and unaccountable | One trusted operator suffices |
+| **Right tool when** | Parties known, few, mutually distrusting | Membership open and unaccountable | One trusted operator suffices, as with REDCap or a CTMS |
 
 : Three designs for a shared record and the trust environment each one fits {#tbl-three-designs}
 
@@ -1015,6 +1046,28 @@ acceptable. When such a custodian exists, a well-governed
 database with cryptographic audit logging delivers
 tamper-evidence at a fraction of the cost, and the ledger
 is machinery in search of a problem.
+
+That alternative deserves to be named rather than left
+as a rhetorical convenience, for a skeptical argument is
+only as strong as the comparator it can exhibit. In
+clinical research the comparator is not hypothetical.
+REDCap, a metadata-driven electronic data capture system
+built for translational research, runs studies at
+thousands of institutions and supplies role-based access
+control, a complete audit trail of every value entered
+or altered, and provenance on export
+[@harris2009redcap]; an integrated clinical trial
+management system extends the same idea across the whole
+process from study planning to closeout
+[@park2018ctms]. Neither is glamorous, and neither is
+trust-minimized: both presuppose an operator whom the
+parties accept. That is precisely the point. The
+question a ledger proposal must answer is not whether
+tamper-evidence is desirable, which nobody disputes, but
+what it adds over an audit trail the field already runs
+at scale, and at what price. A proposal that cannot name
+the incumbent it intends to displace has not yet begun
+the comparison.
 
 ::: {.callout-important}
 ## The skeptic's reflex

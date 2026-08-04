@@ -237,6 +237,20 @@ against every layer of the technology.
   tamper-evident and attributable, auditable by a regulator
   after the fact, with no single party able to rewrite what
   has been recorded. Every chapter returns to it.
+- **The prospective cohort.** A longitudinal
+  observational study, or a disease registry, in which
+  participants enroll over an open-ended period and are
+  measured repeatedly, and whose data are frozen
+  periodically rather than locked once and for all. It
+  differs from the trial in ways that turn out to be
+  technical rather than merely thematic: there is no
+  single lock date, a participant may withdraw consent
+  midway through follow-up and expect the withdrawal to
+  take effect, and each freeze must be demonstrably an
+  extension of the one before it rather than a quiet
+  revision of it. Where the trial ledger asks what a
+  single commitment can guarantee, the cohort asks what a
+  *sequence* of commitments must satisfy.
 - **The cold chain.** A vaccine cold-chain provenance
   system serves as a secondary example, where *provenance*
   means a verifiable account of an item's history: here,
@@ -249,7 +263,7 @@ tree (a hash-based summary that commits to many records at
 once), then consensus, the account model, the smart
 contract (a program that executes on the ledger), and the
 analysis of on-chain data, we shall ask what it
-contributes to these two systems, and whether it is in
+contributes to these three systems, and whether it is in
 fact the right tool. Each such term is defined in full in
 the chapter that treats it. We should say at the outset
 that the answer to the question of fitness is frequently

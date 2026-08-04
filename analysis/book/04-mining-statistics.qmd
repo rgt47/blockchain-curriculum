@@ -283,8 +283,23 @@ check it (@tbl-distribution-map).
 | **Attempts to success** | Geometric$(p)$ | Trials to first event | Geometric QQ |
 | **Waiting time to next block** | Exponential$(\lambda)$ | Survival time under constant hazard | Exponential QQ, KS |
 | **Arrivals in a window** | Poisson$(\lambda w)$ | Surveillance case counts | Dispersion check |
+| **Blocks per unit hash rate** | Poisson rate $\lambda$ | Incidence rate per person-time | Rate ratio, offset in a log-linear model |
+| **Competing block within $\Delta$** | $1 - e^{-\lambda\Delta}$ | Competing-risk cause-specific hazard | Cumulative incidence function |
 
 : The mining distributions and their public-health twins {#tbl-distribution-map}
+
+The penultimate row repays a moment's attention. A
+miner's block production is not a rate per unit of
+clock time but a rate per unit of *hashing exposure*,
+so that a pool with twice the hardware running for
+half as long has the same expected yield. That is the
+person-time construction exactly: incidence is
+indexed by exposure accumulated, not by calendar
+elapsed, and a comparison between miners of unequal
+size is a rate ratio with hash rate as the offset,
+just as a comparison between cohorts of unequal size
+carries person-years as the offset. We return to the
+final row when we come to orphaned blocks below.
 
 The decisive property is memorylessness. Having
 hashed for an hour without success leaves the
@@ -948,6 +963,36 @@ chain. The propagation window $\Delta$ is a network
 property that no protocol parameter can eliminate,
 so it sets a floor on the block time below which
 orphan rates become costly.
+
+The epidemiological reader has met this calculation
+before under another name. Two events are in a race:
+the block we are following becomes settled, or a
+competitor arrives first and displaces it. Each has
+its own rate, and what we computed above,
+$1 - e^{-\Delta/\mu}$, is the probability that the
+competing event occurs within a fixed window. This
+is the structure of *competing risks*, in which a
+subject may fail from any of several causes and the
+occurrence of one removes the subject from the risk
+set for the others. The quantity $\Delta/\mu$ is the
+ratio of the competing cause-specific hazard to the
+hazard of the event of interest, and reading the
+orphan rate as such makes two things immediate that
+the protocol literature usually states separately.
+First, the orphaned block is not merely a wasted
+effort but a censoring mechanism: the randomization
+event it carried leaves the accepted history and
+must be re-observed, exactly as a subject who dies
+of another cause contributes person-time but never
+the endpoint. Second, one cannot obtain the settled-
+block rate by ignoring orphans and renormalizing,
+any more than one may estimate a cause-specific
+hazard by deleting competing events and treating the
+remainder as complete follow-up. The naive
+calculation overstates the rate at which history
+accumulates, and the overstatement grows with
+$\Delta/\mu$, which is to say with exactly the fast
+block times a chain adopts to look responsive.
 
 ::: {.callout-note icon=false collapse=true}
 ## Check your understanding: why fast blocks fork more

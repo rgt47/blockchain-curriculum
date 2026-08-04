@@ -824,15 +824,21 @@ which of the other records does the verifier learn
 about?
 
 The proof contains
-$\lceil \log_2 10^{6} \rceil = 20$ hashes. The
-verifier learns nothing about the contents of the
-other records: each proof step reveals only a
-sibling digest, and by preimage resistance a digest
-does not disclose the record that produced it. This
-combination, membership provable in 20 hashes and
-no leakage of the rest, is precisely what lets a
-data custodian publish a root as a commitment while
-keeping the underlying records confidential.
+$\lceil \log_2 10^{6} \rceil = 20$ hashes, and each
+step reveals one sibling digest. Whether those
+digests disclose anything is a subtler question than
+it first appears, and the answer turns on how the
+leaves were built. A digest cannot be inverted, but
+it can be enumerated: an adversary who knows the
+form a record takes may hash every candidate and
+look for the match. Preimage resistance concerns
+inverting the digest of an unpredictable input, and
+it says nothing whatever when the input ranges over
+a few dozen possibilities. Membership provable in 20
+hashes with no leakage of the rest is the property
+we want, but the construction as it stands supplies
+only the first half of it. @sec-commitments gives
+the repair, which is small.
 :::
 
 ### Public-health application: committing to a locked trial dataset
@@ -858,9 +864,22 @@ resistance no record can be altered, added, or
 removed without changing the published root and
 thereby exposing the tampering. The records
 themselves never need to be disclosed in order to
-make the commitment, so patient confidentiality is
-preserved, since the published root reveals nothing
-about the data.
+make the commitment.
+
+Confidentiality, however, does not follow from the
+publication of a root alone, and it is worth being
+exact about why. A digest conceals its input only to
+the extent that the input is unpredictable, and a
+trial record drawn from a fixed roster of subjects,
+two arms, and a binary outcome is highly
+predictable. A party holding one sibling digest from
+an inclusion proof can enumerate the candidates and
+recover the record it commits to. The remedy, a
+random nonce attached to each leaf, is developed in
+@sec-commitments and applied in the worked example
+at the end of the chapter. It costs one stored value
+per record and leaves the tamper-evidence argument
+above untouched.
 
 @fig-tamper traces what the regulator sees when a
 single record is altered after lock.
@@ -973,6 +992,46 @@ decade [@rfc6962; @trillian]. Between them these
 deliver every property our locked-dataset example
 requires: proof of existence, proof of inclusion,
 and proof that the log was only ever appended to.
+
+That third property is worth developing, because the
+locked trial dataset is the case that needs it
+least. A trial locks once, so a single root suffices
+and there is no later root to be consistent with.
+The prospective cohort of @sec-intro is the case
+that needs it most. A cohort accrues participants
+over years and freezes its data periodically, each
+freeze supporting the analyses published from it.
+Suppose the custodian publishes a root at every
+freeze. Nothing in a Merkle root alone prevents the
+third freeze from being a quiet revision of the
+second rather than an extension of it: records
+dropped, values corrected, a participant's
+withdrawal applied retroactively to observations
+already analyzed. Each root is individually
+impeccable and the sequence still tells a false
+story.
+
+A consistency proof closes exactly this gap. Given
+two roots, the earlier over $m$ leaves and the later
+over $n > m$, it exhibits the logarithmically many
+internal digests showing that the first $m$ leaves
+of the later tree are precisely the earlier tree,
+unchanged and in order. The later log therefore
+*contains* the earlier one; append is all that
+happened. An auditor who has retained the root
+published with a 2024 analysis can verify, against
+the 2026 root and a short proof, that nothing
+underlying the earlier paper was rewritten in the
+interval. This is not an exotic requirement. It is
+the ordinary expectation that a published analysis
+remain reproducible from the data it was run on, and
+it is a hashing problem, solved and standardized,
+rather than an argument for consensus. Note also
+what the machinery cannot do: it proves that
+records were not altered, never that the right
+records were entered, and it sits in unresolved
+tension with a withdrawal that is supposed to erase,
+a tension @sec-onchain takes up.
 Bitcoin's own data structure, as its academic
 genealogy makes plain, was borrowed from this
 lineage with little modification
@@ -1498,7 +1557,7 @@ a specific post-quantum signature here; the field is
 still settling, and the prudent posture, in our view,
 is to keep the option open rather than to commit early.
 
-## Commitments and zero-knowledge
+## Commitments and zero-knowledge {#sec-commitments}
 
 The Merkle root is one instance of a commitment: a
 short value that binds a party to hidden data
@@ -1507,11 +1566,50 @@ opened (hiding). The same idea generalizes. A
 commitment scheme lets a party publish a commitment
 now and reveal the committed value later, with the
 scheme guaranteeing the value cannot be changed in
-between. The binding property rests on collision
-resistance, exactly as the Merkle root does, and the
-hiding property on the one-wayness of the hash, so a
-commitment asks of the reader nothing that the
-present chapter has not already supplied.
+between.
+
+The two properties do not rest on the same
+foundation, and treating them as though they did is
+an error with practical consequences. Binding rests
+on collision resistance, exactly as the Merkle root
+does. Hiding does not rest on one-wayness. Preimage
+resistance states that given $H(x)$, for an $x$
+drawn unpredictably, recovering $x$ is infeasible;
+it is silent about the case in which the analyst can
+guess $x$. Suppose a leaf is the canonical string
+`S0007|A|1`. Over sixteen subjects, two arms, and a
+binary outcome there are just sixty-four candidate
+records. Anyone holding that leaf's digest, or a
+sibling digest from an inclusion proof, may hash all
+sixty-four candidates and read off the match in well
+under a millisecond, learning the patient's arm
+assignment and outcome. The disclosure the
+commitment was meant to prevent has occurred, and no
+property of the hash function has been violated:
+preimage resistance never promised otherwise.
+
+The repair is standard and inexpensive. Draw a
+random nonce $r$, of 128 bits say, independently for
+each record, and commit to $H(r \Vert x)$ in place
+of $H(x)$, storing the nonces alongside the records.
+The space an adversary must enumerate is now the
+record space multiplied by $2^{128}$, which is out
+of reach, so the leaf digest reveals nothing and the
+commitment hides. To open a record the custodian
+releases $x$ together with its nonce and the
+verifier recomputes the leaf as before, so inclusion
+proofs are unchanged in size, in form, and in cost.
+
+Two points deserve emphasis. The nonce is needed
+only for hiding: binding, and with it every
+tamper-evidence claim made earlier in this chapter,
+held without it. And the nonce must be random and
+per-record. A single nonce shared across leaves, or
+one derived from the record itself, restores the
+enumeration. A commitment therefore asks of the
+reader one ingredient the present chapter has not
+already supplied, namely a source of randomness, and
+it is worth the trouble of getting right.
 
 A commitment fixes a value, but it does not, by
 itself, let one demonstrate anything about that value
@@ -1839,38 +1937,53 @@ locked <- data.frame(
 record_strings <- with(locked,
   paste(subject, arm, outcome, sep = '|'))
 
-published_root <- merkle_root(record_strings)
+# Sixteen subjects, two arms and a binary outcome
+# admit only 64 distinct records, so an unsalted leaf
+# digest can be recovered by enumeration. Each leaf
+# therefore carries its own 128-bit nonce.
+rand_nonce <- function() paste(
+  sprintf('%02x', sample(0:255, 16, replace = TRUE)),
+  collapse = '')
+nonces <- vapply(1:16, function(i) rand_nonce(),
+                 character(1))
+leaves <- paste(nonces, record_strings, sep = '|')
 
-# An auditor is handed subject 7's record plus a
-# proof, and verifies membership against the
-# published root alone.
+published_root <- merkle_root(leaves)
+
+# An auditor is handed subject 7's record and its
+# nonce plus a proof, and verifies membership against
+# the published root alone.
 k <- 7
 audit_ok <- merkle_verify(
-  record_strings[k],
-  merkle_proof(record_strings, k),
+  leaves[k],
+  merkle_proof(leaves, k),
   published_root)
 
 # Someone alters subject 12's outcome after lock.
-tampered <- record_strings
+tampered <- leaves
 tampered[12] <- paste0(tampered[12], '-edited')
 
 c(auditor_confirms_membership = audit_ok,
-  proof_hashes = length(merkle_proof(record_strings, k)),
+  proof_hashes = length(merkle_proof(leaves, k)),
   tamper_changes_root =
     merkle_root(tampered) != published_root)
 ```
 
 The auditor confirms subject 7's record with a
 four-hash proof (the tree over 16 leaves has depth
-four) and never sees the other fifteen records. The
-post-lock edit to subject 12 changes the root, so
-anyone holding the originally published root detects
-that the dataset is no longer the one committed to.
-The guarantee is exactly as strong as collision
-resistance, which the birthday analysis priced at
-about $2^{128}$ work, and no stronger. It is also, as
-the warning above insisted, achieved with no
-blockchain: a hash tree and one honest publication.
+four) and learns nothing of the other fifteen, the
+nonces having removed the enumeration attack of
+@sec-commitments. The post-lock edit to subject 12
+changes the root, so anyone holding the originally
+published root detects that the dataset is no longer
+the one committed to. The tamper-evidence guarantee
+is exactly as strong as collision resistance, which
+the birthday analysis priced at about $2^{128}$
+work, and no stronger; the confidentiality guarantee
+rests separately on the nonces. It is also, as the
+warning above insisted, achieved with no blockchain:
+a hash tree, a source of randomness, and one honest
+publication.
 
 ## Collaborating with an LLM
 
@@ -1957,7 +2070,23 @@ primary source.
    a preimage or collision, and state which resistance
    property each forgery strategy would have to defeat.
 
-5. **Second-preimage on a truncated hash.** Using
+5. **Enumerate an unsalted leaf.** Build the leaf
+   digest of the record `'S0007|A|1'` as the chapter
+   originally did, without a nonce. Now put yourself
+   in the position of an adversary who knows the
+   record format and the roster of sixteen subjects
+   but not the contents: generate all 64 candidate
+   records, hash each, and recover the one matching
+   your target digest. Time the search. Then repeat
+   with a 128-bit nonce prepended, and state how many
+   candidates the same attack would now have to try
+   and how long that would take at your measured rate.
+   Explain why preimage resistance was never violated
+   in the first case, and identify which of the two
+   commitment properties, binding or hiding, the nonce
+   supplies.
+
+6. **Second-preimage on a truncated hash.** Using
    truncation to make it feasible, empirically estimate
    the work to find a second input hashing to the same
    truncated digest as a fixed target, and confirm it
@@ -1965,7 +2094,7 @@ primary source.
    this differs from the collision experiment in
    exercise 1.
 
-6. **Group order.** For the toy curve
+7. **Group order.** For the toy curve
    $y^{2} = x^{3} + 7$ over $\mathbb{F}_{97}$,
    enumerate all points (the chapter's `pts` matrix,
    plus the point at infinity) and count them. Confirm
@@ -1978,7 +2107,7 @@ primary source.
    whose order is a proper divisor of 100. This is the
    small-subgroup structure that prime order forecloses.
 
-7. **ECDSA end to end.** Using the chapter's
+8. **ECDSA end to end.** Using the chapter's
    `sign_ecdsa()` and `verify_ecdsa()`, pick your own
    private key $d$ and nonce $k$ on the toy curve, sign
    two different digests, and confirm both verify.
@@ -1988,7 +2117,7 @@ primary source.
    that $(r,\,n - s)$ verifies whenever $(r, s)$ does,
    and explain from the verification equation why.
 
-8. **Recover a key from a reused nonce.** Given only
+9. **Recover a key from a reused nonce.** Given only
    the two signatures produced with a shared nonce in
    the chapter (their $r$, $s_{1}$, $s_{2}$ and the two
    digests), and *without* using the variable `d`,
