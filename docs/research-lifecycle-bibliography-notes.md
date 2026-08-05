@@ -1,7 +1,7 @@
 # Extended Bibliography: Blockchain in the Research Lifecycle
 *2026-08-03 17:49 PDT*
 
-Companion notes to `analysis/book/references-research-lifecycle.bib` (93
+Companion notes to `analysis/report/references-research-lifecycle.bib` (93
 entries). This document records how the bibliography was assembled, what
 each cluster is for, and where the textbook could be strengthened using
 it.

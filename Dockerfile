@@ -141,8 +141,8 @@ ARG RENV_LOCK_HASH=unknown
 RUN echo "renv.lock hash: ${RENV_LOCK_HASH}" &&     R -e "renv::init(bare=TRUE, force=TRUE, restart=FALSE); renv::restore(exclude = 'renv')"
 
 # Make the baked renv library discoverable to R sessions started OUTSIDE the
-# project root. 'quarto render analysis/book' (archetype: book) spawns R with
-# the working directory inside analysis/book/, which has no project .Rprofile to
+# project root. 'quarto render analysis/report' (archetype: book) spawns R with
+# the working directory inside analysis/report/, which has no project .Rprofile to
 # source renv/activate.R, so renv never puts /opt/renv/library on .libPaths().
 # Rprofile.site is sourced regardless of cwd, so add the baked library here.
 # Guarded by dir.exists, so non-renv (e.g. minimal) images are unaffected. Does
