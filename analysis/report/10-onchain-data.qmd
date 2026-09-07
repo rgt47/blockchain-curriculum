@@ -1654,8 +1654,8 @@ statistical models of blockchain phenomena, and the
 two systematization-of-knowledge papers,
 @bonneau2015sok on Bitcoin and cryptocurrencies and
 @werner2022sok on decentralized finance, map the
-research landscape and its open problems with more
-rigour than any promotional source. @narayanan2016bitcoin
+research field and its open problems with more
+rigor than any promotional source. @narayanan2016bitcoin
 remains the reference textbook, and its final
 chapters on anonymity and community are the natural
 sequel to this one.

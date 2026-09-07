@@ -81,13 +81,12 @@ Pandemic Emergency Financing Facility, whose
 catastrophe bonds were issued in 2017 with exactly
 this structure. When the Ebola epidemic of 2018 and
 2019 spread through the eastern Democratic Republic
-of the Congo, the bonds' parametric triggers, which
-required among other conditions a threshold of
-confirmed deaths together with a minimum outbreak
-growth rate sustained over a fixed window, had been
-engineered so conservatively that payout was
-delayed for months and, when it came, was partial
-and late relative to the need. The lesson is
+of the Congo, those triggers proved too conservative.
+The bonds required, among other conditions, a
+threshold of confirmed deaths together with a
+minimum outbreak growth rate sustained over a fixed
+window. Payout was delayed for months and, when it
+came, was partial and late relative to the need. The lesson is
 precise, and it is not that the plumbing failed.
 The capital transfer, once triggered, worked as
 written. What was problematic was the trigger
@@ -1639,7 +1638,7 @@ turn AMMs from an engineering trick into an object
 with theorems. For lending and its instabilities,
 @gudgeon2020loanable models the interest-rate
 mechanisms and @gudgeon2020crisis analyses how they
-behave under stress. The stablecoin landscape is
+behave under stress. The stablecoin field is
 mapped by the systematization of @moin2020sok, and
 the specific instability of algorithmic designs by
 @klagesmundt2019instability, with the TerraUSD

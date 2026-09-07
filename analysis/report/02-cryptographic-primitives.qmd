@@ -101,12 +101,12 @@ invoke is a statement about the difficulty of a
 search, and the difficulty of a search is a
 probability calculation.
 
-That reframing pays immediately. The reason six
-confirmations suffice in @sec-pow, the reason a
+That reframing pays immediately. Three facts follow
+from it: six confirmations suffice in @sec-pow, a
 light client can trust a block header without the
-block body, and the reason a public key does not
-leak its private key, are all consequences of two
-numbers: the expected work to find a preimage and
+block body, and a public key does not leak its
+private key. All three are consequences of two
+numbers, the expected work to find a preimage and
 the expected work to find a collision. We shall
 derive both, and then confirm the underlying
 random-oracle assumption by hashing tens of

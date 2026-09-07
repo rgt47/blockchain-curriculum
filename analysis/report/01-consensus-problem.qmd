@@ -150,23 +150,22 @@ place in the book where each is treated in full.
 : The three ways the trial ledger can fail, each an instance of a classical problem with a known treatment {#tbl-failure-modes}
 
 These three failures motivate the chapter, but we should
-state plainly at the outset where the argument is going
-to lead. When the parties are a fixed, named,
+state plainly at the outset where the argument is going to
+lead. Suppose the parties are a fixed, named,
 contractually accountable consortium, as the trial
-hospitals are, the problem is the classical one of
+hospitals are. The problem is then the classical one of
 agreement among known participants, solved by the
-permissioned protocols we present below, and in a great
-many such cases even that machinery is more than the
-problem requires: a single signed, append-only database
-with an audit log, maintained by one trusted operator,
-would serve. The permissionless machinery of the later
-chapters answers a different and harder trust problem,
-that of the open registry with no accountable membership
-at all. We shall be candid about this distinction
-wherever it arises, since reaching for the permissionless
-tool when the parties are in fact known and few is a
-design error, and one this book is written in part to
-help the reader avoid.
+permissioned protocols we present below. In a great many
+such cases even that machinery is more than the problem
+requires. A single signed, append-only database with an
+audit log, maintained by one trusted operator, would
+serve. The permissionless machinery of the later chapters
+answers a different and harder trust problem, that of the
+open registry with no accountable membership at all. We
+shall be candid about this distinction wherever it arises.
+Reaching for the permissionless tool when the parties are
+in fact known and few is a design error, and this book is
+written in part to help the reader avoid it.
 
 ::: {.callout-note}
 ## The vocabulary of this chapter
@@ -297,7 +296,7 @@ payees replaced by two trial sites.
 
 A natural first instinct is that a digital signature
 solves this. It does not, and seeing precisely why is the
-first rigour check of the chapter. A signature scheme
+first rigor check of the chapter. A signature scheme
 gives $A$ a way to produce, for a message $m$, a value
 $\sigma = \mathrm{Sign}(sk_A, m)$ that any holder of
 $A$'s public key may verify against $m$. This proves two

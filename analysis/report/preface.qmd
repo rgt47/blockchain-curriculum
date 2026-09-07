@@ -13,9 +13,9 @@ bound, or design a sampling plan, and who simply wants to
 know what is actually true.
 
 We wrote this book for first-year graduate students in
-public health, and in particular with the students of the
-biostatistics and epidemiology programs at UC San
-Diego's school of public health in mind. The reader we
+public health. We had in mind, in particular, the students
+of the biostatistics and epidemiology programs at UC San
+Diego's school of public health. The reader we
 imagine has a first course in probability, some comfort
 with algebraic structure, and working R. What such a
 reader brings to this subject is, in our view, an unusual
@@ -35,30 +35,30 @@ book's purpose is to perform the translation.
 
 A first-year student of medicine or public health,
 browsing this book in a shop, is entitled to a blunt
-question: why should a health scientist spend ten weeks
-on a technology born to move cryptocurrency? We shall
-answer it just as bluntly. The verifiable-data machinery
-this book takes apart has already arrived in health, at a
+question. Why should a health scientist spend ten weeks on
+a technology born to move cryptocurrency? We shall answer
+it just as bluntly. The verifiable-data machinery this book
+takes apart has already arrived in health. It has reached a
 scale that makes a working knowledge of it a matter of
-professional competence rather than curiosity, and the
-pace at which it is arriving is increasing.
+professional competence, not mere curiosity, and the pace
+at which it is arriving is increasing.
 
 Consider what is already in production. The World Health
 Organization launched, in 2023, a Global Digital Health
-Certification Network [@who2023gdhcn], a global public-key
-trust directory through which a vaccination record, and in
-time an immunization history, an international patient
-summary, or a clinician's license, may be verified across
-borders by cryptographic signature rather than by a
-telephone call to the issuing authority. In the United
-States the SMART Health Cards standard [@vci2024smart] put
-cryptographically signed health records into the hands of
-hundreds of millions of people during and after the
-COVID-19 pandemic. Europe's medicine-verification system
-has, since 2019, checked the authenticity of prescription
-drugs across an entire continent, and the United States'
-Drug Supply Chain Security Act has, across the mid-2020s,
-phased in an interoperable package-level tracing
+Certification Network [@who2023gdhcn]. This is a global
+public-key trust directory. Through it, a vaccination
+record, and in time an immunization history, an
+international patient summary, or a clinician's license,
+may be verified across borders by cryptographic signature.
+No telephone call to the issuing authority is required. In
+the United States the SMART Health Cards standard
+[@vci2024smart] put cryptographically signed health records
+into the hands of hundreds of millions of people during and
+after the COVID-19 pandemic. Europe's medicine-verification
+system has, since 2019, checked the authenticity of
+prescription drugs across an entire continent. The United
+States' Drug Supply Chain Security Act has, across the
+mid-2020s, phased in an interoperable package-level tracing
 requirement for the drug supply [@fda2023dscsa]. Estonia
 has, since the 2010s, protected the integrity of its
 national health records with a hash-linked timestamping
@@ -68,49 +68,49 @@ cryptographic digests, never patient data, to the ledger.
 Now the honest half, for it is the more instructive, and
 it begins by qualifying both of those examples. The drug
 supply chain is the one place where a distributed ledger
-was given a fair trial and lost: the regulator ran a
-twenty-project pilot program, stayed scrupulously
-technology-neutral, and in its final guidance recommended
-neither a blockchain nor anything resembling one, but the
-EPCIS document standard exchanged over conventional
-networks [@fda2024edds; @fda2023pilot]. The consortium
+was given a fair trial and lost. The regulator ran a
+twenty-project pilot program and stayed scrupulously
+technology-neutral. Its final guidance recommended neither
+a blockchain nor anything resembling one, but the EPCIS
+document standard exchanged over conventional networks
+[@fda2024edds; @fda2023pilot]. The consortium
 that had filed the flagship blockchain pilot on behalf of
 two dozen manufacturers and wholesalers sold its
 traceability product in 2023 and withdrew to financial
 reconciliation. And Estonia, the deployment most often
 offered as proof that the technology works in health, is
 on inspection a tamper-evident audit log rather than a
-distributed ledger at all: the interoperability backbone
+distributed ledger at all. The interoperability backbone
 that actually carries Estonian health data uses no such
-technology, and a study of the program concludes that
-what was built reinforces the central authority rather
-than dispersing it [@semenzin2022estonia].
+technology, and a study of the program concludes that what
+was built reinforces the central authority rather than
+dispersing it [@semenzin2022estonia].
 
 Scarcely any of these successes, then, is the thing the
 promoters of the last decade promised. The pattern, which
-we shall meet throughout the book, is stark: the
-verifiable-data ideas that succeeded in health quietly
-shed the word 'blockchain' and won as cryptographic-
-signature infrastructure, while the ventures that clung to
-tokens and 'data marketplaces' largely failed.
+we shall meet throughout the book, is stark. The
+verifiable-data ideas that succeeded in health quietly shed
+the word 'blockchain' and won as cryptographic-signature
+infrastructure. The ventures that clung to tokens and 'data
+marketplaces' largely failed.
 
 The reviews are unsparing, and what gives them their force
 is that they were written by the field's own proponents
 rather than its critics. A survey of blockchain in health
-care screened some eighty-five thousand articles, examined
-four hundred and fifteen in full, and found nine, or two
-per cent, that had reached real-world clinical application
-[@ng2021blockchain]. A later review, restricting attention
-to systems that had actually been built *and*
-quantitatively evaluated, found eleven such papers in the
-entire biomedical literature, of which exactly one
+care screened some eighty-five thousand articles and
+examined four hundred and fifteen in full. It found nine,
+or two per cent, that had reached real-world clinical
+application [@ng2021blockchain]. A later review restricted
+attention to systems that had actually been built *and*
+quantitatively evaluated. It found eleven such papers in
+the entire biomedical literature, of which exactly one
 described a deployment at a medical facility
 [@lacson2024biomedical]. Of the patient-controlled health
-record designs capable in principle of connecting to a
-real hospital system, a systematic review found that all
+record designs capable in principle of connecting to a real
+hospital system, a systematic review found that all
 eighteen remained conceptual, with not one implemented
-[@fang2021phr]; a review searching through 2025 could
-locate sixteen empirical studies worldwide, and
+[@fang2021phr]. A review searching through 2025 could
+locate sixteen empirical studies worldwide, and it
 characterized the resulting evidence base as consisting of
 non-production analyses [@chandak2026ehr]. A reader who
 cannot tell the successes from the promises is at the
@@ -130,17 +130,17 @@ Verifiable credentials are spreading from vaccination into
 licensure and records, so that a clinician's own
 credentials will increasingly be cryptographic objects.
 And as predictive artificial intelligence enters the
-clinic, the demand for tamper-evident provenance, an
+clinic, the demand for tamper-evident provenance is
+becoming a regulatory expectation. What is wanted is an
 auditable trail from a recommendation back to the data and
-the model that produced it, is becoming a regulatory
-expectation. Rules that took effect in the United States
-in 2025 required certified health-information technology
-to disclose the source attributes, the training data among
-them, of predictive clinical algorithms [@onc2024hti1],
-though we should note in the same breath that the
-requirement is contested and its future uncertain. The
-direction of travel is not in doubt even where the details
-are.
+the model that produced it. Rules that took effect in the
+United States in 2025 required certified
+health-information technology to disclose the source
+attributes of predictive clinical algorithms, including
+the training data [@onc2024hti1]. We should note, in the
+same breath, that the requirement is contested and its
+future uncertain. The direction of travel is not in doubt
+even where the details are.
 
 The essential skill, then, is not to program a chain but
 to evaluate a claim about one, and that skill rests on the
@@ -162,15 +162,15 @@ trial data provenance, pharmaceutical and vaccine
 supply-chain verification, health-record integrity, and
 programmable consent ask for.
 
-Every chapter is built around this frame. Each opens with
-a public-health data problem, develops the relevant
-mechanism and its mathematics as the means of addressing
-it, and closes by returning to the problem to ask,
-honestly, whether the mechanism earns its considerable
-cost. A single running case study threads the entire
-book: a multi-institution clinical-trial data-integrity
-ledger, in which several hospitals that do not fully
-trust one another must agree on an append-only record of
+Every chapter is built around this frame. Each opens with a
+public-health data problem and develops the relevant
+mechanism and its mathematics as a means of addressing it.
+Each closes by returning to the problem to ask, honestly,
+whether the mechanism earns its considerable cost. A single
+running case study threads the entire book: a
+multi-institution clinical-trial data-integrity ledger.
+Several hospitals that do not fully trust one another must
+agree, in this case study, on an append-only record of
 enrollment, randomization, and outcome events. A vaccine
 cold-chain provenance system recurs as a secondary
 example. By the end the reader will have seen one

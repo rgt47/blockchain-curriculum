@@ -48,16 +48,16 @@ able to:
 We begin with a problem in the governance of
 research data. Consider a longitudinal cohort study
 intended to follow its participants for a decade or
-more. The consent each participant grants is
-anything but monolithic: a given variable may be
-used for one purpose and not another, a given
-specimen may be shared with one laboratory and not a
-second, a permission may expire on a stated date,
-and any of it may be withdrawn at any time. In a
-study whose data are handled by dozens of analysts
-across several institutions over many years,
-enforcing that consent correctly is a substantial
-administrative burden, and the characteristic
+more. The consent each participant grants is anything but
+monolithic. A given variable may be used for one
+purpose and not another. A given specimen may be
+shared with one laboratory and not a second. A
+permission may expire on a stated date, and any of it
+may be withdrawn at any time. Such a study typically
+has its data handled by dozens of analysts across
+several institutions over many years, and enforcing
+that consent correctly is, in such a setting, a
+substantial administrative burden. The characteristic
 failure is familiar: a permission is revoked in one
 system and never propagated to the others, or a
 data-use condition is honored by a conscientious
@@ -128,9 +128,9 @@ contracts run, and gas as the pricing mechanism that
 makes running untrusted code on that machine safe.
 With those pieces in hand we develop EIP-1559 as a
 feedback controller and simulate its transient
-response, return to the programmable-consent problem
-with which we opened and scope precisely what a
-contract can and cannot be trusted to hold, and
+response. We then return to the programmable-consent
+problem with which we opened, and scope precisely
+what a contract can and cannot be trusted to hold. We
 close with the data-availability pricing of
 EIP-4844, a 2024 change that adds a cheap,
 short-lived form of bulk on-chain storage.

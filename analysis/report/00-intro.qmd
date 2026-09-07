@@ -140,10 +140,11 @@ effect or to a surprising signal in disease surveillance.
 It is worth stating plainly why a health scientist should
 undertake this effort now, rather than leave the subject
 to specialists in computer science. The reason is that
-the machinery of verifiable data, meaning records whose
-integrity and origin can be checked by cryptographic means
-rather than by trust in a custodian, has ceased to be
-hypothetical in health and has become infrastructure.
+the machinery of verifiable data has ceased to be
+hypothetical in health and has become infrastructure. By
+verifiable data we mean records whose integrity and origin
+can be checked by cryptographic means rather than by trust
+in a custodian.
 Cryptographically signed health credentials reached
 hundreds of millions of people during the COVID-19
 pandemic through the SMART Health Cards standard
@@ -369,7 +370,7 @@ so that one's own skepticism is held to the same account
 demanded of others.
 
 The reference textbook throughout is
-@narayanan2016bitcoin, whose rigour set the standard this
+@narayanan2016bitcoin, whose rigor set the standard this
 book has tried to meet for a public-health audience.
 
 ## Recommended reading

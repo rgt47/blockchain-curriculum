@@ -46,14 +46,13 @@ able to:
 ## Orientation
 
 We begin not with a blockchain but with a waiting
-list. Whenever a scarce health resource is
-allocated by a queue, whether a transplant waiting
-list, a vaccine appointment slot during a
-shortage, or the procurement of a scarce
-therapeutic, the party who controls the order of
-that queue, or who can merely see the pending
-requests before they settle, holds something of
-value. The value is the ability to place a
+list. Consider any scarce health resource allocated
+by a queue: a transplant waiting list, a vaccine
+appointment slot during a shortage, or the
+procurement of a scarce therapeutic. The party who
+controls the order of that queue, or who can merely
+see the pending requests before they settle, holds
+something of value. The value is the ability to place a
 favored request ahead of others, or to act on the
 knowledge of what is coming before it arrives.
 History gives us little reason to expect such
@@ -65,38 +64,36 @@ anyone troubles to name it.
 
 Maximal extractable value (MEV) is the
 cryptocurrency instance of this general
-phenomenon. Its setting is the automated market
-maker of @sec-defi (a venue that prices each trade
-by a fixed formula against a pool of reserves
-rather than by matching buyers to sellers), which
-priced a swap by a deterministic curve: given the
-reserves, the output of any trade is a known
-function of its size. That determinism was
-presented as a virtue, and for a lone trader it
-is. Here we study its
-adversarial consequence. If the price a user
-receives is a known function of the pool state,
-and if the pool state can be altered by inserting
-a transaction immediately before the user's, then
-the profit an adversary can extract by choosing
-what to insert, and in what order, is itself a
-deterministic function of the user's trade and the
-pool depth. It is not a matter of luck or of rare
-exploitation but an optimization problem with a
-closed-form-adjacent solution, solved thousands of
-times per day.
+phenomenon. Its setting is the automated market maker of
+@sec-defi, a venue that prices each trade by a fixed
+formula against a pool of reserves rather than by
+matching buyers to sellers. That venue prices a swap
+by a deterministic curve: given the reserves, the
+output of any trade is a known function of its size.
+That determinism was presented as a virtue, and for a
+lone trader it is. Here we study its adversarial
+consequence. The price a user receives is a known
+function of the pool state, and the pool state can be
+altered by inserting a transaction immediately before
+the user's. It follows that the profit an adversary
+can extract, by choosing what to insert and in what
+order, is itself a deterministic function of the
+user's trade and the pool depth. It is not a matter of
+luck or of rare exploitation but an optimization
+problem with a closed-form-adjacent solution, solved
+thousands of times per day.
 
 MEV carries one property that its public-health
 analogues lack, and that property is what makes it
 worth our close study: on a public chain the
-extraction is measurable to the dollar. A waiting
-list manipulated for advantage leaves, at best, a
-statistical residue open to dispute, whereas a
-sandwich attack (an adversary bracketing a
-victim's trade with its own transactions in order
-to worsen the victim's price) leaves an auditable
-trail of transactions from which the extracted
-value can be computed exactly. We shall exploit that
+extraction is measurable to the dollar. A waiting list
+manipulated for advantage leaves, at best, a
+statistical residue open to dispute. A sandwich attack
+(an adversary bracketing a victim's trade with its own
+transactions in order to worsen the victim's price)
+leaves, by contrast, an auditable trail of
+transactions from which the extracted value can be
+computed exactly. We shall exploit that
 measurability to make the general lesson precise,
 and then carry the lesson back to the settings in
 which it cannot be measured but nonetheless
@@ -1099,7 +1096,7 @@ match any deployed pool.)
 ## Collaborating with an LLM
 
 An assistant is useful for surveying the MEV
-landscape and drafting extraction models, and
+field and drafting extraction models, and
 hazardous wherever a plausible narrative can pass
 for a computed fact. Three exchanges recur.
 
