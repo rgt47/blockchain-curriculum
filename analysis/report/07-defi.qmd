@@ -1273,7 +1273,7 @@ visit, attested by the site coordinator. The party
 who attests is not the party who is paid, and the
 attestation is a matter of local fact rather than of
 inference from a model. Compared with the outbreak
-index, the epistemic problem has very nearly
+index, the measurement problem has very nearly
 vanished.
 
 What has not vanished is the difficulty; it has
@@ -1372,7 +1372,7 @@ Observe that the oracle problem has returned in a
 different form. The preparedness bond's trigger was
 uncertain because the world is hard to measure. The
 site-payment trigger is uncertain because the
-reporter has an interest. The first is an epistemic
+reporter has an interest. The first is a measurement
 failure and the second a strategic one, and they
 call for different remedies: sharper thresholds and
 better surveillance in the first case, and in the
@@ -1386,7 +1386,7 @@ instruments side by side.
 
 | Escrow | What the trigger asks | How the trigger fails | Where the remedy lies |
 |---|---|---|---|
-| **Preparedness bond** | Did the outbreak reach the threshold? | *Epistemic*: the quantity is genuinely uncertain, delayed, and under-ascertained | Threshold design; the sensitivity and specificity trade-off |
+| **Preparedness bond** | Did the outbreak reach the threshold? | *Measurement*: the quantity is genuinely uncertain, delayed, and under-ascertained | Threshold design; the sensitivity and specificity trade-off |
 | **Site payment** | Did the site complete the visit? | *Strategic*: the quantity is knowable, but the reporter is paid by the answer | Separating attestation from payment; source verification; audit sampling |
 | **Participant reimbursement** | Did the participant attend? | Largely clean: the attester is not the payee | Ethics review of the amount and schedule; the choice of payment model |
 

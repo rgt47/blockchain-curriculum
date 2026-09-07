@@ -23,7 +23,7 @@ per domain, selected 93 for inclusion. Bibliographic metadata was
 retrieved from the DOI registry by content negotiation rather than
 transcribed, so author lists, volumes, and pagination are authoritative.
 
-**Epistemic status.** Selection was made from titles, venues, years, and
+**Status.** Selection was made from titles, venues, years, and
 cross-citation counts, together with the abstracts of the 15 source
 papers. Full texts of the 93 selected works were not read. A handful of
 uncertain items were verified against the publisher record. The tier A

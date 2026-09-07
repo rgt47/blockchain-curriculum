@@ -10,7 +10,7 @@ and papers retained only as specimens of poor practice.
 
 Every PMID and DOI below was verified by a search agent against a
 PubMed record or a successfully fetched publisher or agency page.
-See 'Epistemic status' at the end for what that does and does not
+See 'Status' at the end for what that does and does not
 guarantee.
 
 ## Summary of the evidence
@@ -657,7 +657,7 @@ Stated plainly, because a completion claim covers only the work done:
    gradient-inversion attack literature that undercuts federated-learning
    privacy claims, lives there.
 
-## Epistemic status
+## Status
 
 **Full mechanical verification completed 2026-07-13.** All 71 PMIDs in
 this list were resolved against NCBI E-utilities and every title, author

@@ -47,7 +47,7 @@ A pitfall the reader may otherwise hit.
 ::: {.callout-important}
 ## The skeptic's reflex
 
-A claim demoted to its true epistemic tier. These recur
+A claim demoted to its true evidentiary tier. These recur
 because the field's central failure mode is delivering
 narrative in the cadence of fact.
 :::

@@ -536,7 +536,7 @@ ggplot(tibble(ham = ham), aes(ham)) +
 A single input change scrambles the output as if it
 were independently re-randomized. This is the
 avalanche property stated as a measurable fact. We
-should note the epistemic status carefully: the
+should note the status of this claim carefully: the
 observed $\mathrm{Binomial}(256, 0.5)$ shape is
 consistent with the random-oracle model, and it is
 what makes a one-character edit to a trial record

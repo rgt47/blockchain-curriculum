@@ -143,7 +143,7 @@ changes type.
 
 | Escrow | Trigger failure mode | Remedy |
 |---|---|---|
-| Epidemic bond (existing, L1146-1238) | Epistemic: quantity genuinely uncertain, under-ascertained | Threshold design; sensitivity/specificity trade-off |
+| Epidemic bond (existing, L1146-1238) | Measurement: quantity genuinely uncertain, under-ascertained | Threshold design; sensitivity/specificity trade-off |
 | Site payment | Strategic: quantity knowable, reporter financially interested | Separate attestation from payment; independent monitoring; audit sampling |
 | Participant reimbursement | Trigger clean: attester is not the payee | Binding constraint becomes ethical and regulatory |
 
@@ -356,7 +356,7 @@ further mining of the blockchain literature. Registry-based randomized
 trials would be a particularly strong addition, since they sit exactly at
 the junction of the two study designs this plan is trying to strengthen.
 
-## 8. Epistemic status
+## 8. Status
 
 Chapter analyses were performed by reading the full chapter sources; line
 numbers were checked at the time of writing. The Chapter 2 defect was
