@@ -466,7 +466,7 @@ is asymptotic, approached but never reached.
 Here the public-health reader has a ready
 analogy. In group-sequential monitoring of a
 trial we do not wait for the study to end
-before acting; we examine the accumulating
+before acting. We examine the accumulating
 data at interim looks and act when the
 evidence crosses a stopping boundary chosen
 to control the overall error probability.
@@ -529,20 +529,19 @@ report.
 ## The Bitcoin Backbone
 
 Satoshi's whitepaper argued security by a
-single tail-probability calculation. A decade
-of formal work, initiated by the Bitcoin
-Backbone analysis of Garay, Kiayias, and
-Leonardos [@garay2015backbone], which recast
-Nakamoto's informal security argument as a set
-of provable guarantees, and extended to the
-asynchronous setting by @pass2017asynchronous,
-distilled the protocol into three properties
-that hold with
-overwhelming probability provided the honest
-parties control a sufficient majority of
-hash-power. The properties are stated over the
-chains held by honest parties as the protocol
-runs.
+single tail-probability calculation. A decade of
+formal work distilled the protocol into three
+properties that hold with overwhelming
+probability, provided the honest parties control
+a sufficient majority of hash-power. This work
+began with the Bitcoin Backbone analysis of
+Garay, Kiayias, and Leonardos
+[@garay2015backbone], which recast Nakamoto's
+informal security argument as a set of provable
+guarantees, and it was extended to the
+asynchronous setting by @pass2017asynchronous.
+The properties are stated over the chains held
+by honest parties as the protocol runs.
 
 **Common prefix.** For any two honest parties
 at any two times, the shorter chain, after
@@ -990,12 +989,12 @@ serve as a custodian, and a well-governed database
 with a cryptographic audit log delivers
 tamper-evidence without any of this
 probabilistic-finality machinery, as @sec-intro
-argued. On the one hand the confirmation-depth
-calculation is the right tool when the log must be
-trust-minimized across parties with no common
-authority; on the other, when a common authority
-does exist, the calculation is machinery in search
-of a problem. The analyst's first contribution is
+argued. The confirmation-depth calculation is the
+right tool when the log must be trust-minimized
+across parties with no common authority. When a
+common authority does exist, on the other hand,
+the calculation is machinery in search of a
+problem. The analyst's first contribution is
 therefore not to compute the depth but to ask
 whether the condition that makes the depth
 meaningful actually holds.
@@ -1208,23 +1207,23 @@ it against depth.'
 In conclusion, three points are to be
 emphasized. First, finality on a proof-of-work
 ledger is a confidence statement rather than a
-fact, and the confirmation depth is a critical
-value chosen against a quantified reversal
-probability, the same kind of decision as
-setting a significance level or a stopping
-boundary in group-sequential monitoring; for the
-trial ledger, the depth at which an outcome event
-may be treated as settled is ours to set by the
+fact. The confirmation depth is a critical value
+chosen against a quantified reversal probability,
+the same kind of decision as setting a
+significance level or a stopping boundary in
+group-sequential monitoring. For the trial
+ledger, the depth at which an outcome event may
+be treated as settled is ours to set by the
 consequence of a reversal, and no protocol sets
 it on our behalf. Second, the gambler's-ruin
 analysis, refined by Satoshi's Poisson correction
 for the attacker's head start, supplies the
-number, and we have verified the folk 'six
+number. We have verified the folk 'six
 confirmations' claim against both the closed form
 and a simulation rather than repeating it on
 faith. Third, the machinery earns its place only
 where the log must be trust-minimized across
-parties with no common authority; where a
+parties with no common authority. Where a
 regulator or sponsor can serve as a custodian, a
 well-governed database with a cryptographic audit
 log is the more honest choice, and saying so is

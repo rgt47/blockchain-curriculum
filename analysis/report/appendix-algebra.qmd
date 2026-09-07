@@ -99,9 +99,9 @@ $a\,a^{-1} \equiv 1 \pmod p$.
 
 That inverse exists precisely because $p$ is prime. Since
 $p$ is prime, any $a$ in $\{1, \dots, p-1\}$ shares no
-factor with it, so $\gcd(a, p) = 1$, and a classical
-result (Bézout's identity) supplies integers $x, y$ with
-$a x + p y = 1$; reading that modulo $p$ gives
+factor with it, so $\gcd(a, p) = 1$. A classical
+result, Bézout's identity, then supplies integers $x, y$
+with $a x + p y = 1$. Reading that modulo $p$ gives
 $a x \equiv 1$, so $x$ is the inverse. Primality is not
 decoration. Modulo a *composite* $m$, an element sharing
 a factor with $m$ has no inverse, division by it is

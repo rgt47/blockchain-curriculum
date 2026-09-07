@@ -66,15 +66,15 @@ case study of this book is a multi-institution
 clinical-trial data-integrity ledger, which we
 shall refer to henceforth as the trial ledger.
 Several hospitals share an append-only record of
-enrollment, randomization, and outcome events, no
+enrollment, randomization, and outcome events. No
 single institution is trusted to hold the master
 copy, and a regulator audits the record after the
 fact. The record advances only as fast as blocks
-are appended to it, so the arrival stream that this
-chapter studies is exactly what governs how quickly
-a randomization becomes irrevocably committed and
-how long an auditor must wait before a record may be
-treated as settled. A vaccine cold-chain provenance
+are appended to it. The arrival stream that this
+chapter studies is therefore exactly what governs
+how quickly a randomization becomes irrevocably
+committed, and how long an auditor must wait
+before a record may be treated as settled. A vaccine cold-chain provenance
 system, in which each custody handoff of a
 temperature-sensitive consignment is written to a
 shared ledger, furnishes a secondary example with
@@ -164,8 +164,8 @@ exact, and we shall exploit it in line rather than
 reserve it for a closing remark. A block
 inter-arrival time is an exponential waiting time,
 so the memoryless property is the constant-hazard
-assumption, a drifting arrival rate is a
-time-varying hazard, and the quantile-quantile plots
+assumption, and a drifting arrival rate is a
+time-varying hazard. The quantile-quantile plots
 and goodness-of-fit tests we shall apply are the
 very diagnostics one uses to check an exponential
 survival fit. The transfer runs in both directions:
@@ -178,10 +178,10 @@ We proceed constructively. We first establish the
 Poisson structure, then measure it in R on a toy
 chain whose hashing is genuine. We fit the geometric
 law of attempts and read its diagnostics as survival
-diagnostics; we develop a worked surveillance
-analogy and note carefully where it ends; we treat
+diagnostics. We develop a worked surveillance
+analogy and note carefully where it ends. We treat
 difficulty adjustment as a controller and watch it
-absorb a doubling of hash power; then we derive a
+absorb a doubling of hash power, then derive a
 fork-rate estimate and a hash-rate estimator. We
 close by asking where the tidy exponential model
 breaks on real chains, because that boundary,
@@ -635,11 +635,11 @@ ggplot() +
 
 The reader with a trials background will find the
 mechanism intuitive, for it is an adaptive procedure
-of a familiar kind. A retarget re-estimates a
-nuisance quantity, the effective hash rate, from the
-data accumulated over an epoch, and adjusts a design
-parameter, the difficulty, so as to hold a target
-quantity, the mean arrival rate, at its set-point.
+of a familiar kind. A retarget re-estimates a nuisance quantity, the
+effective hash rate, from the data accumulated over
+an epoch. It then adjusts a design parameter, the
+difficulty, so as to hold a target quantity, the
+mean arrival rate, at its set-point.
 The construction has the same shape as an adaptive
 clinical-trial design that re-estimates the sample
 size at an interim analysis when the observed
@@ -1193,24 +1193,25 @@ honestly, rather than declaring a clean fit, is the
 statistician's contribution to on-chain measurement.
 
 In conclusion, three points are to be emphasized.
-First, block arrivals are arrival data, and the
+First, block arrivals are arrival data. The
 exponential and Poisson machinery a biostatistician
-already owns, together with the quantile-quantile and
-goodness-of-fit diagnostics of survival analysis, is
-the correct and sufficient toolkit for on-chain
-timing; it should be the first instrument reached
-for, not a borrowed metaphor. Second, difficulty
-adjustment warrants reading as a discrete-time
-feedback controller acting on the generating rate,
-and questions about recovery after a hash-rate change
-are then answerable by its transient response rather
-than by folklore about difficulty always rising or by
-appeal to a continuous equilibrium force that does
-not exist. Third, the value of the statistician lies
-as much in stating where the memoryless model fails,
-through propagation delay, non-constant hash rate,
-and timestamp noise, as in fitting it, for those
-rejections, whether encountered on a chain or in a
+already owns, together with the quantile-quantile
+and goodness-of-fit diagnostics of survival
+analysis, is the correct and sufficient toolkit for
+on-chain timing, and it should be the first
+instrument reached for, not a borrowed metaphor.
+Second, difficulty adjustment warrants reading as a
+discrete-time feedback controller acting on the
+generating rate. Questions about recovery after a
+hash-rate change are then answerable by its
+transient response, rather than by folklore about
+difficulty always rising or by appeal to a
+continuous equilibrium force that does not exist.
+Third, the value of the statistician lies as much in
+stating where the memoryless model fails, through
+propagation delay, non-constant hash rate, and
+timestamp noise, as in fitting it. Those rejections,
+whether encountered on a chain or in a
 disease-surveillance stream, are where the science
 resides. The reader who carries these three points
 away has, we believe, grasped the essential argument

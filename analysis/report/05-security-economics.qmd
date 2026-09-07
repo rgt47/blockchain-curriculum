@@ -43,9 +43,9 @@ the book will return throughout. Several hospitals
 participating in a multi-institution clinical trial
 share a single append-only record of who was
 enrolled, how each participant was randomized, and
-which outcome and adverse events occurred, with no
-single institution trusted to hold the master copy
-and a regulator who audits the record only after
+which outcome and adverse events occurred. No
+single institution is trusted to hold the master
+copy, and a regulator audits the record only after
 the fact. We shall call this the trial ledger.
 Suppose now that a sponsor, a participating site,
 or an outside party wished to alter the shared
@@ -1374,13 +1374,13 @@ In conclusion, three points are to be emphasized.
 First, the security of a shared ledger, whether
 Bitcoin's or the trial ledger's, is an economic
 guarantee resting on a stated behavioral and
-distributional model, and it must never be allowed
-to borrow the near-certainty of the cryptographic
-guarantee that sits beside it; the two answer
+distributional model. It must never be allowed to
+borrow the near-certainty of the cryptographic
+guarantee that sits beside it, for the two answer
 different questions, and conflating them is the
 field's most common error. Second, the headline
 '51 percent' is the wrong security parameter for
-proof-of-work: selfish mining moves the operative
+proof-of-work. Selfish mining moves the operative
 threshold to $(1-\gamma)/(3-2\gamma)$, at most a
 third and possibly near zero, and a serious
 assessment must quote this propagation-dependent
@@ -1389,7 +1389,7 @@ high-stakes health data whose off-chain value
 exceeds the on-chain security budget, legal
 accountability in a permissioned design frequently
 dominates economic security in a small
-permissionless one; the cost-of-attack calculation
+permissionless one. The cost-of-attack calculation
 developed here is the instrument by which the
 statistician decides the question honestly, and it
 should be carried out before an architecture is

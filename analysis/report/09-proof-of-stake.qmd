@@ -51,9 +51,9 @@ able to:
 
 We return once more to the trial ledger. Several
 hospitals maintain a shared, append-only record of
-enrollment, randomization, and outcome events, with
-no single institution trusted to hold the master
-copy, and a regulator who audits the record only
+enrollment, randomization, and outcome events. No
+single institution is trusted to hold the master
+copy, and a regulator audits the record only
 after the fact. In @sec-pow we learned to secure
 such a ledger by proof-of-work: to append a block a
 participant must burn energy, and to rewrite
@@ -1292,32 +1292,33 @@ stand-in for the whole set?'
 
 In conclusion, three points are to be emphasized.
 First, the security of a proof-of-stake ledger is a
-cost-of-attack inequality and nothing more mysterious:
-the cost is capital placed at risk of slashing, and the
-accountable-safety bound fixes its floor at roughly one
-third of the total stake, a figure the analyst should
-state precisely, with its assumptions, rather than
-borrow as folklore. Second, committee sortition is
-probability-proportional-to-size sampling, so a
-committee's fidelity to the validator set is a
-concentration inequality of exactly the kind that
-licenses a well-designed survey sample; the governing
-quantity is the committee size, not the size of the
-validator set, and the guarantee should be quoted as a
-tail bound and never as a promise. Third, restaking is
+cost-of-attack inequality and nothing more
+mysterious. The cost is capital placed at risk of
+slashing, and the accountable-safety bound fixes its
+floor at roughly one third of the total stake, a
+figure the analyst should state precisely, with its
+assumptions, rather than borrow as folklore. Second,
+committee sortition is probability-proportional-to-
+size sampling, so a committee's fidelity to the
+validator set is a concentration inequality of
+exactly the kind that licenses a well-designed
+survey sample. The governing quantity is the
+committee size, not the size of the validator set,
+and the guarantee should be quoted as a tail bound
+and never as a promise. Third, restaking is
 leverage, and its danger lives entirely in the joint
-tail: at a fixed marginal slashing probability,
-correlation moves the risk into the tail exactly as it
-does for a reinsurer, or for a multi-site trial with a
-shared frailty, and the statistician trained to
-distrust independence assumptions is the right person
-to price it. For the trial ledger itself we would add,
-in the spirit of @sec-intro, that the honest conclusion
-is frequently that a permissioned consortium bound by
-contract achieves the same integrity as a bonded chain
-at a fraction of the cost, and the cost-of-attack
-calculation developed here is the instrument by which
-that judgment is made.
+tail. At a fixed marginal slashing probability,
+correlation moves the risk into the tail exactly as
+it does for a reinsurer, or for a multi-site trial
+with a shared frailty, and the statistician trained
+to distrust independence assumptions is the right
+person to price it. For the trial ledger itself we
+would add, in the spirit of @sec-intro, that the
+honest conclusion is frequently that a permissioned
+consortium bound by contract achieves the same
+integrity as a bonded chain at a fraction of the
+cost. The cost-of-attack calculation developed here
+is the instrument by which that judgment is made.
 
 ## Exercises
 
