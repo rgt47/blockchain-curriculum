@@ -854,9 +854,9 @@ tibble::tibble(
 ```
 
 The two columns agree to simulation noise. Note
-the honest epistemic claim: agreement validates
-the transcription of the model into code, not
-the model itself. The model is Satoshi's, and
+what is honestly being claimed here: agreement
+validates the transcription of the model into
+code, not the model itself. The model is Satoshi's, and
 its assumptions (fixed $q$, Poisson honest
 blocks, no partition) are the things a deployment
 can violate. A simulation cannot vindicate an

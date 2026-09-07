@@ -104,7 +104,7 @@ result, Bézout's identity, then supplies integers $x, y$
 with $a x + p y = 1$. Reading that modulo $p$ gives
 $a x \equiv 1$, so $x$ is the inverse. Primality is not
 decoration. Modulo a *composite* $m$, an element sharing
-a factor with $m$ has no inverse, division by it is
+a factor with $m$ has no inverse. Division by it is
 undefined, and the field structure collapses. This is why
 cryptographic moduli are prime, and it is the single
 algebraic fact on which the curve arithmetic of
@@ -150,8 +150,8 @@ curve itself is defined over a finite field
 $\mathbb{F}_{p}$, which supplies the coordinates of the
 points and the arithmetic that adds them. Two moduli are
 therefore in play at once, and keeping them apart is
-essential: the field prime $p$ bounds the coordinates,
-while the group order $n$, a different prime, bounds the
+essential. The field prime $p$ bounds the coordinates.
+The group order $n$, a different prime, bounds the
 scalars that serve as private keys. Multiplying the
 generator by a scalar is easy; recovering the scalar from
 the resulting point is the *discrete logarithm problem*,
