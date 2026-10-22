@@ -7,7 +7,7 @@ project:
 book:
   title: 'The Statistics of Blockchain for Public Health'
   subtitle: 'Trust-minimized data integrity for health-sciences research'
-  author: "Ronald 'Ryy' G. Thomas"
+  author: "rgtlab curriculum team"
   date: today
   date-format: 'YYYY-MM-DD'
 

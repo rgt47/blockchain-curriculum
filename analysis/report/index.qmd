@@ -1,7 +1,7 @@
 # Welcome {.unnumbered .unlisted}
 
 This is the online version of **The Statistics of
-Blockchain for Public Health** by Ronald 'Ryy' G. Thomas,
+Blockchain for Public Health** by rgtlab curriculum team,
 a graduate course textbook.
 
 We begin with the organizing concept of the book,
