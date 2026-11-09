@@ -3,6 +3,8 @@ _book/
 /.quarto/
 *.html
 *.pdf
+# Frozen PDF figures are build inputs for CI, not outputs.
+!analysis/report/_freeze/**/figure-pdf/*.pdf
 
 # LaTeX / Quarto PDF build artifacts
 *.log
