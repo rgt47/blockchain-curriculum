@@ -46,6 +46,10 @@ sampling designs, concentration measures, and forecast
 calibration, is mathematics already met in their own
 discipline.
 
+::: {.content-visible when-format="html"}
+The [Contents](contents.qmd) page lists every chapter on one page.
+:::
+
 ## License
 
 This book is licensed under
