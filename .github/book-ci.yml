@@ -1,0 +1,4 @@
+# Settings read by render-book.yml (zzcollab book archetype).
+# The Dockerfile serves local containerized work; CI renders on the host so
+# the PDF edition and its 'Latest PDF' release are built, as publish.yml did.
+backend: host
